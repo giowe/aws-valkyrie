@@ -1,0 +1,22 @@
+{
+  "name": "valkyrie",
+  "version": "0.0.1",
+  "description": "simple web framework for AWS Lambda",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/giowe/valkyrie.git"
+  },
+  "author": "Giovanni Bruno",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/giowe/valkyrie/issues"
+  },
+  "homepage": "https://github.com/giowe/valkyrie#readme",
+  "dependencies": {
+    "path-to-regexp": "^1.6.0"
+  }
+}
