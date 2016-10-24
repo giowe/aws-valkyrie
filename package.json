@@ -1,5 +1,5 @@
 {
-  "name": "valkyrie",
+  "name": "aws-valkyrie",
   "version": "0.0.1",
   "description": "simple web framework for AWS Lambda",
   "main": "index.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/giowe/valkyrie.git"
+    "url": "git+https://github.com/giowe/aws-valkyrie.git"
   },
   "author": "Giovanni Bruno",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/giowe/valkyrie/issues"
+    "url": "https://github.com/giowe/aws-valkyrie/issues"
   },
-  "homepage": "https://github.com/giowe/valkyrie#readme",
+  "homepage": "https://github.com/giowe/aws-valkyrie#readme",
   "dependencies": {
     "path-to-regexp": "^1.6.0"
   }
