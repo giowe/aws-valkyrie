@@ -1,22 +1,35 @@
 {
-  "name": "aws-valkyrie",
-  "version": "0.0.4",
-  "description": "simple web framework for AWS Lambda",
-  "main": "index.js",
+  "private": true,
+  "name": "aws-valkyrie-dev-lambda",
+  "version": "0.1.0",
+  "description": "",
+  "author": "Giovanni Bruno",
+  "contributors": [
+    {
+      "name": "Giovanni Bruno",
+      "email": "giovanni.bruno@soluzionifutura.it"
+    }
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp invoke-local",
+    "postinstall": "npm install --prefix ./lambda/valkyrie"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/giowe/aws-valkyrie.git"
   },
-  "author": "Giovanni Bruno",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/giowe/aws-valkyrie/issues"
-  },
-  "homepage": "https://github.com/giowe/aws-valkyrie#readme",
+  "license": "ISC",
+  "main": "main.js",
   "dependencies": {
-    "path-to-regexp": "^1.6.0"
+    "aws-cwlogs": "0.0.0",
+    "aws-sdk": "^2.2.16",
+    "cli-color": "^1.1.0",
+    "gulp": "^3.9.0",
+    "gulp-data": "^1.2.0",
+    "gulp-help-doc": "^1.0.7",
+    "inquirer": "^1.1.2",
+    "moment": "^2.14.1",
+    "path-to-regexp": "^1.6.0",
+    "zip-dir": "^1.0.2"
   }
 }

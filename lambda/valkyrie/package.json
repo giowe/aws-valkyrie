@@ -1,0 +1,19 @@
+{
+  "name": "aws-valkyrie",
+  "version": "0.0.4",
+  "description": "Simple, Express inspired, web framework for AWS Lambda & Api Gateway",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/giowe/aws-valkyrie.git"
+  },
+  "author": "Giovanni Bruno",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/giowe/aws-valkyrie/issues"
+  },
+  "homepage": "https://github.com/giowe/aws-valkyrie#readme",
+  "dependencies": {
+    "path-to-regexp": "^1.6.0"
+  }
+}
