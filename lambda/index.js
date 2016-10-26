@@ -5,12 +5,18 @@ const app = new valkyrie();
 const router = valkyrie.Router();
 
 exports.handler = (req, context) => {
+ // console.log(req);
+  app.get('',(req, res) => {
+    res.send('base');
+  });
+
   app.get('/log-request', (req, res, next) => {
     res.send(req);
   });
 
   router.use((req, res, next) => {
     console.log('possible auth middleware');
+    //console.log(next.toString());
     next();
   });
 

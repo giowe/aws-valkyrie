@@ -2,7 +2,7 @@
   "private": true,
   "name": "aws-valkyrie-dev-lambda",
   "version": "0.1.0",
-  "description": "",
+  "description": "Simple, Express inspired, web framework for AWS Lambda & Api Gateway",
   "author": "Giovanni Bruno",
   "contributors": [
     {
@@ -21,7 +21,7 @@
   "license": "ISC",
   "main": "main.js",
   "dependencies": {
-    "aws-cwlogs": "0.0.0",
+    "aws-cwlogs": "1.0.1",
     "aws-sdk": "^2.2.16",
     "cli-color": "^1.1.0",
     "gulp": "^3.9.0",

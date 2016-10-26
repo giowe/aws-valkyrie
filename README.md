@@ -7,7 +7,7 @@
 	<a href="https://www.youtube.com/watch?v=Sagg08DrO5U"><img src='http://img.shields.io/badge/gandalf-approved-61C6FF.svg'></a>
 </div>
 
-A slush generator to scaffold an AWS Lambda function package and upload it to AWS.
+Simple, Express inspired, web framework for AWS Lambda & Api Gateway
 
 ## Installation
 todo
@@ -21,7 +21,9 @@ todo
 ## Usage
 todo
 
-All you have to do is program you function inside the **lambda** folder; when you are done you can run the following commands:
+All you have to do is program your function inside the **lambda** folder.
+
+## Gulp tasks
 * `gulp` || `gulp help` - List all gulp tasks and their descriptions;
 * `gulp configure` - Set-up all settings of your AWS Lambda (repetita iuvant);
 * `gulp create` - wraps everything inside the lambda folder in a zip file and uploads it to AWS to create your new AWS Lambda using the configuration information you set in the **lambda-config.json** file;
