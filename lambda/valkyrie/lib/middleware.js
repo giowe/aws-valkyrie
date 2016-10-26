@@ -21,7 +21,7 @@ module.exports = class Middleware {
   fnWrapper(req, res) {
     return () => {
       const nextMiddleware = this.parent.getNextMiddleware(req, res, this.stackIndex + 1);
-      const next = nextMiddleware ? nextMiddleware.fnWrapper(req, res) : function() {};
+      const next = nextMiddleware ? nextMiddleware.fnWrapper(req, res) : function() { /*res.status(500).send('next is not a function')*/};
       this.fn(req, res, next);
     };
   }
@@ -30,6 +30,7 @@ module.exports = class Middleware {
     this.parent = parent;
     this.stackIndex = parent.stack.length;
     parent.stack.push(this);
+    return this
   }
 
   matchRequest (req, options) {

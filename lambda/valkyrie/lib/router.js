@@ -61,7 +61,7 @@ module.exports = class Router {
   addToStack(parent, prefix){
     this.prefix = prefix;
     this.parent = parent;
-    this.stackIndex = parent.stack.length+1;
+    this.stackIndex = parent.stack.length;
     parent.stack.push(this);
     return this;
   }
@@ -86,10 +86,25 @@ module.exports = class Router {
     }
 
     if (this.parent) {
-      const middleware = this.parent.getNextMiddleware(req, res, this.stachIndex);
+      const middleware = this.parent.getNextMiddleware(req, res, this.stackIndex + 1, 'ci sono');
       if (middleware) return middleware;
     }
 
     return null;
+  }
+
+  describe(level) {
+    if (typeof level !== 'number') level = 0;
+    let indent = '';
+    for (let i = 0; i < level; i++) indent += '│  ';
+    console.log(`${indent}${this.constructor.name} [${this.stackIndex}] ${this.prefix}`);
+
+    const l = this.stack.length;
+    Utils.forEach(this.stack, (chainable, i) => {
+      const type = chainable.constructor.name;
+      const frame = i < l-1 || level !== 0? '├─ ' : '└─ ';
+      if (type !== 'Middleware') chainable.describe(level+1);
+      else console.log(`${indent}${frame}${type} (${chainable.stackIndex}) ${chainable.httpMethod} ${chainable.path}`);
+    });
   }
 };
