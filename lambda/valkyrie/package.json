@@ -1,6 +1,6 @@
 {
   "name": "aws-valkyrie",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Simple, Express inspired, web framework for AWS Lambda & Api Gateway",
   "main": "index.js",
   "repository": {
