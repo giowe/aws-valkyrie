@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "aws-valkyrie-dev-lambda",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Simple, Express inspired, web framework for AWS Lambda & Api Gateway",
   "author": "Giovanni Bruno",
   "contributors": [
@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "test": "gulp invoke-local",
-    "postinstall": "npm install --prefix ./lambda/valkyrie"
+    "postinstall": "gulp install"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,7 @@
     "gulp": "^3.9.0",
     "gulp-data": "^1.2.0",
     "gulp-help-doc": "^1.0.7",
+    "gulp-install": "^0.6.0",
     "inquirer": "^1.1.2",
     "moment": "^2.14.1",
     "path-to-regexp": "^1.6.0",

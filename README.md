@@ -26,6 +26,7 @@ All you have to do is program your function inside the **lambda** folder.
 ## Gulp tasks
 * `gulp` || `gulp help` - List all gulp tasks and their descriptions;
 * `gulp configure` - Set-up all settings of your AWS Lambda (repetita iuvant);
+* `gulp install` - Installs npm packages inside the src folder;
 * `gulp create` - wraps everything inside the lambda folder in a zip file and uploads it to AWS to create your new AWS Lambda using the configuration information you set in the **lambda-config.json** file;
 * `gulp update` - works exactly the same as the previous command, but on an existing AWS Lambda;
 * `gulp update-code` - same as above, but it only updates the code of your AWS Lambda without modifying the configuration;
