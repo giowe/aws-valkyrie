@@ -22,4 +22,23 @@ module.exports = class Utils {
     else if ( url1.slice(-1) === '/' && url2[0] === '/') return `${url1}${url2.substr(1, url2.length-1)}`;
     else if ( url1.slice(-1) !== '/' && url2[0] !== '/') return `${url1}/${url2}`;
   }
+
+  static stringify(entity) {
+    if (typeof entity === 'object') {
+      try {
+        const cache = [];
+        return JSON.stringify(entity, (key, value) => {
+          if (typeof value === 'object' && value !== null) {
+            if (cache.indexOf(value) !== -1) return '[Circular]';
+            cache.push(value);
+          }
+          return value;
+        });
+      } catch (err) {
+        return entity.toString();
+      }
+    }
+
+    return entity.toString();
+  }
 };

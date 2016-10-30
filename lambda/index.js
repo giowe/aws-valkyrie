@@ -4,15 +4,22 @@ const valkyrie = require('./valkyrie/index');
 const app = new valkyrie();
 const router = valkyrie.Router();
 
-exports.handler = (req, context) => {
+exports.handler = (req, context, callback) => {
+  app.use((req, res, next) => {
+    console.log('PATH >>>', req.path);
+    next();
+  });
+
   app.get('/log-request', (req, res, next) => {
     res.send(req);
   });
 
   router.use((req, res, next) => {
+    res.append('custom-header-field', 'Valkyrie!');
     console.log('possible auth middleware');
     next();
   });
+
 
   router.get('/say/:text', (req, res, next) => {
     console.log(`param text is equal to ${req.params.text}`);
@@ -25,5 +32,5 @@ exports.handler = (req, context) => {
     res.status(404).send('not found!');
   });
 
-  app.start(req, context);
+  app.start(req, context, callback);
 };

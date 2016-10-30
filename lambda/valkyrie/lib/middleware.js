@@ -33,13 +33,13 @@ module.exports = class Middleware {
     return this
   }
 
-  matchRequest (req, options) {
+  matchRequest (req, settings) {
     const midPath = this.path;
     if (this.httpMethod !== 'ALL' && req.httpMethod !== this.httpMethod) return null;
     if (midPath === '*') return this;
 
     const keys = [];
-    const re = pathToRegexp(midPath, keys, options);
+    const re = pathToRegexp(midPath, keys, settings);
     const m = re.exec(req.path);
     if (!m) return null;
 

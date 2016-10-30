@@ -10,7 +10,7 @@ const _supportedHttpMethods = [
   'search', 'subscribe', 'trace', 'unlock', 'unsubscribe'
 ];
 
-const _defaultMatchOptions =  {
+const _defaultSettings =  {
   sensitive: false, //When true the path will be case sensitive
   strict: false,    //When false the trailing slash is optional
   end: true,        //When false the path will match at the beginning
@@ -18,8 +18,8 @@ const _defaultMatchOptions =  {
 };
 
 module.exports = class Router {
-  constructor(options) {
-    this.matchOptions = Object.assign({}, _defaultMatchOptions, options);
+  constructor(settings) {
+    this.settings = Object.assign({}, _defaultSettings, settings);
     this.stack = [];
     this.prefix = '';
     this.parent = null;
@@ -74,7 +74,7 @@ module.exports = class Router {
       let middleware;
       switch (chainable.constructor.name) {
         case 'Middleware':
-          middleware = chainable.matchRequest(req, this.matchOptions);
+          middleware = chainable.matchRequest(req, this.settings);
           break;
         case 'Application':
         case 'Router': {
