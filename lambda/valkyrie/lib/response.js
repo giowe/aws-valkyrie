@@ -1,7 +1,7 @@
 'use strict';
 
 const Utils = require('./utils');
-
+const statusCodes  = require('http').STATUS_CODES;
 module.exports = class Response {
   constructor(app) {
     this.app = app;
@@ -78,7 +78,8 @@ module.exports = class Response {
   }
 
   sendStatus(statusCode) {
-    //TODO
+    this.status(statusCode);
+    this.send(statusCodes[statusCode] || String(statusCode));
   }
 
   status(statusCode) {

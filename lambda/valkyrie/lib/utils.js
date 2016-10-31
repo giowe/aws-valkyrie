@@ -35,10 +35,10 @@ module.exports = class Utils {
           return value;
         });
       } catch (err) {
-        return entity.toString();
+        return String(entity);
       }
     }
 
-    return entity.toString();
+    return String(entity);
   }
 };

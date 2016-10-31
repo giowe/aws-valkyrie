@@ -10,6 +10,10 @@ exports.handler = (req, context, callback) => {
     next();
   });
 
+  app.get('/send-status/:statusCode', (req, res) => {
+    res.sendStatus(req.params.statusCode);
+  });
+
   app.get('/log-request', (req, res, next) => {
     res.send(req);
   });
