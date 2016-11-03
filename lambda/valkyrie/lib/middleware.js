@@ -7,7 +7,7 @@ module.exports = class Middleware {
   constructor(httpMethod, path, fn) {
     this.httpMethod = httpMethod;
     this._path = path;
-    this.fn = fn;
+    this._fn = fn;
     this.parent = null;
     this.stackIndex = null;
     return this;
@@ -18,11 +18,11 @@ module.exports = class Middleware {
     return this._path;
   }
 
-  fnWrapper(req, res) {
+  getFnHandler(req, res) {
     return () => {
       const nextMiddleware = this.parent.getNextMiddleware(req, res, this.stackIndex + 1);
-      const next = nextMiddleware ? nextMiddleware.fnWrapper(req, res) : function() { /*res.status(500).send('next is not a function')*/};
-      this.fn(req, res, next);
+      const next = nextMiddleware ? nextMiddleware.getFnHandler(req, res) : function() { /*res.status(500).send('next is not a function')*/};
+      this._fn(req, res, next);
     };
   }
 

@@ -24,6 +24,8 @@ module.exports = class Application extends Router{
     this.res = new Response(this);
 
     const firstMiddleware = this.getNextMiddleware(this.req, this.res, 0);
-    if (firstMiddleware) firstMiddleware.fnWrapper(this.req, this.res)();
+    if (firstMiddleware) {
+      firstMiddleware.getFnHandler(this.req, this.res).call();
+    }
   };
 };
