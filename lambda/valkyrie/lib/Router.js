@@ -24,7 +24,6 @@ module.exports = class Router {
     this.mountpath = '';
     this.parent = null;
     this.stackIndex = null;
-
     Utils.forEach(_supportedHttpMethods, httpMethod => {
       this[httpMethod] = (path, fn) => this.use(httpMethod, path, fn);
     });
@@ -54,17 +53,28 @@ module.exports = class Router {
       case 'Application':
       case 'Router':
         //TODO valutare come passare l'http method
-        chainable.addToStack(this, path);
+        chainable.mount(this, path);
         break;
     }
   };
 
-  addToStack(parent, prefix){
-    this.mountpath = prefix;
+  mount(parent, mountpath){
+    this.mountpath = mountpath;
     this.parent = parent;
     this.stackIndex = parent.stack.length;
     parent.stack.push(this);
     return this;
+  }
+
+  route(path) {
+    const routeHandler = {};
+    Utils.forEach(_supportedHttpMethods, httpMethod => {
+      routeHandler[httpMethod] = (fn) => {
+        this.use(httpMethod, path, fn);
+        return routeHandler;
+      }
+    });
+    return routeHandler;
   }
 
   getNextRoute(req, res, fromIndex){

@@ -10,6 +10,14 @@ exports.handler = (req, context, callback) => {
     next();
   });
 
+  app.route('/route')
+    .get( (req, res) => {
+      res.send('this is route in get')
+    })
+    .post( (req, res) => {
+      res.send('this is the same route in post')
+    });
+
   app.get('/send-status/:statusCode', (req, res, next) => {
     res.sendStatus(req.params.statusCode);
   });
