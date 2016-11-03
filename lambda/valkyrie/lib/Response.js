@@ -1,6 +1,6 @@
 'use strict';
 
-const Utils = require('./utils');
+const Utils = require('./Utils');
 
 module.exports = class Response {
   constructor(app) {

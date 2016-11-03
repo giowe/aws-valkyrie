@@ -1,9 +1,9 @@
 'use strict';
 
-const Utils = require('./utils');
+const Utils = require('./Utils');
 const pathToRegexp = require('path-to-regexp');
 
-module.exports = class Middleware {
+module.exports = class Route {
   constructor(httpMethod, path, fn) {
     this.httpMethod = httpMethod;
     this._path = path;
@@ -20,8 +20,8 @@ module.exports = class Middleware {
 
   getFnHandler(req, res) {
     return () => {
-      const nextMiddleware = this.parent.getNextMiddleware(req, res, this.stackIndex + 1);
-      const next = nextMiddleware ? nextMiddleware.getFnHandler(req, res) : function() { /*res.status(500).send('next is not a function')*/};
+      const nextRoute = this.parent.getNextRoute(req, res, this.stackIndex + 1);
+      const next = nextRoute ? nextRoute.getFnHandler(req, res) : function() { /*res.status(500).send('next is not a function')*/};
       this._fn(req, res, next);
     };
   }
@@ -34,12 +34,12 @@ module.exports = class Middleware {
   }
 
   matchRequest (req, settings) {
-    const midPath = this.path;
+    const path = this.path;
     if (this.httpMethod !== 'ALL' && req.httpMethod !== this.httpMethod) return null;
-    if (midPath === '*') return this;
+    if (this.path === '*') return this;
 
     const keys = [];
-    const re = pathToRegexp(midPath, keys, settings);
+    const re = pathToRegexp(path, keys, settings);
     const m = re.exec(req.path);
     if (!m) return null;
 

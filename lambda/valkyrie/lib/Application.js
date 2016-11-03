@@ -1,8 +1,8 @@
 'use strict';
 
 const formatRequest = require('./format-request');
-const Response      = require('./response');
-const Router        = require('./router');
+const Response      = require('./Response');
+const Router        = require('./Router');
 
 const _defaultSettings = {
   useContextSucceed: false
@@ -28,7 +28,7 @@ module.exports = class Application extends Router{
     this.req.res = this.res;
     this.res.req = this.req;
 
-    const firstMiddleware = this.getNextMiddleware(this.req, this.res, 0);
+    const firstMiddleware = this.getNextRoute(this.req, this.res, 0);
     if (firstMiddleware) {
       firstMiddleware.getFnHandler(this.req, this.res).call();
     }

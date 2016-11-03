@@ -1,7 +1,7 @@
 'use strict';
 
-const Utils = require('./utils');
-const Middleware = require('./middleware');
+const Utils = require('./Utils');
+const Route = require('./Route');
 
 const _supportedHttpMethods = [
   'all', 'checkout', 'copy', 'delete', 'get', 'head', 'lock',
@@ -47,7 +47,7 @@ module.exports = class Router {
 
     switch (chainable.constructor.name) {
       case 'Function':
-        new Middleware(httpMethod, path, chainable).addToStack(this);
+        new Route(httpMethod, path, chainable).addToStack(this);
         break;
 
       case 'Application':
@@ -66,28 +66,28 @@ module.exports = class Router {
     return this;
   }
 
-  getNextMiddleware(req, res, fromIndex){
+  getNextRoute(req, res, fromIndex){
     const l = this.stack.length;
     for (let i = fromIndex; i < l; i++) {
       const chainable = this.stack[i];
 
-      let middleware;
+      let route;
       switch (chainable.constructor.name) {
-        case 'Middleware':
-          middleware = chainable.matchRequest(req, this.settings);
+        case 'Route':
+          route = chainable.matchRequest(req, this.settings);
           break;
         case 'Application':
         case 'Router': {
-          middleware = chainable.getNextMiddleware(req, res, 0);
+          route = chainable.getNextRoute(req, res, 0);
           break;
         }
       }
-      if (middleware) return middleware;
+      if (route) return route;
     }
 
     if (this.parent) {
-      const middleware = this.parent.getNextMiddleware(req, res, this.stackIndex + 1, 'ci sono');
-      if (middleware) return middleware;
+      const route = this.parent.getNextRoute(req, res, this.stackIndex + 1, 'ci sono');
+      if (route) return route;
     }
 
     return null;
@@ -103,7 +103,7 @@ module.exports = class Router {
     Utils.forEach(this.stack, (chainable, i) => {
       const type = chainable.constructor.name;
       const frame = i < l-1 || level !== 0? '├─ ' : '└─ ';
-      if (type !== 'Middleware') chainable.describe(level+1);
+      if (type !== 'Route') chainable.describe(level+1);
       else console.log(`${indent}${frame}${type} (${chainable.stackIndex}) ${chainable.httpMethod} ${chainable.path}`);
     });
   }
