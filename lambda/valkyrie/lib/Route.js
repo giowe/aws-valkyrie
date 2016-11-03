@@ -47,19 +47,14 @@ module.exports = class Route {
     );
   }
 
-  _matchPath() {
-
-  }
-
-  matchRequest (req, settings) {
+  _matchPath(req, settings) {
     const path = this.path;
-    if (!this._matchHttpMethod(req)) return null;
-    if (this.path === '*') return this;
+    if (this.path === '*') return true;
 
     const keys = [];
     const re = pathToRegexp(path, keys, settings);
     const m = re.exec(req.path);
-    if (!m) return null;
+    if (!m) return false;
 
     req.params = req.params || {};
     Utils.forEach(keys, (key, i) => {
@@ -70,6 +65,11 @@ module.exports = class Route {
       }
     });
 
-    return this;
+    return true;
+  }
+
+  matchRequest (req, settings) {
+    if (this._matchHttpMethod(req) && this._matchPath(req, settings)) return this;
+    return null;
   };
 };
