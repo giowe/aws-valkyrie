@@ -32,22 +32,23 @@ module.exports = class Router {
     return this;
   }
 
-  use(httpMethod, path, chainable) {
+  use(httpMethods, path, chainable) {
     if (typeof path === 'undefined' && typeof chainable === 'undefined') {
-      chainable  = httpMethod;
-      httpMethod = 'ALL';
+      chainable  = httpMethods;
+      httpMethods = 'ALL';
       path       = '*';
     } else if (typeof chainable === 'undefined') {
       chainable  = path;
-      path       = httpMethod;
-      httpMethod = 'ALL';
+      path       = httpMethods;
+      httpMethods = 'ALL';
     }
 
-    httpMethod = httpMethod.toUpperCase();
+    if (typeof httpMethods === 'string')  httpMethods = httpMethods.toUpperCase();
+    else if (Array.isArray(httpMethods)) Utils.forEach(httpMethods, (httpMethod, i) => httpMethods[i] = httpMethod.toUpperCase());
 
     switch (chainable.constructor.name) {
       case 'Function':
-        new Route(httpMethod, path, chainable).addToStack(this);
+        new Route(httpMethods, path, chainable).addToStack(this);
         break;
 
       case 'Application':
@@ -86,7 +87,7 @@ module.exports = class Router {
     }
 
     if (this.parent) {
-      const route = this.parent.getNextRoute(req, res, this.stackIndex + 1, 'ci sono');
+      const route = this.parent.getNextRoute(req, res, this.stackIndex + 1);
       if (route) return route;
     }
 

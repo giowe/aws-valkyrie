@@ -21,7 +21,7 @@ module.exports = class Route {
   getFnHandler(req, res) {
     return () => {
       const nextRoute = this.parent.getNextRoute(req, res, this.stackIndex + 1);
-      const next = nextRoute ? nextRoute.getFnHandler(req, res) : function() { /*res.status(500).send('next is not a function')*/};
+      const next = nextRoute ? nextRoute.getFnHandler(req, res) : function(){ res.send() };
       this._fn(req, res, next);
     };
   }
@@ -33,9 +33,27 @@ module.exports = class Route {
     return this
   }
 
+  _matchHttpMethod(req) {
+    const routeMethod = this.httpMethod;
+    const reqMethod = req.httpMethod;
+    return !(
+      (typeof routeMethod === 'string' &&
+      routeMethod !== 'ALL' &&
+      reqMethod !== routeMethod) ||
+
+      (Array.isArray(routeMethod) &&
+      routeMethod.indexOf(reqMethod) === -1 &&
+      routeMethod.indexOf('ALL') === -1)
+    );
+  }
+
+  _matchPath() {
+
+  }
+
   matchRequest (req, settings) {
     const path = this.path;
-    if (this.httpMethod !== 'ALL' && req.httpMethod !== this.httpMethod) return null;
+    if (!this._matchHttpMethod(req)) return null;
     if (this.path === '*') return this;
 
     const keys = [];
