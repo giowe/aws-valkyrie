@@ -24,36 +24,38 @@ module.exports = class Router {
     this.mountpath = '';
     this.parent = null;
     this.stackIndex = null;
-    Utils.forEach(_supportedHttpMethods, httpMethod => {
-      this[httpMethod] = (path, fn) => this.use(httpMethod, path, fn);
+    Utils.forEach(_supportedHttpMethods, method => {
+      this[method] = (path, fn) => this.use(method, path, fn);
     });
 
     return this;
   }
 
-  use(httpMethods, path, chainable) {
-    if (typeof path === 'undefined' && typeof chainable === 'undefined') {
-      chainable  = httpMethods;
-      httpMethods = 'ALL';
+  get path() { return this.mountpath}
+
+  use(methods, path, mountable) {
+    if (typeof path === 'undefined' && typeof mountable === 'undefined') {
+      mountable  = methods;
+      methods = 'ALL';
       path       = '*';
-    } else if (typeof chainable === 'undefined') {
-      chainable  = path;
-      path       = httpMethods;
-      httpMethods = 'ALL';
+    } else if (typeof mountable === 'undefined') {
+      mountable  = path;
+      path       = methods;
+      methods = 'ALL';
     }
 
-    if (typeof httpMethods === 'string')  httpMethods = httpMethods.toUpperCase();
-    else if (Array.isArray(httpMethods)) Utils.forEach(httpMethods, (httpMethod, i) => httpMethods[i] = httpMethod.toUpperCase());
+    if (typeof methods === 'string')  methods = methods.toUpperCase();
+    else if (Array.isArray(methods)) Utils.forEach(methods, (method, i) => methods[i] = method.toUpperCase());
 
-    switch (chainable.constructor.name) {
+    switch (mountable.constructor.name) {
       case 'Function':
-        new Route(httpMethods, path, chainable).addToStack(this);
+        new Route(methods, path, mountable).mount(this);
         break;
 
       case 'Application':
       case 'Router':
         //TODO valutare come passare l'http method
-        chainable.mount(this, path);
+        mountable.mount(this, path);
         break;
     }
   };
@@ -68,9 +70,9 @@ module.exports = class Router {
 
   route(path) {
     const routeHandler = {};
-    Utils.forEach(_supportedHttpMethods, httpMethod => {
-      routeHandler[httpMethod] = (fn) => {
-        this.use(httpMethod, path, fn);
+    Utils.forEach(_supportedHttpMethods, method => {
+      routeHandler[method] = (fn) => {
+        this.use(method, path, fn);
         return routeHandler;
       }
     });
@@ -80,16 +82,16 @@ module.exports = class Router {
   getNextRoute(req, res, fromIndex){
     const l = this.stack.length;
     for (let i = fromIndex; i < l; i++) {
-      const chainable = this.stack[i];
+      const mountable = this.stack[i];
 
       let route;
-      switch (chainable.constructor.name) {
+      switch (mountable.constructor.name) {
         case 'Route':
-          route = chainable.matchRequest(req, this.settings);
+          route = mountable.matchRequest(req, this.settings);
           break;
         case 'Application':
         case 'Router': {
-          route = chainable.getNextRoute(req, res, 0);
+          route = mountable.getNextRoute(req, res, 0);
           break;
         }
       }
@@ -111,11 +113,11 @@ module.exports = class Router {
     console.log(`${indent}${this.constructor.name} [${this.stackIndex}] ${this.mountpath}`);
 
     const l = this.stack.length;
-    Utils.forEach(this.stack, (chainable, i) => {
-      const type = chainable.constructor.name;
+    Utils.forEach(this.stack, (mountable, i) => {
+      const type = mountable.constructor.name;
       const frame = i < l-1 || level !== 0? '├─ ' : '└─ ';
-      if (type !== 'Route') chainable.describe(level+1);
-      else console.log(`${indent}${frame}${type} (${chainable.stackIndex}) ${chainable.httpMethod} ${chainable.path}`);
+      if (type !== 'Route') mountable.describe(level+1);
+      else console.log(`${indent}${frame}${type} (${mountable.stackIndex}) ${mountable.method} ${mountable.path}`);
     });
   }
 };
