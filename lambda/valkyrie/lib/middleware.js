@@ -14,7 +14,7 @@ module.exports = class Middleware {
   }
 
   get path() {
-    if (this.parent) return Utils.joinUrls(this.parent.prefix, this._path);
+    if (this.parent) return Utils.joinUrls(this.parent.mountpath, this._path);
     return this._path;
   }
 

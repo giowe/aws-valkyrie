@@ -1,16 +1,15 @@
 'use strict';
 
 const Utils = require('./utils');
-const statusCodes  = require('http').STATUS_CODES;
+
 module.exports = class Response {
   constructor(app) {
     this.app = app;
-    this.req = app.req;
     this.context = app.context;
     this.callback = app.callback;
-    this.locals = {};
+    this.locals = Object.create(null);
     this.statusCode = 200;
-    this.headers = {};
+    this.headers = Object.create(null);
     this.body = null;
     return this;
   };
@@ -78,6 +77,7 @@ module.exports = class Response {
   }
 
   sendStatus(statusCode) {
+    const statusCodes  = require('http').STATUS_CODES;
     this.status(statusCode);
     this.send(statusCodes[statusCode] || String(statusCode));
   }

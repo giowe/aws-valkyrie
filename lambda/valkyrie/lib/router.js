@@ -21,7 +21,7 @@ module.exports = class Router {
   constructor(settings) {
     this.settings = Object.assign({}, _defaultSettings, settings);
     this.stack = [];
-    this.prefix = '';
+    this.mountpath = '';
     this.parent = null;
     this.stackIndex = null;
 
@@ -59,7 +59,7 @@ module.exports = class Router {
   };
 
   addToStack(parent, prefix){
-    this.prefix = prefix;
+    this.mountpath = prefix;
     this.parent = parent;
     this.stackIndex = parent.stack.length;
     parent.stack.push(this);
@@ -97,7 +97,7 @@ module.exports = class Router {
     if (typeof level !== 'number') level = 0;
     let indent = '';
     for (let i = 0; i < level; i++) indent += '│  ';
-    console.log(`${indent}${this.constructor.name} [${this.stackIndex}] ${this.prefix}`);
+    console.log(`${indent}${this.constructor.name} [${this.stackIndex}] ${this.mountpath}`);
 
     const l = this.stack.length;
     Utils.forEach(this.stack, (chainable, i) => {

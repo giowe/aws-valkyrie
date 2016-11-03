@@ -12,6 +12,7 @@ module.exports = class Application extends Router{
   constructor(settings) {
     settings = Object.assign({}, _defaultSettings, settings);
     super(settings);
+    this.locales = Object.create(null);
     return this;
   };
 
@@ -20,8 +21,12 @@ module.exports = class Application extends Router{
   start(req, context, callback){
     this.context = context;
     this.callback = callback;
+
     this.req = formatRequest(req, this);
     this.res = new Response(this);
+
+    this.req.res = this.res;
+    this.res.req = this.req;
 
     const firstMiddleware = this.getNextMiddleware(this.req, this.res, 0);
     if (firstMiddleware) {
