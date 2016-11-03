@@ -28,9 +28,9 @@ module.exports = class Application extends Router{
     this.req.res = this.res;
     this.res.req = this.req;
 
-    const firstMiddleware = this.getNextRoute(this.req, this.res, 0);
-    if (firstMiddleware) {
-      firstMiddleware.getFnHandler(this.req, this.res).call();
+    const firstRoute = this.getNextRoute(this.req, this.res, 0);
+    if (firstRoute) {
+      firstRoute.getFnHandler(this.req, this.res).call();
     }
   };
 };

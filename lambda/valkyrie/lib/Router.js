@@ -31,7 +31,10 @@ module.exports = class Router {
     return this;
   }
 
-  get path() { return this.mountpath}
+  get path() {
+    if (!this.parent) return this.mountpath;
+    else return Utils.joinUrls(this.parent.path, this.mountpath);
+  }
 
   use(methods, path, mountable) {
     if (typeof path === 'undefined' && typeof mountable === 'undefined') {
@@ -110,7 +113,7 @@ module.exports = class Router {
     if (typeof level !== 'number') level = 0;
     let indent = '';
     for (let i = 0; i < level; i++) indent += '│  ';
-    console.log(`${indent}${this.constructor.name} [${this.stackIndex}] ${this.mountpath}`);
+    console.log(`${indent}${this.constructor.name} [${this.stackIndex}] ${this.path}`);
 
     const l = this.stack.length;
     Utils.forEach(this.stack, (mountable, i) => {

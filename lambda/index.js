@@ -3,6 +3,7 @@
 const valkyrie = require('./valkyrie/index');
 const app = new valkyrie();
 const router = valkyrie.Router();
+const router2 = valkyrie.Router();
 
 exports.handler = (req, context, callback) => {
   app.use(['get', 'post'], '*', (req, res, next) => {
@@ -38,11 +39,19 @@ exports.handler = (req, context, callback) => {
     res.send(`I just want to say "${req.params.text}"`);
   });
 
+  router2.get('/hi', (req, res, next) => {
+    res.send('hi, this is router2!');
+  });
+
   app.use('/router', router);
 
-  /*app.use('*', (req, res) => {
-    res.status(404).send('not found!');
-  });*/
+  router.use('/router2', router2);
 
+
+  app.use('*', (req, res) => {
+    res.status(404).send('not found!');
+  });
+
+  app.describe();
   app.start(req, context, callback);
 };

@@ -14,7 +14,7 @@ module.exports = class Route {
   }
 
   get path() {
-    if (this.parent) return Utils.joinUrls(this.parent.mountpath, this._path);
+    if (this.parent) return Utils.joinUrls(this.parent.path, this._path);
     return this._path;
   }
 
