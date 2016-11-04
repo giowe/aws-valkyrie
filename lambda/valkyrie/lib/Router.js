@@ -1,14 +1,8 @@
 'use strict';
 
-const Utils = require('./Utils');
-const Route = require('./Route');
-
-const _supportedHttpMethods = [
-  'all', 'checkout', 'copy', 'delete', 'get', 'head', 'lock',
-  'merge', 'mkactivity', 'mkcol', 'move', 'm-search', 'notify',
-  'options', 'patch', 'post', 'purge', 'put', 'report',
-  'search', 'subscribe', 'trace', 'unlock', 'unsubscribe'
-];
+const defaultMethods = require('./methods');
+const Utils   = require('./Utils');
+const Route   = require('./Route');
 
 const _defaultSettings =  {
   sensitive: false, //When true the path will be case sensitive
@@ -24,10 +18,9 @@ module.exports = class Router {
     this.mountpath = '';
     this.parent = null;
     this.stackIndex = null;
-    Utils.forEach(_supportedHttpMethods, method => {
+    Utils.forEach(defaultMethods, method => {
       this[method] = (path, fn) => this.use(method, path, fn);
     });
-
     return this;
   }
 
@@ -38,13 +31,13 @@ module.exports = class Router {
 
   use(methods, path, mountable) {
     if (typeof path === 'undefined' && typeof mountable === 'undefined') {
-      mountable  = methods;
-      methods = 'all';
-      path       = '*';
+      mountable = methods;
+      methods   = 'all';
+      path      = '*';
     } else if (typeof mountable === 'undefined') {
-      mountable  = path;
-      path       = methods;
-      methods = 'all';
+      mountable = path;
+      path      = methods;
+      methods   = 'all';
     }
 
     if (typeof methods === 'string')  methods = [methods.toLowerCase()];
@@ -52,12 +45,16 @@ module.exports = class Router {
 
     switch (mountable.constructor.name) {
       case 'Function':
-        new Route(methods, path, mountable).mount(this);
+        const fnsContainer = {};
+        Utils.forEach(methods, method => {
+          fnsContainer[method] = mountable;
+        });
+        new Route(methods, path, fnsContainer).mount(this);
         break;
 
       case 'Application':
       case 'Router':
-        //TODO valutare come passare l'http method
+        //TODO can't mount with other t
         mountable.mount(this, path);
         break;
     }
@@ -72,14 +69,18 @@ module.exports = class Router {
   }
 
   route(path) {
-    const routeHandler = {};
-    Utils.forEach(_supportedHttpMethods, method => {
-      routeHandler[method] = (fn) => {
-        this.use(method, path, fn);
-        return routeHandler;
+    const l = this.stack.length;
+    for (let i = 0; i < l; i++) {
+      if (this.stack[i].constructor.name !== 'Route') continue;
+
+      const route = this.stack[i];
+
+      if (path === route.basePath) {
+        return route;
       }
-    });
-    return routeHandler;
+    }
+
+    return new Route([], path, {}).mount(this);
   }
 
   getNextRoute(req, res, fromIndex){

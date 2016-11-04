@@ -17,6 +17,14 @@ exports.handler = (req, context, callback) => {
     })
     .post( (req, res) => {
       res.send('this is the same route in post')
+    })
+    .head( (req, res, next) => {
+      res.sendStatus(201);
+    });
+
+  app.route('/route')
+    .put( (req, res) => {
+      res.sendStatus(201);
     });
 
   app.get('/send-status/:statusCode', (req, res, next) => {

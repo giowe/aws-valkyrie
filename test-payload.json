@@ -1,7 +1,7 @@
 {
   "resource": "/{proxy+}",
-  "path": "/router/router2/hi",
-  "httpMethod": "GET",
+  "path": "/route",
+  "httpMethod": "HEAD",
   "headers": {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
     "Accept-Encoding": "gzip, deflate, sdch, br",
