@@ -47,7 +47,7 @@ module.exports = class Router {
       methods = 'all';
     }
 
-    if (typeof methods === 'string')  methods = methods.toLowerCase();
+    if (typeof methods === 'string')  methods = [methods.toLowerCase()];
     else if (Array.isArray(methods)) Utils.forEach(methods, (method, i) => methods[i] = method.toLowerCase());
 
     switch (mountable.constructor.name) {

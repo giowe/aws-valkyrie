@@ -35,16 +35,7 @@ module.exports = class Route {
 
   _matchHttpMethod(req) {
     const routeMethods = this.methods;
-    const reqMethod = req.method;
-    return !(
-      (typeof routeMethods === 'string' &&
-      routeMethods !== 'all' &&
-      reqMethod !== routeMethods) ||
-
-      (Array.isArray(routeMethods) &&
-      routeMethods.indexOf(reqMethod) === -1 &&
-      routeMethods.indexOf('all') === -1)
-    );
+    return ( routeMethods.indexOf(req.method) !== -1 || routeMethods.indexOf('all') !== -1);
   }
 
   _matchPath(req, settings) {
