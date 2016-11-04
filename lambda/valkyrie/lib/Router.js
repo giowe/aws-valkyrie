@@ -39,16 +39,16 @@ module.exports = class Router {
   use(methods, path, mountable) {
     if (typeof path === 'undefined' && typeof mountable === 'undefined') {
       mountable  = methods;
-      methods = 'ALL';
+      methods = 'all';
       path       = '*';
     } else if (typeof mountable === 'undefined') {
       mountable  = path;
       path       = methods;
-      methods = 'ALL';
+      methods = 'all';
     }
 
-    if (typeof methods === 'string')  methods = methods.toUpperCase();
-    else if (Array.isArray(methods)) Utils.forEach(methods, (method, i) => methods[i] = method.toUpperCase());
+    if (typeof methods === 'string')  methods = methods.toLowerCase();
+    else if (Array.isArray(methods)) Utils.forEach(methods, (method, i) => methods[i] = method.toLowerCase());
 
     switch (mountable.constructor.name) {
       case 'Function':

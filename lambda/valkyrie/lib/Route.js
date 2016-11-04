@@ -38,12 +38,12 @@ module.exports = class Route {
     const reqMethod = req.method;
     return !(
       (typeof routeMethods === 'string' &&
-      routeMethods !== 'ALL' &&
+      routeMethods !== 'all' &&
       reqMethod !== routeMethods) ||
 
       (Array.isArray(routeMethods) &&
       routeMethods.indexOf(reqMethod) === -1 &&
-      routeMethods.indexOf('ALL') === -1)
+      routeMethods.indexOf('all') === -1)
     );
   }
 
