@@ -4,8 +4,8 @@ const Utils = require('./Utils');
 const pathToRegexp = require('path-to-regexp');
 
 module.exports = class Route {
-  constructor(method, path, fn) {
-    this.method = method;
+  constructor(methods, path, fn) {
+    this.methods = methods;
     this._path = path;
     this._fn = fn;
     this.parent = null;
@@ -34,16 +34,16 @@ module.exports = class Route {
   }
 
   _matchHttpMethod(req) {
-    const routeMethod = this.method;
+    const routeMethods = this.methods;
     const reqMethod = req.method;
     return !(
-      (typeof routeMethod === 'string' &&
-      routeMethod !== 'ALL' &&
-      reqMethod !== routeMethod) ||
+      (typeof routeMethods === 'string' &&
+      routeMethods !== 'ALL' &&
+      reqMethod !== routeMethods) ||
 
-      (Array.isArray(routeMethod) &&
-      routeMethod.indexOf(reqMethod) === -1 &&
-      routeMethod.indexOf('ALL') === -1)
+      (Array.isArray(routeMethods) &&
+      routeMethods.indexOf(reqMethod) === -1 &&
+      routeMethods.indexOf('ALL') === -1)
     );
   }
 

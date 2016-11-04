@@ -120,7 +120,7 @@ module.exports = class Router {
       const type = mountable.constructor.name;
       const frame = i < l-1 || level !== 0? '├─ ' : '└─ ';
       if (type !== 'Route') mountable.describe(level+1);
-      else console.log(`${indent}${frame}${type} (${mountable.stackIndex}) ${mountable.method} ${mountable.path}`);
+      else console.log(`${indent}${frame}${type} (${mountable.stackIndex}) ${mountable.methods} ${mountable.path}`);
     });
   }
 };
