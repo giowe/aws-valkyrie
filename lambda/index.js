@@ -1,6 +1,6 @@
 'use strict';
 
-const valkyrie = require('./valkyrie/index');
+const valkyrie = require('./valkyrie/valkyrie');
 const app = new valkyrie();
 const router = valkyrie.Router();
 const router2 = valkyrie.Router();
