@@ -1,10 +1,10 @@
 'use strict';
 
-const methods = require('./methods');
+const supportedMethods = require('./methods');
 const Utils   = require('./Utils');
 const Route   = require('./Route');
 
-methods.push('all');
+supportedMethods.push('all');
 const _defaultSettings =  {
   sensitive: false, //When true the path will be case sensitive
   strict: false,    //When false the trailing slash is optional
@@ -20,7 +20,7 @@ module.exports = class Router {
     this.parent = null;
     this.routeIndex = null;
 
-    Utils.forEach(methods, method => {
+    Utils.forEach(supportedMethods, method => {
       this[method] = (path, fn) => this.use(method, path, fn);
     });
     return this;
@@ -49,15 +49,8 @@ module.exports = class Router {
 
     switch (mountable.constructor.name) {
       case 'Array':
-        Utils.forEach(Utils.flatten(mountable), mountable => this.use(methods, path, mountable));
-        break;
-
       case 'Function':
-        const fnHandlers = {};
-        Utils.forEach(methods, method => {
-          fnHandlers[method] = mountable;
-        });
-        new Route(path, fnHandlers).mount(this);
+        new Route(path, methods, mountable).mount(this);
         break;
 
       case 'Application':
@@ -107,18 +100,35 @@ module.exports = class Router {
     return null;
   }
 
+  /**
+   * Debug function
+   * @param level
+   */
   describe(level) {
     if (typeof level !== 'number') level = 0;
     let indent = '';
-    for (let i = 0; i < level; i++) indent += '│  ';
+    for (let i = 0; i < level; i++) indent += '│ ';
     console.log(`${indent}${this.constructor.name} (${this.routeIndex}) - ${this.path}`);
 
-    const l = this.routeStack.length;
-    Utils.forEach(this.routeStack, (mountable, i) => {
+    const routeStackLength = this.routeStack.length;
+    Utils.forEach(this.routeStack, (mountable, routeIndex) => {
       const type = mountable.constructor.name;
-      const frame = i < l-1 || level !== 0? '├─ ' : '└─ ';
+
+      const routeFrame = routeIndex < routeStackLength-1 || level !== 0? '├─ ' : '└─ ';
+      const fnStackFrame1 = routeIndex < routeStackLength-1 || level !== 0? '│' : ' ';
+
       if (type !== 'Route') mountable.describe(level+1);
-      else console.log(`${indent}${frame}${type} (${mountable.routeIndex}) [${mountable.methods}] - ${mountable.path}`);
+      else {
+        console.log(`${indent}${routeFrame}${type} (${mountable.routeIndex}) - ${mountable.path}`);
+        console.log(`${indent}${fnStackFrame1}   └──────┐`);
+        const fnStack = mountable.fnStack;
+        const fnStackLength = fnStack.length;
+        Utils.forEach(fnStack, (fnStackElement, fnStackIndex) => {
+          const fnStackFrame2 = fnStackIndex < fnStackLength-1? '├─ ' : '└─ ';
+          console.log(`${indent}${fnStackFrame1}          ${fnStackFrame2}(${fnStackIndex}) [${fnStackElement.methods}]`);
+          if (fnStackIndex===fnStackLength-1 && routeIndex < routeStackLength -1) console.log(`${indent}│`);
+        });
+      }
     });
   }
 };

@@ -43,8 +43,8 @@ module.exports = class Utils {
   }
 
 
-  static flatten(list) {
-    return list.reduce(
+  static flatten(array) {
+    return array.reduce(
       (a, b) => a.concat(Array.isArray(b) ? Utils.flatten(b) : b), []
     );
   }
