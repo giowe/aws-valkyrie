@@ -6,12 +6,23 @@ const router = valkyrie.Router();
 const router2 = valkyrie.Router();
 
 exports.handler = (req, context, callback) => {
-  app.use(['get', 'post'], '*', (req, res, next) => {
+  app.use(['get', 'post', 'head'], '*', (req, res, next) => {
     console.log('PATH >>>', req.path);
     next();
   });
 
-  app.route('/route')
+  const middle1 = (req, res, next) => {
+    res.send('this is middle 1');
+  };
+
+  const middle2 = (req, res, next) => {
+    console.log('this is middle 2');
+    next();
+  };
+
+  app.use(['/route', ['/route2', '/route3']], middle1);
+
+  /*app.route('/route')
     .get( (req, res) => {
       res.send('this is route in get')
     })
@@ -53,7 +64,7 @@ exports.handler = (req, context, callback) => {
   app.use('/router', router);
 
   router.use('/router2', router2);
-
+*/
   app.use('*', (req, res) => {
     res.status(404).send('not found!');
   });

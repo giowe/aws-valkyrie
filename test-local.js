@@ -1,6 +1,7 @@
 'use strict';
-const clc     = require('cli-color');
-const path    = require('path');
+const clc  = require('cli-color');
+const path = require('path');
+const argv = require('yargs').argv;
 
 module.exports = function(next){
   let lambda_config;
@@ -12,9 +13,9 @@ module.exports = function(next){
 
   let payload;
   try {
-    payload = require('./test-payload.json');
+    payload = require('./test-payload.js')(argv.path || argv.p, argv.method || argv.m);
   } catch (err) {
-    return console.log('WARNING! "test-payload.json" not found!')
+    return console.log('WARNING! "test-payload.js" not found!')
   }
 
   const _fail = function(err) {

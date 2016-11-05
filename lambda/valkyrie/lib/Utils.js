@@ -41,4 +41,11 @@ module.exports = class Utils {
 
     return String(entity);
   }
+
+
+  static flatten(list) {
+    return list.reduce(
+      (a, b) => a.concat(Array.isArray(b) ? Utils.flatten(b) : b), []
+    );
+  }
 };

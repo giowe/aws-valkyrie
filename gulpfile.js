@@ -11,6 +11,7 @@ const path     = require('path');
 const inquirer = require('inquirer');
 const AWS      = require('aws-sdk');
 const CwLogs   = require('aws-cwlogs');
+const argv     = require('yargs').argv;
 
 let lambdaConfig;
 try {
@@ -202,7 +203,7 @@ gulp.task('logs', function(){
 });
 
 /**
- * Invokes the Lambda function passing test-payload.json as
+ * Invokes the Lambda function passing test-payload.js as
  * payload and printing the response to the console;
  * @task {invoke}
  * @order {9}
@@ -212,7 +213,7 @@ gulp.task('invoke', function(next){
 
   let payload;
   try {
-    payload = JSON.stringify(require('./test-payload.json'));
+    payload = JSON.stringify(require('./test-payload.js')(argv.path || argv.p, argv.method || argv.m));
   } catch(err) {
     payload = null;
   }
@@ -239,7 +240,7 @@ gulp.task('invoke', function(next){
 });
 
 /**
- * Invokes the Lambda function LOCALLY passing test-payload.json
+ * Invokes the Lambda function LOCALLY passing test-payload.js
  * as payload and printing the response to the console;
  * @task {invoke-local}
  * @order {10}

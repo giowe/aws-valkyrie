@@ -40,10 +40,16 @@ module.exports = class Router {
       methods   = 'all';
     }
 
+    if (Array.isArray(path)) Utils.forEach(Utils.flatten(path), path => this.use(methods, path, mountable) );
+
     if (typeof methods === 'string')  methods = [methods.toLowerCase()];
     else if (Array.isArray(methods)) Utils.forEach(methods, (method, i) => methods[i] = method.toLowerCase());
 
     switch (mountable.constructor.name) {
+      case 'Array':
+        Utils.forEach(Utils.flatten(mountable), mountable => this.use(methods, path, mountable));
+        break;
+
       case 'Function':
         const fnHandlers = {};
         Utils.forEach(methods, method => {
@@ -69,12 +75,6 @@ module.exports = class Router {
   }
 
   route(path) {
-    const l = this.stack.length;
-    for (let i = 0; i < l; i++) {
-      const route = this.stack[i];
-      if (path === route.basePath && route.constructor.name === 'Route') return route;
-    }
-
     return new Route(path).mount(this);
   }
 
