@@ -1,9 +1,10 @@
 'use strict';
 
-const defaultMethods = require('./methods');
+const methods = require('./methods');
 const Utils   = require('./Utils');
 const Route   = require('./Route');
 
+methods.push('all');
 const _defaultSettings =  {
   sensitive: false, //When true the path will be case sensitive
   strict: false,    //When false the trailing slash is optional
@@ -14,11 +15,12 @@ const _defaultSettings =  {
 module.exports = class Router {
   constructor(settings) {
     this.settings = Object.assign({}, _defaultSettings, settings);
-    this.stack = [];
+    this.routeStack = [];
     this.mountpath = '';
     this.parent = null;
-    this.stackIndex = null;
-    Utils.forEach(defaultMethods, method => {
+    this.routeIndex = null;
+
+    Utils.forEach(methods, method => {
       this[method] = (path, fn) => this.use(method, path, fn);
     });
     return this;
@@ -69,8 +71,8 @@ module.exports = class Router {
   mount(mountpath, parent){
     this.mountpath = mountpath;
     this.parent = parent;
-    this.stackIndex = parent.stack.length;
-    parent.stack.push(this);
+    this.routeIndex = parent.routeStack.length;
+    parent.routeStack.push(this);
     return this;
   }
 
@@ -79,9 +81,9 @@ module.exports = class Router {
   }
 
   getNextRoute(req, res, fromIndex){
-    const l = this.stack.length;
+    const l = this.routeStack.length;
     for (let i = fromIndex; i < l; i++) {
-      const mountable = this.stack[i];
+      const mountable = this.routeStack[i];
 
       let route;
       switch (mountable.constructor.name) {
@@ -98,7 +100,7 @@ module.exports = class Router {
     }
 
     if (this.parent) {
-      const route = this.parent.getNextRoute(req, res, this.stackIndex + 1);
+      const route = this.parent.getNextRoute(req, res, this.routeIndex + 1);
       if (route) return route;
     }
 
@@ -109,14 +111,14 @@ module.exports = class Router {
     if (typeof level !== 'number') level = 0;
     let indent = '';
     for (let i = 0; i < level; i++) indent += '│  ';
-    console.log(`${indent}${this.constructor.name} (${this.stackIndex}) - ${this.path}`);
+    console.log(`${indent}${this.constructor.name} (${this.routeIndex}) - ${this.path}`);
 
-    const l = this.stack.length;
-    Utils.forEach(this.stack, (mountable, i) => {
+    const l = this.routeStack.length;
+    Utils.forEach(this.routeStack, (mountable, i) => {
       const type = mountable.constructor.name;
       const frame = i < l-1 || level !== 0? '├─ ' : '└─ ';
       if (type !== 'Route') mountable.describe(level+1);
-      else console.log(`${indent}${frame}${type} (${mountable.stackIndex}) [${mountable.methods}] - ${mountable.path}`);
+      else console.log(`${indent}${frame}${type} (${mountable.routeIndex}) [${mountable.methods}] - ${mountable.path}`);
     });
   }
 };

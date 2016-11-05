@@ -4,13 +4,15 @@ const methods      = require('./methods');
 const pathToRegexp = require('path-to-regexp');
 const Utils        = require('./Utils');
 
+methods.push('all');
 module.exports = class Route {
   constructor(basePath, fnHandlers) {
     this.basePath = basePath;
     this.fnHandlers = fnHandlers || {};
     this.parent = null;
-    this.stackIndex = null;
+    this.routeIndex = null;
 
+    methods.push('all');
     Utils.forEach(methods, method => {
       this[method] = (fn) => {
         this.fnHandlers[method] = fn;
@@ -32,7 +34,7 @@ module.exports = class Route {
 
   getFnHandler(req, res) {
     return () => {
-      const nextRoute = this.parent.getNextRoute(req, res, this.stackIndex + 1);
+      const nextRoute = this.parent.getNextRoute(req, res, this.routeIndex + 1);
       const next = nextRoute ? nextRoute.getFnHandler(req, res) : function(){ res.send() };
       const fn = this.fnHandlers[req.method] || this.fnHandlers['all'];
       fn(req, res, next);
@@ -41,8 +43,8 @@ module.exports = class Route {
 
   mount(parent) {
     this.parent = parent;
-    this.stackIndex = parent.stack.length;
-    parent.stack.push(this);
+    this.routeIndex = parent.routeStack.length;
+    parent.routeStack.push(this);
     return this
   }
 

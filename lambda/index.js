@@ -6,7 +6,7 @@ const router = valkyrie.Router();
 const router2 = valkyrie.Router();
 
 exports.handler = (req, context, callback) => {
-  app.use(['get', 'post', 'head'], '*', (req, res, next) => {
+  app.all(['get', 'post', 'head'], '*', (req, res, next) => {
     console.log('PATH >>>', req.path);
     next();
   });

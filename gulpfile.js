@@ -226,7 +226,7 @@ gulp.task('invoke', function(next){
   };
 
   lambda.invoke(params, function(err, data) {
-    if (err) console.log(err, err.stack);
+    if (err) console.log(err, err.routeStack);
     else {
       try {
         console.log(JSON.parse(data.Payload));
