@@ -1,21 +1,19 @@
 'use strict';
 
-const defaultMethods = require('./methods');
-const pathToRegexp   = require('path-to-regexp');
-const Utils          = require('./Utils');
+const methods      = require('./methods');
+const pathToRegexp = require('path-to-regexp');
+const Utils        = require('./Utils');
 
 module.exports = class Route {
-  constructor(methods, basePath, fnsContainer) {
-    this.methods = methods || [];
+  constructor(basePath, fnHandlers) {
     this.basePath = basePath;
-    this._fnsContainer = fnsContainer || {};
+    this.fnHandlers = fnHandlers || {};
     this.parent = null;
     this.stackIndex = null;
 
-    Utils.forEach(defaultMethods, method => {
+    Utils.forEach(methods, method => {
       this[method] = (fn) => {
-        if (!this._fnsContainer[method]) this.methods.push(method);
-        this._fnsContainer[method] = fn;
+        this.fnHandlers[method] = fn;
         return this;
       };
     });
@@ -28,11 +26,15 @@ module.exports = class Route {
     return this.basePath;
   }
 
+  get methods() {
+    return Object.keys(this.fnHandlers);
+  }
+
   getFnHandler(req, res) {
     return () => {
       const nextRoute = this.parent.getNextRoute(req, res, this.stackIndex + 1);
       const next = nextRoute ? nextRoute.getFnHandler(req, res) : function(){ res.send() };
-      const fn = this._fnsContainer[req.method] || this._fnsContainer['all'];
+      const fn = this.fnHandlers[req.method] || this.fnHandlers['all'];
       fn(req, res, next);
     };
   }
@@ -44,9 +46,8 @@ module.exports = class Route {
     return this
   }
 
-  _matchHttpMethod(req) {
-    const routeMethods = this.methods;
-    return ( routeMethods.indexOf(req.method) !== -1 || routeMethods.indexOf('all') !== -1);
+  _matchMethod(req) {
+    return ( typeof this.fnHandlers[req.method] === 'function' || typeof this.fnHandlers['all'] === 'function');
   }
 
   _matchPath(req, settings) {
@@ -71,7 +72,7 @@ module.exports = class Route {
   }
 
   matchRequest (req, settings) {
-    if (this._matchHttpMethod(req) && this._matchPath(req, settings)) return this;
+    if (this._matchMethod(req) && this._matchPath(req, settings)) return this;
     return null;
   };
 };

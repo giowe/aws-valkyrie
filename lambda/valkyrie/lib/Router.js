@@ -45,22 +45,22 @@ module.exports = class Router {
 
     switch (mountable.constructor.name) {
       case 'Function':
-        const fnsContainer = {};
+        const fnHandlers = {};
         Utils.forEach(methods, method => {
-          fnsContainer[method] = mountable;
+          fnHandlers[method] = mountable;
         });
-        new Route(methods, path, fnsContainer).mount(this);
+        new Route(path, fnHandlers).mount(this);
         break;
 
       case 'Application':
       case 'Router':
-        //TODO can't mount with other t
-        mountable.mount(this, path);
+        //TODO can't mount with other Router or App with other then "use"
+        mountable.mount(path, this);
         break;
     }
   };
 
-  mount(parent, mountpath){
+  mount(mountpath, parent){
     this.mountpath = mountpath;
     this.parent = parent;
     this.stackIndex = parent.stack.length;
@@ -71,16 +71,11 @@ module.exports = class Router {
   route(path) {
     const l = this.stack.length;
     for (let i = 0; i < l; i++) {
-      if (this.stack[i].constructor.name !== 'Route') continue;
-
       const route = this.stack[i];
-
-      if (path === route.basePath) {
-        return route;
-      }
+      if (path === route.basePath && route.constructor.name === 'Route') return route;
     }
 
-    return new Route([], path, {}).mount(this);
+    return new Route(path).mount(this);
   }
 
   getNextRoute(req, res, fromIndex){
@@ -114,14 +109,14 @@ module.exports = class Router {
     if (typeof level !== 'number') level = 0;
     let indent = '';
     for (let i = 0; i < level; i++) indent += '│  ';
-    console.log(`${indent}${this.constructor.name} [${this.stackIndex}] ${this.path}`);
+    console.log(`${indent}${this.constructor.name} (${this.stackIndex}) - ${this.path}`);
 
     const l = this.stack.length;
     Utils.forEach(this.stack, (mountable, i) => {
       const type = mountable.constructor.name;
       const frame = i < l-1 || level !== 0? '├─ ' : '└─ ';
       if (type !== 'Route') mountable.describe(level+1);
-      else console.log(`${indent}${frame}${type} (${mountable.stackIndex}) ${mountable.methods} ${mountable.path}`);
+      else console.log(`${indent}${frame}${type} (${mountable.stackIndex}) [${mountable.methods}] - ${mountable.path}`);
     });
   }
 };

@@ -41,7 +41,6 @@ exports.handler = (req, context, callback) => {
     next();
   });
 
-
   router.get('/say/:text', (req, res, next) => {
     console.log(`param text is equal to ${req.params.text}`);
     res.send(`I just want to say "${req.params.text}"`);
@@ -54,7 +53,6 @@ exports.handler = (req, context, callback) => {
   app.use('/router', router);
 
   router.use('/router2', router2);
-
 
   app.use('*', (req, res) => {
     res.status(404).send('not found!');
