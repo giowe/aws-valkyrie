@@ -1,8 +1,8 @@
 'use strict';
 
 const supportedMethods = require('./methods');
-const Utils   = require('./Utils');
-const Route   = require('./Route');
+const Utils = require('./Utils');
+const Route = require('./Route');
 
 supportedMethods.push('all');
 const _defaultSettings =  {
@@ -14,11 +14,11 @@ const _defaultSettings =  {
 
 module.exports = class Router {
   constructor(settings) {
+    this.mountpath = '';
     this.settings = Object.assign({}, _defaultSettings, settings);
     this.routeStack = [];
-    this.mountpath = '';
-    this.parent = null;
-    this.routeIndex = null;
+    this._routeIndex = null;
+    this._parent = null;
 
     Utils.forEach(supportedMethods, method => {
       this[method] = (path, fn) => this.use(method, path, fn);
@@ -27,8 +27,8 @@ module.exports = class Router {
   }
 
   get path() {
-    if (!this.parent) return this.mountpath;
-    else return Utils.joinUrls(this.parent.path, this.mountpath);
+    if (!this._parent) return this.mountpath;
+    else return Utils.joinUrls(this._parent.path, this.mountpath);
   }
 
   use(methods, path, mountable) {
@@ -42,7 +42,7 @@ module.exports = class Router {
       methods   = 'all';
     }
 
-    if (Array.isArray(path)) Utils.forEach(Utils.flatten(path), path => this.use(methods, path, mountable) );
+    if (Array.isArray(path)) return Utils.forEach(Utils.flatten(path), path => this.use(methods, path, mountable) );
 
     if (typeof methods === 'string')  methods = [methods.toLowerCase()];
     else if (Array.isArray(methods)) Utils.forEach(methods, (method, i) => methods[i] = method.toLowerCase());
@@ -55,7 +55,6 @@ module.exports = class Router {
 
       case 'Application':
       case 'Router':
-        //TODO can't mount with other Router or App with other then "use"
         mountable.mount(path, this);
         break;
     }
@@ -63,8 +62,8 @@ module.exports = class Router {
 
   mount(mountpath, parent){
     this.mountpath = mountpath;
-    this.parent = parent;
-    this.routeIndex = parent.routeStack.length;
+    this._parent = parent;
+    this._routeIndex = parent.routeStack.length;
     parent.routeStack.push(this);
     return this;
   }
@@ -92,8 +91,8 @@ module.exports = class Router {
       if (route) return route;
     }
 
-    if (this.parent) {
-      const route = this.parent.getNextRoute(req, res, this.routeIndex + 1);
+    if (this._parent) {
+      const route = this._parent.getNextRoute(req, res, this._routeIndex + 1);
       if (route) return route;
     }
 
@@ -108,7 +107,7 @@ module.exports = class Router {
     if (typeof level !== 'number') level = 0;
     let indent = '';
     for (let i = 0; i < level; i++) indent += '│ ';
-    console.log(`${indent}${this.constructor.name} (${this.routeIndex}) - ${this.path}`);
+    console.log(`${indent}${this.constructor.name} (${this._routeIndex}) - ${this.path}`);
 
     const routeStackLength = this.routeStack.length;
     Utils.forEach(this.routeStack, (mountable, routeIndex) => {
@@ -119,9 +118,9 @@ module.exports = class Router {
 
       if (type !== 'Route') mountable.describe(level+1);
       else {
-        console.log(`${indent}${routeFrame}${type} (${mountable.routeIndex}) - ${mountable.path}`);
+        console.log(`${indent}${routeFrame}${type} (${mountable._routeIndex}) - ${mountable.path}`);
         console.log(`${indent}${fnStackFrame1}   └──────┐`);
-        const fnStack = mountable.fnStack;
+        const fnStack = mountable._fnStack;
         const fnStackLength = fnStack.length;
         Utils.forEach(fnStack, (fnStackElement, fnStackIndex) => {
           const fnStackFrame2 = fnStackIndex < fnStackLength-1? '├─ ' : '└─ ';

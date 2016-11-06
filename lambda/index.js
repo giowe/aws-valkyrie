@@ -8,7 +8,9 @@ const router2 = valkyrie.Router();
 exports.handler = (req, context, callback) => {
 
   const middle1 = (req, res, next) => {
-    res.send('this is middle 1');
+    console.log('middle1');
+    next();
+    //res.send('this is middle 1');
   };
 
   app.use(['get', 'post', 'head'], '*', [middle1, (req, res, next) => {
@@ -21,7 +23,10 @@ exports.handler = (req, context, callback) => {
     next();
   };
 
-  app.use(['/route', ['/route2', '/route3']], middle1);
+  app.use(['/route', ['/route2', '/route3']], (req, res, next) => {
+    console.log('sto qui');
+    next();
+  } );
 
   app.route('/route')
     .get( (req, res) => {

@@ -8,61 +8,35 @@ supportedMethods.push('all');
 module.exports = class Route {
   constructor(basePath, methods, fnHandlers) {
     this.basePath = basePath;
-    this.parent = null;
-    this.routeIndex = null;
-    this.fnStack = [];
-    this.fnIndex = 0;
+    this._parent = null;
+    this._routeIndex = null;
+    this._fnStack = [];
+    this._matchingFnStack = [];
+    this._matchingFnIndex = 0;
 
     if (methods && fnHandlers) this.addFnHandlers(methods, fnHandlers);
 
     Utils.forEach(supportedMethods, method => {
-      this[method] = (fns) => {
-        //TODO return da provare a levare
-        return this.addFnHandlers(method, fns);
-      };
+      this[method] = (fns) => this.addFnHandlers(method, fns);
     });
 
     return this;
   }
 
   get path() {
-    if (this.parent) return Utils.joinUrls(this.parent.path, this.basePath);
+    if (this._parent) return Utils.joinUrls(this._parent.path, this.basePath);
     return this.basePath;
-  }
-
-  get methods() {
-    const methods = [];
-    Utils.forEach(this.fnStack, fnStackElement => {
-      Utils.forEach(fnStackElement.methods, method => {
-        if (methods.indexOf(method) === -1) methods.push(method)
-      })
-    });
-    return methods;
-  }
-
-  get currentFnStackElement() {
-    if (this.fnIndex >= this.fnStack.length) return null;
-    return this.fnStack[this.fnIndex];
-  }
-
-  getNextStackElement() {
-    let nextStackElement = null;
-    if (this.fnIndex < this.fnStack.length) {
-      nextStackElement = this.fnStack[this.fnIndex];
-      this.fnStack ++;
-    }
-    return nextStackElement;
   }
 
   getNextFnHandler(req, res) {
     return () => {
-      const currentFnStackElement = this.currentFnStackElement;
-      const fn = currentFnStackElement.fnHandler;
+      const fn = this._matchingFnStack[this._matchingFnIndex];
+      this._matchingFnIndex ++;
       let next;
-      if (this._matchMethod(req)) {
-        next = this.currentFnStackElement.fnHendler;
+      if (this._matchingFnIndex < this._matchingFnStack.length){
+        next = this.getNextFnHandler(req, res);
       } else {
-        const nextRoute = this.parent.getNextRoute(req, res, this.routeIndex + 1);
+        const nextRoute = this._parent.getNextRoute(req, res, this._routeIndex + 1);
         next = nextRoute ? nextRoute.getNextFnHandler(req, res) : function(){ res.send() };
       }
 
@@ -74,13 +48,13 @@ module.exports = class Route {
     if (!Array.isArray(methods)) methods = [methods];
     if (Array.isArray(fns)) {
       Utils.forEach(Utils.flatten(fns), fn => {
-        this.fnStack.push({
+        this._fnStack.push({
           methods: methods,
           fnHandler: fn
         });
       });
     } else {
-      this.fnStack.push({
+      this._fnStack.push({
         methods: methods,
         fnHandler: fns
       })
@@ -89,20 +63,25 @@ module.exports = class Route {
   }
 
   mount(parent) {
-    this.parent = parent;
-    this.routeIndex = parent.routeStack.length;
+    this._parent = parent;
+    this._routeIndex = parent.routeStack.length;
     parent.routeStack.push(this);
     return this
   }
 
-  _matchMethod(req) {
-    while (this.currentFnStackElement) {
-      const currentFnMethods = this.currentFnStackElement.methods;
+  _matchMethods(req) {
+    const l = this._fnStack.length;
+    let matching = false;
+    for (let i = 0; i < l; i++) {
+      const currentFnStackElement = this._fnStack[i];
+      const currentFnMethods = currentFnStackElement.methods;
       const match = typeof currentFnMethods.indexOf(req.method) !== -1 || currentFnMethods.indexOf('all') !== -1;
-      if (match) return true;
-      this.fnIndex++;
+      if (match) {
+        matching = true;
+        this._matchingFnStack.push(currentFnStackElement.fnHandler);
+      }
     }
-    return false;
+    return matching;
   }
 
   _matchPath(req, settings) {
@@ -127,7 +106,7 @@ module.exports = class Route {
   }
 
   matchRequest (req, settings) {
-    if (this._matchMethod(req) && this._matchPath(req, settings)) return this;
+    if (this._matchPath(req, settings) && this._matchMethods(req)) return this;
     return null;
   };
 };
