@@ -6,17 +6,16 @@ const router = valkyrie.Router();
 const router2 = valkyrie.Router();
 
 exports.handler = (req, context, callback) => {
-
   const middle1 = (req, res, next) => {
     console.log('middle1');
     next();
     //res.send('this is middle 1');
   };
 
-  app.use('*', [middle1, (req, res, next) => {
+  app.use('*', middle1, (req, res, next) => {
     console.log('PATH >>>', req.path);
     next();
-  }]);
+  });
 
   const middle2 = (req, res, next) => {
     console.log('this is middle 2');
@@ -26,21 +25,21 @@ exports.handler = (req, context, callback) => {
   app.use(['/route', ['/route2', '/route3']], (req, res, next) => {
     console.log('sto qui');
     next();
-  } );
+  });
 
   app.route('/route')
-    .get( (req, res) => {
+    .get((req, res) => {
       res.send('this is route in get')
     })
-    .post( (req, res) => {
+    .post((req, res) => {
       res.send('this is the same route in post')
     })
-    .head( (req, res, next) => {
+    .head((req, res, next) => {
       res.sendStatus(201);
     });
 
   app.route('/route')
-    .put( (req, res) => {
+    .put((req, res) => {
       res.sendStatus(201);
     });
 

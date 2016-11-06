@@ -22,6 +22,10 @@ module.exports = class Route {
     return this;
   }
 
+  reset(){
+    this._fnStackIndex = 0;
+  }
+
   get path() {
     if (this._parent) return Utils.joinUrls(this._parent.path, this.basePath);
     return this.basePath;

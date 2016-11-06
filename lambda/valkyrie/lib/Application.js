@@ -8,6 +8,8 @@ const _defaultSettings = {
   useContextSucceed: false
 };
 
+let _started;
+
 module.exports = class Application extends Router{
   constructor(settings) {
     settings = Object.assign({}, _defaultSettings, settings);
@@ -18,7 +20,12 @@ module.exports = class Application extends Router{
 
   static Router(settings) { return new Router(settings); }
 
+  static get started() { return _started };
+
   start(req, context, callback){
+    if(!Application.started) _started = true;
+    else this.reset();
+
     this.context = context;
     this.callback = callback;
 

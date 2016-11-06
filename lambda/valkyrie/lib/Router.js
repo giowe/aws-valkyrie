@@ -1,8 +1,9 @@
 'use strict';
 
 const supportedMethods = require('./methods');
-const Utils = require('./Utils');
-const Route = require('./Route');
+const Utils    = require('./Utils');
+const valkyrie = require('./Application');
+const Route    = require('./Route');
 
 supportedMethods.push('all');
 const _defaultSettings =  {
@@ -20,11 +21,28 @@ module.exports = class Router {
     this._routeIndex = null;
     this._parent = null;
 
-    this.use = function() { this._methodHandler('all', Array.from(arguments)); };
     Utils.forEach(supportedMethods, method => {
-      this[method] = function() { this._methodHandler(method, Array.from(arguments)); };
+      this[method] = function() {
+        if (valkyrie.started) return;
+        this._methodHandler(method, Array.from(arguments));
+      };
     });
     return this;
+  }
+
+  use(){
+    if (valkyrie.started) return;
+    this._methodHandler('all', Array.from(arguments));
+  };
+
+  reset(){
+    Utils.forEach(this.routeStack, stackElement => {
+      //if(['Router', 'Application'].indexOf(stackElement.constructor.name) !== -1) {
+      //  stackElement.routeStack.length = 0;
+      //}
+      stackElement.reset();
+    });
+    //this.routeStack.length = 0;
   }
 
   get path() {
