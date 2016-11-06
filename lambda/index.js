@@ -13,10 +13,10 @@ exports.handler = (req, context, callback) => {
     //res.send('this is middle 1');
   };
 
-  app.use(['get', 'post', 'head'], '*', [middle1, (req, res, next) => {
+  app.use('*', [middle1, (req, res, next) => {
     console.log('PATH >>>', req.path);
     next();
-  }]);
+  }], 'this is the args');
 
   const middle2 = (req, res, next) => {
     console.log('this is middle 2');

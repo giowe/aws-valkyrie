@@ -6,14 +6,14 @@ const Utils        = require('./Utils');
 
 supportedMethods.push('all');
 module.exports = class Route {
-  constructor(basePath, methods, fnHandlers) {
+  constructor(basePath, method, fnHandlers) {
     this.basePath = basePath;
     this._parent = null;
     this._routeIndex = null;
     this._fnStack = [];
     this._fnStackIndex = 0;
 
-    if (methods && fnHandlers) this.addFnHandlers(methods, fnHandlers);
+    if (method && fnHandlers) this.addFnHandlers(method, fnHandlers);
 
     Utils.forEach(supportedMethods, method => {
       this[method] = (fns) => this.addFnHandlers(method, fns);
@@ -43,18 +43,17 @@ module.exports = class Route {
     };
   }
 
-  addFnHandlers(methods, fns) {
-    if (!Array.isArray(methods)) methods = [methods];
+  addFnHandlers(method, fns) {
     if (Array.isArray(fns)) {
       Utils.forEach(Utils.flatten(fns), fn => {
         this._fnStack.push({
-          methods: methods,
+          method: method,
           fnHandler: fn
         });
       });
     } else {
       this._fnStack.push({
-        methods: methods,
+        method: method,
         fnHandler: fns
       })
     }
@@ -72,8 +71,8 @@ module.exports = class Route {
     const l = this._fnStack.length;
     for (let i = this._fnStackIndex; i < l; i++) {
       const currentFnStackElement = this._fnStack[i];
-      const currentFnMethods = currentFnStackElement.methods;
-      const match = typeof currentFnMethods.indexOf(req.method) !== -1 || currentFnMethods.indexOf('all') !== -1;
+      const currentFnMethod = currentFnStackElement.method;
+      const match = currentFnMethod !== req.method || currentFnMethod !== ('all');
       if (match) return currentFnStackElement.fnHandler;
       this._fnStackIndex++;
     }
