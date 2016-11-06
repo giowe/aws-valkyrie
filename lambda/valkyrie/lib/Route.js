@@ -12,8 +12,6 @@ module.exports = class Route {
     this._routeIndex = null;
     this._fnStack = [];
     this._fnStackIndex = 0;
-    this._matchingFnStack = [];
-    this._matchingFnIndex = 0;
 
     if (methods && fnHandlers) this.addFnHandlers(methods, fnHandlers);
 
@@ -31,14 +29,10 @@ module.exports = class Route {
 
   getNextFnHandler(req, res) {
     return () => {
-      //const fn = this._matchingFnStack[this._matchingFnIndex];
-      //this._matchingFnIndex ++;
       const fn = this._fnStack[this._fnStackIndex].fnHandler;
       this._fnStackIndex++;
       let next;
       if (this._fnStackIndex < this._fnStack.length){
-
-        //if (this._matchingFnIndex < this._matchingFnStack.length){
         next = this.getNextFnHandler(req, res);
       } else {
         const nextRoute = this._parent.getNextRoute(req, res, this._routeIndex + 1);
@@ -75,19 +69,6 @@ module.exports = class Route {
   }
 
   _matchMethods(req) {
-    /*const l = this._fnStack.length;
-    let matching = false;
-    for (let i = 0; i < l; i++) {
-      const currentFnStackElement = this._fnStack[i];
-      const currentFnMethods = currentFnStackElement.methods;
-      const match = typeof currentFnMethods.indexOf(req.method) !== -1 || currentFnMethods.indexOf('all') !== -1;
-      if (match) {
-        matching = true;
-        this._matchingFnStack.push(currentFnStackElement.fnHandler);
-      }
-    }
-    return matching;*/
-
     const l = this._fnStack.length;
     for (let i = this._fnStackIndex; i < l; i++) {
       const currentFnStackElement = this._fnStack[i];
