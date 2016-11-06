@@ -16,7 +16,7 @@ exports.handler = (req, context, callback) => {
   app.use('*', [middle1, (req, res, next) => {
     console.log('PATH >>>', req.path);
     next();
-  }], 'this is the args');
+  }]);
 
   const middle2 = (req, res, next) => {
     console.log('this is middle 2');
