@@ -20,9 +20,9 @@ module.exports = class Router {
     this._routeIndex = null;
     this._parent = null;
 
-    this.use = this._generateMethodHandler('all');
+    this.use = () => this._methodHandler('all');
     Utils.forEach(supportedMethods, method => {
-      this[method] = this._generateMethodHandler(method);
+      this[method] = () => this._methodHandler(method);
     });
     return this;
   }
@@ -32,41 +32,42 @@ module.exports = class Router {
     else return Utils.joinUrls(this._parent.path, this.mountpath);
   }
 
-  _generateMethodHandler(method){
-    return () => {
-      const args = Array.from(arguments);
+  _methodHandler(method){
+    const args = Array.from(arguments);
+    let mountables = [];
+    let paths = [];
 
-      let mountables = [];
-      let paths = [];
-      Utils.forEach(args, arg => {
-        const typeOfArg = typeof arg;
-        if (typeOfArg === 'function' || (Array.isArray(arg) && arg.length > 1 && typeof arg[0] === 'function')) {
-          mountables.push(arg);
-        } else if (typeOfArg === 'string' || (Array.isArray(arg) && arg.length > 1 && typeof arg[0] === 'function')) {
-          paths.push(arg);
-        }
-      });
-
-      paths = Utils.flatten(paths);
-      let path = '*';
-      const pathsLength = paths.length;
-      if (pathsLength === 1) path = paths[0];
-      else if (pathsLength > 1) return Utils.forEach(paths, path => this[method](path, mountables) );
-
-      Utils.forEach(Utils.flatten(mountables), mountable => {
-        switch (mountable.constructor.name) {
-          case 'Function':
-            new Route(path, method, mountable).mount(this);
-            break;
-
-          case 'Application':
-          case 'Router':
-            mountable.mount(path, this);
-            break;
-        }
-      });
+    const argsLength = args.length;
+    for (let i = 1; i < argsLength; i++) {
+      const arg = args[i];
+      const typeOfArg = typeof arg;
+      if (typeOfArg === 'function' || (Array.isArray(arg) && arg.length > 1 && typeof arg[0] === 'function')) {
+        mountables.push(arg);
+      } else if (typeOfArg === 'string' || (Array.isArray(arg) && arg.length > 1 && typeof arg[0] === 'function')) {
+        paths.push(arg);
+      }
     }
+
+    paths = Utils.flatten(paths);
+    let path = '*';
+    const pathsLength = paths.length;
+    if (pathsLength === 1) path = paths[0];
+    else if (pathsLength > 1) return Utils.forEach(paths, path => this[method](path, mountables) );
+
+    Utils.forEach(Utils.flatten(mountables), mountable => {
+      switch (mountable.constructor.name) {
+        case 'Function':
+          new Route(path, method, mountable).mount(this);
+          break;
+
+        case 'Application':
+        case 'Router':
+          mountable.mount(path, this);
+          break;
+      }
+    });
   }
+
 
   // use(){//, mountables) {
   //   const args = Array.from(arguments);
