@@ -1,9 +1,9 @@
 'use strict';
 
 const supportedMethods = require('./methods');
-const Utils    = require('./Utils');
-const valkyrie = require('./Application');
-const Route    = require('./Route');
+const Utils = require('./Utils');
+const State = require('./State');
+const Route = require('./Route');
 
 supportedMethods.push('all');
 const _defaultSettings =  {
@@ -13,6 +13,7 @@ const _defaultSettings =  {
   delimiter: '/'    //Set the default delimiter for repeat parameters
 };
 
+let _fakeRoute;
 module.exports = class Router {
   constructor(settings) {
     this.mountpath = '';
@@ -22,27 +23,17 @@ module.exports = class Router {
     this._parent = null;
 
     Utils.forEach(supportedMethods, method => {
-      this[method] = function() {
-        if (valkyrie.started) return;
-        this._methodHandler(method, Array.from(arguments));
-      };
+      this[method] = function() { this._methodHandler(method, Array.from(arguments)); };
     });
     return this;
   }
 
-  use(){
-    if (valkyrie.started) return;
+  use() {
     this._methodHandler('all', Array.from(arguments));
   };
 
-  reset(){
-    Utils.forEach(this.routeStack, stackElement => {
-      //if(['Router', 'Application'].indexOf(stackElement.constructor.name) !== -1) {
-      //  stackElement.routeStack.length = 0;
-      //}
-      stackElement.reset();
-    });
-    //this.routeStack.length = 0;
+  reset() {
+    Utils.forEach(this.routeStack, stackElement => stackElement.reset() );
   }
 
   get path() {
@@ -50,7 +41,8 @@ module.exports = class Router {
     else return Utils.joinUrls(this._parent.path, this.mountpath);
   }
 
-  _methodHandler(method, args){
+  _methodHandler(method, args) {
+    if (State.started) return;
     let path = '*';
     const pathArg = args[0];
     if (typeof pathArg === 'string') {
@@ -80,13 +72,13 @@ module.exports = class Router {
 
         case 'Application':
         case 'Router':
-          mountable.mount(path, this);
+          mountable._mount(path, this);
           break;
       }
     });
   }
 
-  mount(mountpath, parent){
+  _mount(mountpath, parent){
     this.mountpath = mountpath;
     this._parent = parent;
     this._routeIndex = parent.routeStack.length;
@@ -95,6 +87,10 @@ module.exports = class Router {
   }
 
   route(path) {
+    if (State.started) {
+      if (!_fakeRoute) _fakeRoute = new Route(path);
+      return _fakeRoute;
+    }
     return new Route(path).mount(this);
   }
 

@@ -3,12 +3,10 @@
 const formatRequest = require('./format-request');
 const Response      = require('./Response');
 const Router        = require('./Router');
-
+const State         = require('./State');
 const _defaultSettings = {
   useContextSucceed: false
 };
-
-let _started;
 
 module.exports = class Application extends Router{
   constructor(settings) {
@@ -20,10 +18,10 @@ module.exports = class Application extends Router{
 
   static Router(settings) { return new Router(settings); }
 
-  static get started() { return _started };
+  static State() { return State; }
 
   start(req, context, callback){
-    if(!Application.started) _started = true;
+    if(!State.started) State.started = true;
     else this.reset();
 
     this.context = context;

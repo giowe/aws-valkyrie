@@ -1,8 +1,9 @@
 'use strict';
 
 const supportedMethods = require('./methods');
-const pathToRegexp = require('path-to-regexp');
-const Utils        = require('./Utils');
+const pathToRegexp     = require('path-to-regexp');
+const Utils            = require('./Utils');
+const State            = require('./State');
 
 supportedMethods.push('all');
 module.exports = class Route {
@@ -48,6 +49,8 @@ module.exports = class Route {
   }
 
   addFnHandlers(method, fns) {
+    if (State.started) return this;
+
     if (Array.isArray(fns)) {
       Utils.forEach(Utils.flatten(fns), fn => {
         this._fnStack.push({
