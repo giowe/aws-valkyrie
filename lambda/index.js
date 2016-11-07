@@ -1,12 +1,11 @@
 'use strict';
 
+const valkyrie = require('./valkyrie/valkyrie');
+const app = new valkyrie();
+const router = valkyrie.Router();
+const router2 = valkyrie.Router();
 
 exports.handler = (req, context, callback) => {
-  const valkyrie = require('./valkyrie/valkyrie');
-  const app = new valkyrie();
-  const router = valkyrie.Router();
-  const router2 = valkyrie.Router();
-
   const middle1 = (req, res, next) => {
     console.log('middle1');
     next();
@@ -20,8 +19,16 @@ exports.handler = (req, context, callback) => {
 
   const middle2 = (req, res, next) => {
     console.log('this is middle 2');
-    next();
+    next('route');
   };
+
+  app.get('/test-next', middle2, middle1, (req, res) => {
+    res.send('test-next')
+  });
+
+  app.get('/test-next', (req, res) => {
+    res.send('test-next-skipped')
+  });
 
   app.use(['/route', ['/route2', '/route3']], (req, res, next) => {
     console.log('sto qui');

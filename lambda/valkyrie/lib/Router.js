@@ -65,7 +65,8 @@ module.exports = class Router {
       }
     }
 
-    Utils.forEach(Utils.flatten(mountables), mountable => {
+    new Route(path, method, mountables).mount(this);
+    /*Utils.forEach(Utils.flatten(mountables), mountable => {
       switch (mountable.constructor.name) {
         case 'Function':
           new Route(path, method, mountable).mount(this);
@@ -76,7 +77,7 @@ module.exports = class Router {
           mountable._mount(path, this);
           break;
       }
-    });
+    });*/
   }
 
   _mount(mountpath, parent){
@@ -96,6 +97,7 @@ module.exports = class Router {
   }
 
   getNextRoute(req, res, fromIndex){
+    if (typeof fromIndex === 'undefined') fromIndex = 0;
     const l = this.routeStack.length;
     for (let i = fromIndex; i < l; i++) {
       const mountables = this.routeStack[i];
@@ -103,7 +105,7 @@ module.exports = class Router {
       let route;
       switch (mountables.constructor.name) {
         case 'Route':
-          route = mountables.matchRequest(req, this.settings);
+          route = mountables.matchPath(req, this.settings);
           break;
         case 'Application':
         case 'Router': {

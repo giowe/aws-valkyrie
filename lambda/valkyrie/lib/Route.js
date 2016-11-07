@@ -32,15 +32,35 @@ module.exports = class Route {
     return this.basePath;
   }
 
-  getNextFnHandler(req, res) {
-    return () => {
-      const fn = this._fnStack[this._fnStackIndex].fnHandler;
-      this._fnStackIndex++;
-      let next;
-      if (this._fnStackIndex < this._fnStack.length){
-        next = this.getNextFnHandler(req, res);
+  getNextFnHandler(req, res, fromIndex) {
+    return (arg) => {
+      if (typeof fromIndex === 'undefined') fromIndex = 0;
+
+      let fn;
+
+      const l = this._fnStack.length;
+      if (fromIndex < l) {
+        for (let i = fromIndex; i < l; i++) {
+          const currentFnStackElement = this._fnStack[i];
+          if (currentFnStackElement.method !== req.method || currentFnStackElement.method !== ('all')) {
+            fn = currentFnStackElement.fnHandler;
+            break;
+          }
+          fromIndex++;
+        }
       } else {
-        this._fnStackIndex = 0; //reset for future execution
+        const nextRoute = this._parent.getNextRoute(req, res, this._routeIndex + 1);
+        fn = nextRoute ? nextRoute.getNextFnHandler(req, res) : function(){ res.send() };
+      }
+     // console.log(this.path, fromIndex,'/', this._fnStack.length);
+
+      let next;
+
+      if (arg !=='route' && fromIndex < this._fnStack.length){
+        next = this.getNextFnHandler(req, res, fromIndex + 1);
+      }
+
+      if(!next) {
         const nextRoute = this._parent.getNextRoute(req, res, this._routeIndex + 1);
         next = nextRoute ? nextRoute.getNextFnHandler(req, res) : function(){ res.send() };
       }
@@ -75,9 +95,9 @@ module.exports = class Route {
     return this
   }
 
-  _matchMethods(req) {
+  _getNextMatchingFnHandler(req, fnStackIndex) {
     const l = this._fnStack.length;
-    for (let i = this._fnStackIndex; i < l; i++) {
+    for (let i = fnStackIndex; i < l; i++) {
       const currentFnStackElement = this._fnStack[i];
       const currentFnMethod = currentFnStackElement.method;
       const match = currentFnMethod !== req.method || currentFnMethod !== ('all');
@@ -87,9 +107,9 @@ module.exports = class Route {
     return null;
   }
 
-  _matchPath(req, settings) {
+  matchPath(req, settings) {
     const path = this.path;
-    if (this.path === '*') return true;
+    if (this.path === '*') return this;
 
     const keys = [];
     const re = pathToRegexp(path, keys, settings);
@@ -105,11 +125,6 @@ module.exports = class Route {
       }
     });
 
-    return true;
+    return this;
   }
-
-  matchRequest (req, settings) {
-    if (this._matchPath(req, settings) && this._matchMethods(req)) return this;
-    return null;
-  };
 };
