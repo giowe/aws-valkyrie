@@ -78,8 +78,9 @@ exports.handler = (req, context, callback) => {
 
   router.use('/router2', router2);
 
-  app.use('*', (req, res) => {
-    res.status(404).send('not found!');
+  app.use('*', (req, res, next) => {
+    //res.status(404).send('not found!');
+    next()
   });
 
   app.describe();

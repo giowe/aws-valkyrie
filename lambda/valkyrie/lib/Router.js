@@ -121,7 +121,7 @@ module.exports = class Router {
       if (route) return route;
     }
 
-    return null;
+    return new Route('*', 'all', (req, res) => { res.status(500).send('no route found.') });
   }
 
   /**

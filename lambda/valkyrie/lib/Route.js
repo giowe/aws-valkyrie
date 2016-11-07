@@ -37,32 +37,27 @@ module.exports = class Route {
       if (typeof fromIndex === 'undefined') fromIndex = 0;
 
       let fn;
+      let next;
 
       const l = this._fnStack.length;
       if (fromIndex < l) {
         for (let i = fromIndex; i < l; i++) {
           const currentFnStackElement = this._fnStack[i];
-          if (currentFnStackElement.method !== req.method || currentFnStackElement.method !== ('all')) {
+          if (currentFnStackElement.method === req.method || currentFnStackElement.method === ('all')) {
             fn = currentFnStackElement.fnHandler;
             break;
           }
           fromIndex++;
         }
+
+        if (arg !=='route') next = this.getNextFnHandler(req, res, fromIndex + 1);
+
       } else {
-        const nextRoute = this._parent.getNextRoute(req, res, this._routeIndex + 1);
-        fn = nextRoute ? nextRoute.getNextFnHandler(req, res) : function(){ res.send() };
-      }
-     // console.log(this.path, fromIndex,'/', this._fnStack.length);
-
-      let next;
-
-      if (arg !=='route' && fromIndex < this._fnStack.length){
-        next = this.getNextFnHandler(req, res, fromIndex + 1);
+        fn = this._parent.getNextRoute(req, res, this._routeIndex + 1).getNextFnHandler(req, res);
       }
 
       if(!next) {
-        const nextRoute = this._parent.getNextRoute(req, res, this._routeIndex + 1);
-        next = nextRoute ? nextRoute.getNextFnHandler(req, res) : function(){ res.send() };
+        next = this._parent.getNextRoute(req, res, this._routeIndex + 1).getNextFnHandler(req, res);
       }
 
       fn(req, res, next);

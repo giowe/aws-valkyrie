@@ -31,6 +31,6 @@ module.exports = class Application extends Router{
 
     const firstRoute = this.getNextRoute(this.req, this.res);
     if (firstRoute) firstRoute.getNextFnHandler(this.req, this.res).call();
-    else this.res.status(500).send('No routes found!');
+    //else this.res.status(500).send('No routes found!');
   };
 };
