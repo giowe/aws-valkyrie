@@ -11,7 +11,6 @@ module.exports = class Route {
     this._parent = null;
     this._routeIndex = null;
     this._fnStack = [];
-    this._fnStackIndex = 0;
 
     if (method && fnHandlers) this.addFnHandlers(method, fnHandlers);
 
@@ -56,7 +55,7 @@ module.exports = class Route {
         fn = this._parent.getNextRoute(req, res, this._routeIndex + 1).getNextFnHandler(req, res);
       }
 
-      if(!next) {
+      if (!next) {
         next = this._parent.getNextRoute(req, res, this._routeIndex + 1).getNextFnHandler(req, res);
       }
 
@@ -88,18 +87,6 @@ module.exports = class Route {
     this._routeIndex = parent.routeStack.length;
     parent.routeStack.push(this);
     return this
-  }
-
-  _getNextMatchingFnHandler(req, fnStackIndex) {
-    const l = this._fnStack.length;
-    for (let i = fnStackIndex; i < l; i++) {
-      const currentFnStackElement = this._fnStack[i];
-      const currentFnMethod = currentFnStackElement.method;
-      const match = currentFnMethod !== req.method || currentFnMethod !== ('all');
-      if (match) return currentFnStackElement.fnHandler;
-      this._fnStackIndex++;
-    }
-    return null;
   }
 
   matchPath(req, settings) {

@@ -22,7 +22,7 @@ exports.handler = (req, context, callback) => {
     next('route');
   };
 
-  app.get('/test-next', middle1, middle1, middle1, skipMiddle, middle1, middle1, (req, res) => {
+  app.use('/test-next', middle1, middle1, middle1, router, skipMiddle, middle1, middle1, (req, res) => {
     res.send('test-next')
   });
 
@@ -74,7 +74,7 @@ exports.handler = (req, context, callback) => {
     res.send('hi, this is router2!');
   });
 
-  app.use('/router', router);
+  //app.use('/router', router);
 
   router.use('/router2', router2);
 

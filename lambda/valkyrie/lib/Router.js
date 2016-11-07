@@ -65,20 +65,19 @@ module.exports = class Router {
       }
     }
 
+    mountables = Utils.flatten(mountables);
     let route;
-    Utils.forEach(Utils.flatten(mountables), mountable => {
+    Utils.forEach(mountables, mountable => {
       switch (mountable.constructor.name) {
         case 'Function':
-          if (!route) {
-            route = new Route(path);
-            this.routeStack.push(route);
-          }
+          if (!route) route = new Route(path).mount(this);
           route[method](mountable);
 
           break;
 
         case 'Application':
         case 'Router':
+          route = null;
           mountable._mount(path, this);
           break;
       }
