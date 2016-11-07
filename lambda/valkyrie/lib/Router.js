@@ -28,6 +28,9 @@ module.exports = class Router {
     return this;
   }
 
+//  get mountpathx() { return this.mountpaths}
+//  set mountpathx(value) {}
+
   get started() {
     if (this._parent) return this._parent.started;
     return this._started;
@@ -45,26 +48,29 @@ module.exports = class Router {
   _methodHandler(method, args) {
     if (this.started) return;
     let path = '*';
+
     const pathArg = args[0];
     if (typeof pathArg === 'string') {
       path = args.shift();
     } else if (Array.isArray(pathArg) && pathArg.length) {
-      const flattenedPathArg = Utils.flatten(args.shift());
-      if (typeof flattenedPathArg[0] === 'string') {
-        return Utils.forEach(flattenedPathArg, path => this[method](path, args));
+      args[0] = Utils.flatten(args[0]);
+      if (typeof args[0][0] === 'string') {
+        return Utils.forEach(args.shift(), path => this[method](path, args));
       }
     }
 
+
+    //TODO ottimizzare! qui posso stare tutto in un unico ciclo
     let mountables = [];
-    const argsLength = args.length;
-    for (let i = 0; i < argsLength; i++) {
-      const arg = args[i];
-      if (['Function', 'Router', 'Application'].indexOf(arg.constructor.name) !== -1 ||
-        (Array.isArray(arg) && arg.length && ['Function', 'Router', 'Application'].indexOf(arg[0].constructor.name) !== -1)) {
-        mountables.push(arg);
+    const constructors = ['Function', 'Router', 'Application'];
+    Utils.forEach(args, arg => {
+      if (constructors.indexOf(arg.constructor.name) !== -1) mountables.push(arg);
+      else if ( Array.isArray(arg) ) {
+        arg = Utils.flatten(arg);
+        if (constructors.indexOf(arg[0].constructor.name) !== -1) mountables.push(arg);
       }
-    }
-
+    });
+    //TODO ottimizzare! devo stare nel ciclo sopra!
     mountables = Utils.flatten(mountables);
     let route;
     Utils.forEach(mountables, mountable => {
@@ -72,7 +78,6 @@ module.exports = class Router {
         case 'Function':
           if (!route) route = new Route(path).mount(this);
           route[method](mountable);
-
           break;
 
         case 'Application':
@@ -104,16 +109,16 @@ module.exports = class Router {
     if (typeof fromIndex === 'undefined') fromIndex = 0;
     const l = this.routeStack.length;
     for (let i = fromIndex; i < l; i++) {
-      const mountables = this.routeStack[i];
+      const mountable = this.routeStack[i];
 
       let route;
-      switch (mountables.constructor.name) {
+      switch (mountable.constructor.name) {
         case 'Route':
-          route = mountables.matchPath(req, this.settings);
+          route = mountable.matchPath(req, this.settings);
           break;
         case 'Application':
         case 'Router': {
-          route = mountables.getNextRoute(req, res, 0);
+          route = mountable.getNextRoute(req, res, 0);
           break;
         }
       }

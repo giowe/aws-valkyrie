@@ -12,7 +12,7 @@ exports.handler = (req, context, callback) => {
     //res.send('this is middle 1');
   };
 
-  app.use('*', middle1, (req, res, next) => {
+  app.use( (req, res, next) => {
     console.log('PATH >>>', req.path);
     next();
   });
@@ -74,9 +74,9 @@ exports.handler = (req, context, callback) => {
     res.send('hi, this is router2!');
   });
 
-  //app.use('/router', router);
+  app.use('/router', router);
 
-  router.use('/router2', router2);
+  //router.use('/router2', router2);
 
   app.use('*', (req, res, next) => {
     res.status(404).send('not found!');
