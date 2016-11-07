@@ -59,19 +59,16 @@ module.exports = class Router {
       }
     }
 
-
-    //TODO ottimizzare! qui posso stare tutto in un unico ciclo
     let mountables = [];
     const constructors = ['Function', 'Router', 'Application'];
     Utils.forEach(args, arg => {
       if (constructors.indexOf(arg.constructor.name) !== -1) mountables.push(arg);
       else if ( Array.isArray(arg) ) {
         arg = Utils.flatten(arg);
-        if (constructors.indexOf(arg[0].constructor.name) !== -1) mountables.push(arg);
+        if (constructors.indexOf(arg[0].constructor.name) !== -1)  mountables = mountables.concat(arg);
       }
     });
-    //TODO ottimizzare! devo stare nel ciclo sopra!
-    mountables = Utils.flatten(mountables);
+
     let route;
     Utils.forEach(mountables, mountable => {
       switch (mountable.constructor.name) {
