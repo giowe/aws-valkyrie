@@ -2,7 +2,6 @@
 
 const supportedMethods = require('./methods');
 const Utils = require('./Utils');
-const State = require('./State');
 const Route = require('./Route');
 
 supportedMethods.push('all');
@@ -21,6 +20,7 @@ module.exports = class Router {
     this.routeStack = [];
     this._routeIndex = null;
     this._parent = null;
+    this._started = false;
 
     Utils.forEach(supportedMethods, method => {
       this[method] = function() { this._methodHandler(method, Array.from(arguments)); };
@@ -28,13 +28,14 @@ module.exports = class Router {
     return this;
   }
 
+  get started() {
+    if (this._parent) return this._parent.started;
+    return this._started;
+  }
+
   use() {
     this._methodHandler('all', Array.from(arguments));
   };
-
-  reset() {
-    Utils.forEach(this.routeStack, stackElement => stackElement.reset() );
-  }
 
   get path() {
     if (!this._parent) return this.mountpath;
@@ -42,7 +43,7 @@ module.exports = class Router {
   }
 
   _methodHandler(method, args) {
-    if (State.started) return;
+    if (this.started) return;
     let path = '*';
     const pathArg = args[0];
     if (typeof pathArg === 'string') {
@@ -87,7 +88,7 @@ module.exports = class Router {
   }
 
   route(path) {
-    if (State.started) {
+    if (this.started) {
       if (!_fakeRoute) _fakeRoute = new Route(path);
       return _fakeRoute;
     }

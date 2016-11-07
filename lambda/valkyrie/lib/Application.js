@@ -3,7 +3,6 @@
 const formatRequest = require('./format-request');
 const Response      = require('./Response');
 const Router        = require('./Router');
-const State         = require('./State');
 const _defaultSettings = {
   useContextSucceed: false
 };
@@ -18,11 +17,8 @@ module.exports = class Application extends Router{
 
   static Router(settings) { return new Router(settings); }
 
-  static State() { return State; }
-
   start(req, context, callback){
-    if(!State.started) State.started = true;
-    else this.reset();
+    this._started = true;
 
     this.context = context;
     this.callback = callback;

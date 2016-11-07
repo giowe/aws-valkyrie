@@ -3,7 +3,6 @@
 const supportedMethods = require('./methods');
 const pathToRegexp     = require('path-to-regexp');
 const Utils            = require('./Utils');
-const State            = require('./State');
 
 supportedMethods.push('all');
 module.exports = class Route {
@@ -23,8 +22,9 @@ module.exports = class Route {
     return this;
   }
 
-  reset(){
-    this._fnStackIndex = 0;
+  get started() {
+    if (this._parent) return this._parent.started;
+    return false;
   }
 
   get path() {
@@ -40,6 +40,7 @@ module.exports = class Route {
       if (this._fnStackIndex < this._fnStack.length){
         next = this.getNextFnHandler(req, res);
       } else {
+        this._fnStackIndex = 0; //reset for future execution
         const nextRoute = this._parent.getNextRoute(req, res, this._routeIndex + 1);
         next = nextRoute ? nextRoute.getNextFnHandler(req, res) : function(){ res.send() };
       }
@@ -49,7 +50,7 @@ module.exports = class Route {
   }
 
   addFnHandlers(method, fns) {
-    if (State.started) return this;
+    if (this.started) return this;
 
     if (Array.isArray(fns)) {
       Utils.forEach(Utils.flatten(fns), fn => {

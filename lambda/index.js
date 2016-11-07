@@ -1,11 +1,12 @@
 'use strict';
 
-const valkyrie = require('./valkyrie/valkyrie');
-const app = new valkyrie();
-const router = valkyrie.Router();
-const router2 = valkyrie.Router();
 
 exports.handler = (req, context, callback) => {
+  const valkyrie = require('./valkyrie/valkyrie');
+  const app = new valkyrie();
+  const router = valkyrie.Router();
+  const router2 = valkyrie.Router();
+
   const middle1 = (req, res, next) => {
     console.log('middle1');
     next();
