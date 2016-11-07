@@ -40,7 +40,7 @@ module.exports = class Route {
       let next;
 
       const l = this._fnStack.length;
-      if (fromIndex < l) {
+      if (fromIndex < l && arg !=='route') {
         for (let i = fromIndex; i < l; i++) {
           const currentFnStackElement = this._fnStack[i];
           if (currentFnStackElement.method === req.method || currentFnStackElement.method === ('all')) {
@@ -50,7 +50,7 @@ module.exports = class Route {
           fromIndex++;
         }
 
-        if (arg !=='route') next = this.getNextFnHandler(req, res, fromIndex + 1);
+        next = this.getNextFnHandler(req, res, fromIndex + 1);
 
       } else {
         fn = this._parent.getNextRoute(req, res, this._routeIndex + 1).getNextFnHandler(req, res);

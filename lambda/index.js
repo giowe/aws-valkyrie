@@ -17,12 +17,12 @@ exports.handler = (req, context, callback) => {
     next();
   });
 
-  const middle2 = (req, res, next) => {
-    console.log('this is middle 2');
+  const skipMiddle = (req, res, next) => {
+    console.log('this middleware skip to next route');
     next('route');
   };
 
-  app.get('/test-next', middle2, middle1, (req, res) => {
+  app.get('/test-next', middle1, middle1, middle1, skipMiddle, middle1, middle1, (req, res) => {
     res.send('test-next')
   });
 
