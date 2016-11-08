@@ -49,12 +49,12 @@ module.exports = class Router {
     if (this.started) return;
 
     let path = '*';
-    const pathArg = args[0];
+    let pathArg = args[0];
     if (typeof pathArg === 'string') {
       path = args.shift();
     } else if (Array.isArray(pathArg) && pathArg.length) {
-      args[0] = Utils.flatten(args[0]);
-      if (typeof args[0][0] === 'string') {
+      pathArg = Utils.flatten(pathArg);
+      if (typeof pathArg[0] === 'string') {
         return Utils.forEach(args.shift(), path => this[method](path, args));
       }
     }
@@ -112,7 +112,7 @@ module.exports = class Router {
           break;
         case 'Application':
         case 'Router': {
-          route = mountable.getNextRoute(req, res, 0);
+          route = mountable.getNextRoute(req, res);
           break;
         }
       }
