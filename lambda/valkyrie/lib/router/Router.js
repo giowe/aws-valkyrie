@@ -98,6 +98,8 @@ module.exports = class Router {
     return new Route(path).mount(this);
   }
 
+
+
   getNextRoute(req, res, stackStartIndex){
     if (typeof stackStartIndex === 'undefined') stackStartIndex = 0;
 

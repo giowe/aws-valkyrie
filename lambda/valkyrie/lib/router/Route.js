@@ -40,6 +40,18 @@ module.exports = class Route {
     });
   }
 
+  get _options() {
+    const methods = Object.keys(this.methods);
+
+    // append automatic head
+    if (this.methods.get && !this.methods.head) methods.push('head');
+
+    // make upper case
+    Utils.forEach(methods, (method, i) => methods[i] = method.toUpperCase());
+
+    return methods;
+  }
+
   get started() {
     if (this._parent) return this._parent.started;
     return false;
