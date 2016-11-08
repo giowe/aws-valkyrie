@@ -2,7 +2,7 @@
 
 const formatRequest = require('./format-request');
 const Response      = require('./Response');
-const Router        = require('./Router');
+const Router        = require('./router/Router');
 const _defaultSettings = {
   useContextSucceed: false
 };

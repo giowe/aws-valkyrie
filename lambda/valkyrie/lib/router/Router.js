@@ -1,7 +1,7 @@
 'use strict';
 
-const supportedMethods = require('./methods');
-const Utils = require('./Utils');
+const supportedMethods = require('./../methods');
+const Utils = require('./../Utils');
 const Route = require('./Route');
 
 supportedMethods.push('all');
@@ -142,7 +142,7 @@ module.exports = class Router {
       if (type !== 'Route') mountables.describe(level);
       else {
         console.log(`\u001B[36m${indent}${type} (${mountables._routeIndex}) - ${mountables.path}\u001B[39m`);
-        Utils.forEach(mountables._fnStack, (fnStackElement, fnStackIndex) => {
+        Utils.forEach(mountables.stack, (fnStackElement, fnStackIndex) => {
           console.log(`${indent}  └──────(${fnStackIndex}) [${fnStackElement.method}]`);
         });
       }

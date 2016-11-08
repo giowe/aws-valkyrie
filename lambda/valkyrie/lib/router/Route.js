@@ -1,8 +1,9 @@
 'use strict';
 
-const supportedMethods = require('./methods');
 const pathToRegexp     = require('path-to-regexp');
-const Utils            = require('./Utils');
+const Layer            = require('./Layer');
+const Utils            = require('./../Utils');
+const supportedMethods = require('./../methods');
 
 supportedMethods.push('all');
 module.exports = class Route {
@@ -10,10 +11,10 @@ module.exports = class Route {
     this.basePath = basePath;
     this._parent = null;
     this._routeIndex = null;
-    this._fnStack = [];
+    this.stack = [];
 
     Utils.forEach(supportedMethods, method => {
-      this[method] = (fns) => this.addFnHandles(method, fns);
+      this[method] = (fns) => this.addLayers(method, fns);
     });
 
     return this;
@@ -36,12 +37,12 @@ module.exports = class Route {
       let fn;
       let next;
 
-      const l = this._fnStack.length;
+      const l = this.stack.length;
       if (stackStartIndex < l && arg !=='route') {
         for (let i = stackStartIndex; i < l; i++) {
-          const currentFnStackElement = this._fnStack[i];
-          if (currentFnStackElement.method === req.method || currentFnStackElement.method === ('all')) {
-            fn = currentFnStackElement.fnHandle;
+          const layer = this.stack[i];
+          if (layer.match(req)) {
+            fn = layer.handle;
             break;
           }
           stackStartIndex++;
@@ -65,21 +66,13 @@ module.exports = class Route {
     };
   }
 
-  addFnHandles(method, fns) {
+  addLayers(method, fns) {
     if (this.started) return this;
 
     if (Array.isArray(fns)) {
-      Utils.forEach(Utils.flatten(fns), fn => {
-        this._fnStack.push({
-          method: method,
-          fnHandle: fn
-        });
-      });
-    } else {
-      this._fnStack.push({
-        method: method,
-        fnHandle: fns
-      })
+      Utils.forEach(Utils.flatten(fns), fn => this.stack.push(new Layer(method, fn) ) );
+    } else if (typeof fns === 'function') {
+      this.stack.push(new Layer(method, fns));
     }
     return this;
   }
