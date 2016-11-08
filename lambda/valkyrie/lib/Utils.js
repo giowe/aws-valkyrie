@@ -48,4 +48,10 @@ module.exports = class Utils {
       (a, b) => a.concat(Array.isArray(b) ? Utils.flatten(b) : b), []
     );
   }
+
+  static repeatText(text, repetition) {
+    let out = '';
+    for (let i = 0; i < repetition; i++) out = `${out}${text}`;
+    return out;
+  }
 };

@@ -23,7 +23,7 @@ module.exports = class Router {
     this._started = false;
 
     Utils.forEach(supportedMethods, method => {
-      this[method] = function() { this._methodHandler(method, Array.from(arguments)); };
+      this[method] = function() { this._methodHandle(method, Array.from(arguments)); };
     });
     return this;
   }
@@ -37,7 +37,7 @@ module.exports = class Router {
   }
 
   use() {
-    this._methodHandler('all', Array.from(arguments));
+    this._methodHandle('all', Array.from(arguments));
   };
 
   get path() {
@@ -45,10 +45,12 @@ module.exports = class Router {
     else return Utils.joinUrls(this._parent.path, this.mountpath);
   }
 
-  _methodHandler(method, args) {
+  _methodHandle(method, args) {
     if (this.started) return;
     let path = '*';
+    //TODO     var handles = flatten(slice.call(arguments));
 
+    //TODO brutto brutto brutto. si riesce a fare di meglio!?
     const pathArg = args[0];
     if (typeof pathArg === 'string') {
       path = args.shift();
@@ -102,10 +104,11 @@ module.exports = class Router {
     return new Route(path).mount(this);
   }
 
-  getNextRoute(req, res, fromIndex){
-    if (typeof fromIndex === 'undefined') fromIndex = 0;
+  getNextRoute(req, res, stackStartIndex){
+    if (typeof stackStartIndex === 'undefined') stackStartIndex = 0;
+
     const l = this.routeStack.length;
-    for (let i = fromIndex; i < l; i++) {
+    for (let i = stackStartIndex; i < l; i++) {
       const mountable = this.routeStack[i];
 
       let route;
@@ -127,7 +130,7 @@ module.exports = class Router {
       if (route) return route;
     }
 
-    return new Route('*', 'all', (req, res) => { res.status(500).send('no route found.') });
+    return new Route('*').all( (req, res) => { res.status(500).send('no route found.') } );
   }
 
   /**
@@ -136,27 +139,17 @@ module.exports = class Router {
    */
   describe(level) {
     if (typeof level !== 'number') level = 0;
-    let indent = '';
-    for (let i = 0; i < level; i++) indent += '│ ';
-    console.log(`${indent}${this.constructor.name} (${this._routeIndex}) - ${this.path}`);
+    let indent = Utils.repeatText('    ', level++);
+    console.log(`\u001B[32m${indent}${this.constructor.name} (${this._routeIndex}) - ${this.path}\u001B[39m`);
+    indent = Utils.repeatText('    ', level);
 
-    const routeStackLength = this.routeStack.length;
-    Utils.forEach(this.routeStack, (mountables, routeIndex) => {
+    Utils.forEach(this.routeStack, (mountables) => {
       const type = mountables.constructor.name;
-
-      const routeFrame = routeIndex < routeStackLength-1 || level !== 0? '├─ ' : '└─ ';
-      const fnStackFrame1 = routeIndex < routeStackLength-1 || level !== 0? '│' : ' ';
-
-      if (type !== 'Route') mountables.describe(level+1);
+      if (type !== 'Route') mountables.describe(level);
       else {
-        console.log(`${indent}${routeFrame}${type} (${mountables._routeIndex}) - ${mountables.path}`);
-        console.log(`${indent}${fnStackFrame1}   └──────┐`);
-        const fnStack = mountables._fnStack;
-        const fnStackLength = fnStack.length;
-        Utils.forEach(fnStack, (fnStackElement, fnStackIndex) => {
-          const fnStackFrame2 = fnStackIndex < fnStackLength-1? '├─ ' : '└─ ';
-          console.log(`${indent}${fnStackFrame1}          ${fnStackFrame2}(${fnStackIndex}) [${fnStackElement.method}]`);
-          if (fnStackIndex===fnStackLength-1 && routeIndex < routeStackLength -1) console.log(`${indent}│`);
+        console.log(`\u001B[36m${indent}${type} (${mountables._routeIndex}) - ${mountables.path}\u001B[39m`);
+        Utils.forEach(mountables._fnStack, (fnStackElement, fnStackIndex) => {
+          console.log(`${indent}  └──────(${fnStackIndex}) [${fnStackElement.method}]`);
         });
       }
     });

@@ -6,16 +6,14 @@ const Utils            = require('./Utils');
 
 supportedMethods.push('all');
 module.exports = class Route {
-  constructor(basePath, method, fnHandlers) {
+  constructor(basePath) {
     this.basePath = basePath;
     this._parent = null;
     this._routeIndex = null;
     this._fnStack = [];
 
-    if (method && fnHandlers) this.addFnHandlers(method, fnHandlers);
-
     Utils.forEach(supportedMethods, method => {
-      this[method] = (fns) => this.addFnHandlers(method, fns);
+      this[method] = (fns) => this.addFnHandles(method, fns);
     });
 
     return this;
@@ -31,52 +29,56 @@ module.exports = class Route {
     return this.basePath;
   }
 
-  getNextFnHandler(req, res, fromIndex) {
+  getNextFnHandle(req, res, stackStartIndex) {
     return (arg) => {
-      if (typeof fromIndex === 'undefined') fromIndex = 0;
+      if (typeof stackStartIndex === 'undefined') stackStartIndex = 0;
 
       let fn;
       let next;
 
       const l = this._fnStack.length;
-      if (fromIndex < l && arg !=='route') {
-        for (let i = fromIndex; i < l; i++) {
+      if (stackStartIndex < l && arg !=='route') {
+        for (let i = stackStartIndex; i < l; i++) {
           const currentFnStackElement = this._fnStack[i];
           if (currentFnStackElement.method === req.method || currentFnStackElement.method === ('all')) {
-            fn = currentFnStackElement.fnHandler;
+            fn = currentFnStackElement.fnHandle;
             break;
           }
-          fromIndex++;
+          stackStartIndex++;
         }
 
-        next = this.getNextFnHandler(req, res, fromIndex + 1);
+        next = this.getNextFnHandle(req, res, stackStartIndex + 1);
 
       } else {
-        fn = this._parent.getNextRoute(req, res, this._routeIndex + 1).getNextFnHandler(req, res);
+        fn = this._parent.getNextRoute(req, res, this._routeIndex + 1).getNextFnHandle(req, res);
       }
 
       if (!next) {
-        next = this._parent.getNextRoute(req, res, this._routeIndex + 1).getNextFnHandler(req, res);
+        next = this._parent.getNextRoute(req, res, this._routeIndex + 1).getNextFnHandle(req, res);
       }
 
-      fn(req, res, next);
+      try {
+        fn(req, res, next);
+      } catch(err) {
+        res.status(500).send(err.stack);
+      }
     };
   }
 
-  addFnHandlers(method, fns) {
+  addFnHandles(method, fns) {
     if (this.started) return this;
 
     if (Array.isArray(fns)) {
       Utils.forEach(Utils.flatten(fns), fn => {
         this._fnStack.push({
           method: method,
-          fnHandler: fn
+          fnHandle: fn
         });
       });
     } else {
       this._fnStack.push({
         method: method,
-        fnHandler: fns
+        fnHandle: fns
       })
     }
     return this;

@@ -74,7 +74,7 @@ exports.handler = (req, context, callback) => {
     res.send('hi, this is router2!');
   });
 
-  app.use('/router', router);
+  //app.use('/router', router);
 
   //router.use('/router2', router2);
 
