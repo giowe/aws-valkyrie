@@ -47,10 +47,8 @@ module.exports = class Router {
 
   _methodHandle(method, args) {
     if (this.started) return;
-    let path = '*';
-    //TODO     var handles = flatten(slice.call(arguments));
 
-    //TODO brutto brutto brutto. si riesce a fare di meglio!?
+    let path = '*';
     const pathArg = args[0];
     if (typeof pathArg === 'string') {
       path = args.shift();
@@ -61,14 +59,10 @@ module.exports = class Router {
       }
     }
 
-    let mountables = [];
-    const constructors = ['Function', 'Router', 'Application'];
+    const mountables = [];
+    args = Utils.flatten(args);
     Utils.forEach(args, arg => {
-      if (constructors.indexOf(arg.constructor.name) !== -1) mountables.push(arg);
-      else if ( Array.isArray(arg) ) {
-        arg = Utils.flatten(arg);
-        if (constructors.indexOf(arg[0].constructor.name) !== -1)  mountables = mountables.concat(arg);
-      }
+      if (['Function', 'Router', 'Application'].indexOf(arg.constructor.name) !== -1) mountables.push(arg);
     });
 
     let route;
