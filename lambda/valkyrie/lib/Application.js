@@ -30,6 +30,6 @@ module.exports = class Application extends Router{
     this.res.req = this.req;
 
     const firstRoute = this.getNextRoute(this.req, this.res);
-    if (firstRoute) firstRoute.getNextFnHandle(this.req, this.res).call();
+    if (firstRoute) firstRoute.getNextLayer(this.req, this.res).call();
   };
 };

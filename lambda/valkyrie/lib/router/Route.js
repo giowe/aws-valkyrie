@@ -10,14 +10,34 @@ module.exports = class Route {
   constructor(basePath) {
     this.basePath = basePath;
     this._parent = null;
+    this._methods = {};
+    //todo questo se ne andra'
     this._routeIndex = null;
     this.stack = [];
 
     Utils.forEach(supportedMethods, method => {
-      this[method] = (fns) => this.addLayers(method, fns);
+      this[method] = function() {
+        this._addLayers(method, Array.from(arguments));
+        return this;
+      };
     });
 
     return this;
+  }
+
+  _addLayers(method, handles) {
+    if (this.started) return this;
+
+    Utils.forEach(handles, handle => {
+      const type = typeof handle;
+
+      if (type !== 'function') {
+        throw new TypeError(`Route.${method}() requires callback functions but got a ${type}`);
+      }
+
+      this._methods[method] = true;
+      this.stack.push(new Layer(method, handle));
+    });
   }
 
   get started() {
@@ -30,7 +50,7 @@ module.exports = class Route {
     return this.basePath;
   }
 
-  getNextFnHandle(req, res, stackStartIndex) {
+  getNextLayer(req, res, stackStartIndex) {
     return (arg) => {
       if (typeof stackStartIndex === 'undefined') stackStartIndex = 0;
 
@@ -48,33 +68,48 @@ module.exports = class Route {
           stackStartIndex++;
         }
 
-        next = this.getNextFnHandle(req, res, stackStartIndex + 1);
+        next = this.getNextLayer(req, res, stackStartIndex + 1);
 
       } else {
-        fn = this._parent.getNextRoute(req, res, this._routeIndex + 1).getNextFnHandle(req, res);
+        fn = this._parent.getNextRoute(req, res, this._routeIndex + 1).getNextLayer(req, res);
       }
 
       if (!next) {
-        next = this._parent.getNextRoute(req, res, this._routeIndex + 1).getNextFnHandle(req, res);
+        next = this._parent.getNextRoute(req, res, this._routeIndex + 1).getNextLayer(req, res);
       }
 
-      try {
+      //try {
         fn(req, res, next);
-      } catch(err) {
-        res.status(500).send(err.stack);
-      }
+      //} catch(err) {
+      //  res.status(500).send(err.stack);
+     // }
     };
   }
 
-  addLayers(method, fns) {
-    if (this.started) return this;
+  dispatch(req, res, done) {
+    let idx = 0;
+    const stack = this.stack;
+    if (stack.length === 0) return done();
 
-    if (Array.isArray(fns)) {
-      Utils.forEach(Utils.flatten(fns), fn => this.stack.push(new Layer(method, fn) ) );
-    } else if (typeof fns === 'function') {
-      this.stack.push(new Layer(method, fns));
+    let method = req.method;
+    if (method === 'head' && !this.methods['head']) method = 'get';
+
+    req.route = this;
+
+    next();
+
+    function next(err) {
+      if (err === 'route') return done();
+
+      const layer = stack[idx++];
+
+      if (!layer) return done(err);
+
+      if (layer.match(method)) return next(err);
+
+      if (err) layer.handle_error(err, req, res, next);
+      else layer.handle_request(req, res, next);
     }
-    return this;
   }
 
   mount(parent) {
@@ -84,9 +119,15 @@ module.exports = class Route {
     return this
   }
 
-  matchPath(req, settings) {
+  _handlesMethod(method) {
+    if (this._methods.all) return true;
+    if (method === 'head' && !this._methods['head']) method = 'get';
+    return this._methods[method];
+  };
+
+  _matchPath(req, settings) {
     const path = this.path;
-    if (this.path === '*') return this;
+    if (this.path === '*') return true;
 
     const keys = [];
     const re = pathToRegexp(path, keys, settings);
@@ -102,6 +143,11 @@ module.exports = class Route {
       }
     });
 
-    return this;
+    return true;
+  }
+
+  match(req, settings) {
+    if (this._handlesMethod(req.method) &&  this._matchPath(req, settings)) return this;
+    return null;
   }
 };

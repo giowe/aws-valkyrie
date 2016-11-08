@@ -108,7 +108,7 @@ module.exports = class Router {
       let route;
       switch (mountable.constructor.name) {
         case 'Route':
-          route = mountable.matchPath(req, this.settings);
+          route = mountable.match(req, this.settings);
           break;
         case 'Application':
         case 'Router': {
@@ -134,7 +134,7 @@ module.exports = class Router {
   describe(level) {
     if (typeof level !== 'number') level = 0;
     let indent = Utils.repeatText('    ', level++);
-    console.log(`\u001B[32m${indent}${this.constructor.name} (${this._routeIndex}) - ${this.path}\u001B[39m`);
+    console.log(`\u001B[32m${indent} (${this._routeIndex}) ${this.constructor.name} ${this.path}\u001B[39m`);
     indent = Utils.repeatText('    ', level);
 
     Utils.forEach(this.routeStack, (mountables) => {
@@ -142,8 +142,8 @@ module.exports = class Router {
       if (type !== 'Route') mountables.describe(level);
       else {
         console.log(`\u001B[36m${indent}${type} (${mountables._routeIndex}) - ${mountables.path}\u001B[39m`);
-        Utils.forEach(mountables.stack, (fnStackElement, fnStackIndex) => {
-          console.log(`${indent}  └──────(${fnStackIndex}) [${fnStackElement.method}]`);
+        Utils.forEach(mountables.stack, (layer, layerIndex) => {
+          console.log(`${indent}  └──────(${layerIndex}) ${layer.name || '-'} [${layer.method}]`);
         });
       }
     });
