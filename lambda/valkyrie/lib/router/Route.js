@@ -62,6 +62,7 @@ module.exports = class Route {
     return this.basePath;
   }
 
+  //todo sparisce
   getNextLayer(req, res, stackStartIndex) {
     return (arg) => {
       if (typeof stackStartIndex === 'undefined') stackStartIndex = 0;
@@ -126,6 +127,7 @@ module.exports = class Route {
 
   mount(parent) {
     this._parent = parent;
+    //todo da togliere appena si leva _routeindex
     this._routeIndex = parent.routeStack.length;
     parent.routeStack.push(this);
     return this
