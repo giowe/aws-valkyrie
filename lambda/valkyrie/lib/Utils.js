@@ -54,4 +54,5 @@ module.exports = class Utils {
     for (let i = 0; i < repetition; i++) out = `${out}${text}`;
     return out;
   }
+
 };

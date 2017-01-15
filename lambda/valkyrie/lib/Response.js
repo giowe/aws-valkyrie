@@ -1,6 +1,8 @@
 'use strict';
 
 const Utils = require('./Utils');
+const signCookie = require('cookie-signature').sign;
+
 
 module.exports = class Response {
   constructor(app) {
@@ -24,24 +26,78 @@ module.exports = class Response {
     return this;
   }
 
+  // TO REVIEW
   cookie(name, value, options) {
-    //TODO
+    const opts = Object.assign({}, options); //CHANGED FROM EXPRESS
+    const secret = this.app.req;  //CHANGED FROM EXPRESS
+    const signed = opts.signed;
+
+    if(signed && !secret) {
+      throw new Error('cookieParser("secret") required for signed cookies');
+    }
+
+    var val = (
+      typeof value === 'object' ? 'j:' + JSON.stringify(value) : String(value)
+    );
+
+    if (signed) {
+      val = 's:' + signCookie(val, secret)
+    }
+
+    if ('maxAge' in opts){
+      opts.expires = new Date(Date.now() + opts.maxAge);
+      opt.maxAge /= 1000
+    }
+
+    if (opts.path == null ) {
+      opts.path = '/';
+    }
+
+    this.append('Set-Cookie', cookie.serialize(name, String(val), opts));
+
     return this;
   }
 
+  //TO REVIEW
   clearCookie(name, options) {
-    //TODO
-    return this;
+    var opts = Object.assign({ expires: new Date(1), path: ' /'}, options); //CHANGED FROM EXPRESS
+
+    return this.cookie(name, '', opts);
   }
 
   end(data, encoding) {
     //TODO: do i really need this?
   }
 
+  // TO REVIEW
   format(object){
-    //TODO
+    const req = this.app.req;
+    const next = req.next;
+
+    const fn =object.default;
+    if (fn) delete object.default;
+
+    var key = Object.keys(object).length > 0 ? req.accepts(keys) : false;
+
+    this.vary("Accept");
+
+    if (key) {
+      this.set('Content-Type', normalizeTy)
+    }
+
+
     return this;
   }
+
+  vary(){
+    pass;
+  }
+
+  set() {
+
+  }
+
+
 
   json(body){
     //TODO: do i want this or i just want to have a smart, body aware, send method?

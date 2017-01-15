@@ -14,7 +14,7 @@
   },
   "homepage": "https://github.com/giowe/aws-valkyrie#readme",
   "dependencies": {
+    "cookie-signature": "^1.0.6",
     "path-to-regexp": "^1.6.0"
   }
 }
-
