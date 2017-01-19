@@ -2,6 +2,10 @@
 
 const Utils = require('./Utils');
 const signCookie = require('cookie-signature').sign;
+const deprecate = require('depd')('aws-valkyrie');
+const vary = require('vary');
+
+const charsetRegExp = /;\s*charset\s*=/;
 
 
 module.exports = class Response {
@@ -26,10 +30,9 @@ module.exports = class Response {
     return this;
   }
 
-  // TO REVIEW
   cookie(name, value, options) {
-    const opts = Object.assign({}, options); //CHANGED FROM EXPRESS
-    const secret = this.app.req;  //CHANGED FROM EXPRESS
+    const opts = Object.assign({}, options);
+    const secret = this.app.req;
     const signed = opts.signed;
 
     if(signed && !secret) {
@@ -58,9 +61,9 @@ module.exports = class Response {
     return this;
   }
 
-  //TO REVIEW
+
   clearCookie(name, options) {
-    var opts = Object.assign({ expires: new Date(1), path: ' /'}, options); //CHANGED FROM EXPRESS
+    var opts = Object.assign({ expires: new Date(1), path: ' /'}, options);
 
     return this.cookie(name, '', opts);
   }
@@ -82,25 +85,61 @@ module.exports = class Response {
     this.vary("Accept");
 
     if (key) {
-      this.set('Content-Type', normalizeTy)
+      this.set('Content-Type', Utils.normalizeType(key).value);
+      object[key](req, this, next)
+    } else if (fn) {
+      fn();
+    } else {
+      var err = new Error('Not Acceptable');
+      err.status = err.statusCode = 406;
+      err.types = normalizeTypes(keys).map(o => o.value);
+      next(err);
     }
-
 
     return this;
   }
 
-  vary(){
-    pass;
+  vary(field){
+    if (!field || (isArray(field)) && !field.length) {
+      deprecate('res.vary(): Provide a field name');
+      return this;
+    }
+
+    vary(this, field);
+
+    return this;
   }
 
-  set() {
+  header(field, val) {
+    if (arguments.length === 2) {
+      var value = isArray(val) ? val.map(String) : String(val);
 
+
+      if (field.toLowerCase() === 'content-type' && !charsetRegExp.test(value)) {
+        const charset = mime.charsets.lookup(value.split(';')[0]);
+        if (charset) {
+          value += ';charset=' + charset.toLowerCase()
+        }
+      }
+
+      this.setHeader(field, value);
+    } else {
+      for (var key in field) {
+        this.set(key, field[key]);
+      }
+    }
+
+    return this;
   }
 
+  set(field, val) {
+    this.header(field, val)
+  }
 
 
   json(body){
-    //TODO: do i want this or i just want to have a smart, body aware, send method?
+    //TODO: REVIEW, CAN USE ONLY SEND
+    this.send(body)
   }
 
   jsonp(body){
@@ -118,10 +157,17 @@ module.exports = class Response {
   send(body) {
     if (typeof body !== 'undefined') this.body = body;
 
+    if (typeof  body !== 'json') {
+      const resBody = Utils.stringify(body, this.get('json replacer'), this.get('json spaces'));
+      this.set('Content-Type', 'application/json')
+    } else {
+      const resBody = Utils.stringify(this.body)
+    }
+
     const response = {
       statusCode: this.statusCode,
       headers: this.headers,
-      body: Utils.stringify(this.body)
+      body: resBody,
     };
 
     if (this.app.settings.useContextSucceed) this.context.succeed(response);
