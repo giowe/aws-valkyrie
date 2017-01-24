@@ -4,6 +4,8 @@ const Utils = require('./Utils');
 const signCookie = require('cookie-signature').sign;
 const deprecate = require('depd')('aws-valkyrie');
 const vary = require('vary');
+const cookie = require('cookie'); //TODO: add to package.json
+
 
 const charsetRegExp = /;\s*charset\s*=/;
 
@@ -49,7 +51,7 @@ module.exports = class Response {
 
     if ('maxAge' in opts){
       opts.expires = new Date(Date.now() + opts.maxAge);
-      opt.maxAge /= 1000
+      opts.maxAge /= 1000
     }
 
     if (opts.path == null ) {
@@ -72,12 +74,11 @@ module.exports = class Response {
     //TODO: do i really need this?
   }
 
-  // TO REVIEW
   format(object){
     const req = this.app.req;
     const next = req.next;
 
-    const fn =object.default;
+    const fn = object.default;
     if (fn) delete object.default;
 
     var key = Object.keys(object).length > 0 ? req.accepts(keys) : false;
@@ -139,7 +140,7 @@ module.exports = class Response {
 
   json(body){
     //TODO: REVIEW, CAN USE ONLY SEND
-    this.send(body)
+    this.send(body);
   }
 
   jsonp(body){
@@ -151,7 +152,24 @@ module.exports = class Response {
   }
 
   render(view, locals, callback) {
-    //TODO
+      const app = this.app;
+      var done = callback;
+      var opts = locals || {};
+      const req = this.app.req;
+
+      if (typeof opts === 'function') {
+          done = opts;
+          opts = {};
+      }
+
+      opts._locals = this.locals;
+
+      done = done || function (err, str) {
+          if (err) return req.next(err);
+          this.send(str);
+      }
+
+      app.render(view, opts, done);
   }
 
   send(body) {
@@ -159,7 +177,7 @@ module.exports = class Response {
 
     if (typeof  body !== 'json') {
       const resBody = Utils.stringify(body, this.get('json replacer'), this.get('json spaces'));
-      this.set('Content-Type', 'application/json')
+      this.set('Content-Type', 'application/json');
     } else {
       const resBody = Utils.stringify(this.body)
     }
@@ -174,8 +192,16 @@ module.exports = class Response {
     else this.callback(null, response);
   }
 
-  sendFile(){
+  //TODO: REVIEW
     //TODO: send file from s3 ?
+    sendFile(s3Url){
+        if (arguments.length === 2) {
+            //TODO: control url, must be s3 url
+            this.redirect(s3Url)
+        } else {
+            //TODO: error, need arguments
+        }
+
   }
 
   sendStatus(statusCode) {
