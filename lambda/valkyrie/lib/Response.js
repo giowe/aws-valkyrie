@@ -1,5 +1,6 @@
 'use strict';
 
+var mime = require('send').mime;
 const Utils = require('./Utils');
 const signCookie = require('cookie-signature').sign;
 const deprecate = require('depd')('aws-valkyrie');
@@ -7,8 +8,8 @@ const vary = require('vary');
 const cookie = require('cookie'); //TODO: add to package.json
 
 
-const charsetRegExp = /;\s*charset\s*=/;
-
+// const charsetRegExp = /;\s*charset\s*=/;
+var charsetRegExp = new RegExp('\;\s*charset\s*=');
 
 module.exports = class Response {
   constructor(app) {
@@ -113,17 +114,18 @@ module.exports = class Response {
 
   header(field, val) {
     if (arguments.length === 2) {
-      var value = isArray(val) ? val.map(String) : String(val);
+      var value = Array.isArray(val) ? val.map(String) : String(val);
 
+      //console.log(value, typeof value);
 
       if (field.toLowerCase() === 'content-type' && !charsetRegExp.test(value)) {
-        const charset = mime.charsets.lookup(value.split(';')[0]);
+          const charset = mime.lookup(value.split(';')[0]);
         if (charset) {
           value += ';charset=' + charset.toLowerCase()
         }
+          this.set(field, value);
       }
 
-      this.setHeader(field, value);
     } else {
       for (var key in field) {
         this.set(key, field[key]);
@@ -139,7 +141,8 @@ module.exports = class Response {
 
 
   json(body){
-    //TODO: REVIEW, CAN USE ONLY SEND
+    body = Utils.stringify(body, this.app.get('json replacer'), this.app.get('json spaces'));
+    this.set('Content-Type', 'application/json');
     this.send(body);
   }
 
@@ -175,12 +178,7 @@ module.exports = class Response {
   send(body) {
     if (typeof body !== 'undefined') this.body = body;
 
-    if (typeof  body !== 'json') {
-      const resBody = Utils.stringify(body, this.get('json replacer'), this.get('json spaces'));
-      this.set('Content-Type', 'application/json');
-    } else {
-      const resBody = Utils.stringify(this.body)
-    }
+    const resBody = Utils.stringify(body);
 
     const response = {
       statusCode: this.statusCode,
@@ -196,7 +194,7 @@ module.exports = class Response {
     //TODO: send file from s3 ?
     sendFile(s3Url){
         if (arguments.length === 2) {
-            //TODO: control url, must be s3 url
+            //TODO: control url, must be s3 url?
             this.redirect(s3Url)
         } else {
             //TODO: error, need arguments
