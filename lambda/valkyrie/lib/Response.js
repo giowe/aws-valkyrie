@@ -6,10 +6,10 @@ const signCookie = require('cookie-signature').sign;
 const deprecate = require('depd')('aws-valkyrie');
 const vary = require('vary');
 const cookie = require('cookie'); //TODO: add to package.json
-
+const STATUS_CODES = require('http').STATUS_CODES;
 
 // const charsetRegExp = /;\s*charset\s*=/;
-var charsetRegExp = new RegExp('\;\s*charset\s*=');
+const charsetRegExp = new RegExp('\;\s*charset\s*=');
 
 module.exports = class Response {
   constructor(app) {
@@ -42,22 +42,16 @@ module.exports = class Response {
       throw new Error('cookieParser("secret") required for signed cookies');
     }
 
-    var val = (
-      typeof value === 'object' ? 'j:' + JSON.stringify(value) : String(value)
-    );
+    let val = typeof value === 'object' ? 'j:' + JSON.stringify(value) : String(value);
 
-    if (signed) {
-      val = 's:' + signCookie(val, secret)
-    }
+    if (signed) val = 's:' + signCookie(val, secret);
 
-    if ('maxAge' in opts){
+    if (opts.maxAge){
       opts.expires = new Date(Date.now() + opts.maxAge);
       opts.maxAge /= 1000
     }
 
-    if (opts.path == null ) {
-      opts.path = '/';
-    }
+    if (!opts.path) opts.path = '/';
 
     this.append('Set-Cookie', cookie.serialize(name, String(val), opts));
 
@@ -66,8 +60,10 @@ module.exports = class Response {
 
 
   clearCookie(name, options) {
-    var opts = Object.assign({ expires: new Date(1), path: ' /'}, options);
-
+    const opts = Object.assign({
+      expires: new Date(1),
+      path: ' /'
+    }, options);
     return this.cookie(name, '', opts);
   }
 
@@ -82,7 +78,7 @@ module.exports = class Response {
     const fn = object.default;
     if (fn) delete object.default;
 
-    var key = Object.keys(object).length > 0 ? req.accepts(keys) : false;
+    const key = Object.keys(object).length > 0 ? req.accepts(keys) : false;
 
     this.vary("Accept");
 
@@ -92,7 +88,7 @@ module.exports = class Response {
     } else if (fn) {
       fn();
     } else {
-      var err = new Error('Not Acceptable');
+      const err = new Error('Not Acceptable');
       err.status = err.statusCode = 406;
       err.types = normalizeTypes(keys).map(o => o.value);
       next(err);
@@ -102,32 +98,28 @@ module.exports = class Response {
   }
 
   vary(field){
-    if (!field || (isArray(field)) && !field.length) {
-      deprecate('res.vary(): Provide a field name');
-      return this;
-    }
-
     vary(this, field);
-
     return this;
   }
 
   header(field, val) {
     if (arguments.length === 2) {
-      var value = Array.isArray(val) ? val.map(String) : String(val);
+      let value = Array.isArray(val) ? val.map(String) : String(val);
 
       //console.log(value, typeof value);
 
       if (field.toLowerCase() === 'content-type' && !charsetRegExp.test(value)) {
           const charset = mime.lookup(value.split(';')[0]);
-        if (charset) {
-          value += ';charset=' + charset.toLowerCase()
-        }
-          this.set(field, value);
+        if (charset) value += ';charset=' + charset.toLowerCase();
+
+        this.set(field, value);
       }
 
     } else {
-      for (var key in field) {
+      const keys = Object.keys(field);
+      const l = keys.length;
+      for (let i = 0; i < l; i++) {
+        const key = keys[i];
         this.set(key, field[key]);
       }
     }
@@ -138,7 +130,6 @@ module.exports = class Response {
   set(field, val) {
     this.header(field, val)
   }
-
 
   json(body){
     body = Utils.stringify(body, this.app.get('json replacer'), this.app.get('json spaces'));
@@ -151,13 +142,13 @@ module.exports = class Response {
   }
 
   redirect(status, path) {
-    //TODO: do i want this ?
+    //TODO: do i want this ? SURE.
   }
 
   render(view, locals, callback) {
       const app = this.app;
-      var done = callback;
-      var opts = locals || {};
+      let done = callback;
+      let opts = locals || {};
       const req = this.app.req;
 
       if (typeof opts === 'function') {
@@ -170,7 +161,7 @@ module.exports = class Response {
       done = done || function (err, str) {
           if (err) return req.next(err);
           this.send(str);
-      }
+      };
 
       app.render(view, opts, done);
   }
@@ -203,9 +194,8 @@ module.exports = class Response {
   }
 
   sendStatus(statusCode) {
-    const statusCodes  = require('http').STATUS_CODES;
     this.status(statusCode);
-    this.send(statusCodes[statusCode] || String(statusCode));
+    this.send(STATUS_CODES[statusCode] || String(statusCode));
   }
 
   status(statusCode) {
