@@ -1,6 +1,6 @@
 'use strict';
 
-var mime = require('send').mime;
+const mime = require('send').mime;
 const Utils = require('./Utils');
 const signCookie = require('cookie-signature').sign;
 const deprecate = require('depd')('aws-valkyrie');
@@ -8,7 +8,6 @@ const vary = require('vary');
 const cookie = require('cookie'); //TODO: add to package.json
 const STATUS_CODES = require('http').STATUS_CODES;
 
-// const charsetRegExp = /;\s*charset\s*=/;
 const charsetRegExp = new RegExp('\;\s*charset\s*=');
 
 module.exports = class Response {
@@ -106,8 +105,6 @@ module.exports = class Response {
     if (arguments.length === 2) {
       let value = Array.isArray(val) ? val.map(String) : String(val);
 
-      //console.log(value, typeof value);
-
       if (field.toLowerCase() === 'content-type' && !charsetRegExp.test(value)) {
           const charset = mime.lookup(value.split(';')[0]);
         if (charset) value += ';charset=' + charset.toLowerCase();
@@ -141,8 +138,34 @@ module.exports = class Response {
     //TODO: do i want this ?
   }
 
-  redirect(status, path) {
-    //TODO: do i want this ? SURE.
+  redirect(status=302, path) {
+    const address = this.location(path).get('Location');
+    let body;
+
+    this.format({
+      text: function(){
+        body = STATUS_CODES[status] + '. Redirecting to ' + address;
+      },
+
+      html: function(){
+        const u = escapeHtml(address);
+        body = '<p>' + STATUS_CODES[status] + '. Redirecting to <a href="' + u + '">' + u + '</a></p>';
+      },
+
+      default: function(){
+        body = '';
+      }
+    });
+
+    this.statusCode = status;
+    this.set('Content-Length', Buffer.byteLength(body));
+
+    if (this.app.req.method === 'HEAD') {
+      this.end();
+    } else {
+      this.end(body);
+    }
+
   }
 
   render(view, locals, callback) {
@@ -181,16 +204,15 @@ module.exports = class Response {
     else this.callback(null, response);
   }
 
-  //TODO: REVIEW
-    //TODO: send file from s3 ?
     sendFile(s3Url){
-        if (arguments.length === 2) {
-            //TODO: control url, must be s3 url?
-            this.redirect(s3Url)
-        } else {
-            //TODO: error, need arguments
-        }
-
+      const next = this.app.req.next;
+      if (arguments.length === 2) {
+        //TODO: must be an s3url???
+        this.redirect(s3Url)
+      } else {
+        const err = new Error('sendFile needs an arguments');
+        next(err);
+      }
   }
 
   sendStatus(statusCode) {
@@ -203,7 +225,21 @@ module.exports = class Response {
     return this;
   }
 
+  //TODO: Do i need this?
   type(type){
-    //TODO: Do i need this?
+    const ct = type.indexOf('/') === -1 ? mime.lookup(type) : type;
+
+    return this.set('Content-Type', ct);
+  }
+
+  //TODO: Do I need this?
+  location(url) {
+    let loc = url;
+
+    if (loc === 'back') {
+      loc = this.app.req('Referrer') || '/';
+    }
+
+    return this.set('Location', encodeUrl(loc));
   }
 };

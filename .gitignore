@@ -3,3 +3,4 @@
 *.log
 lambda/valkyrie/etc/
 lambda-config.json
+yarn.lock
