@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use strict';
 
 const valkyrie = require('./valkyrie/valkyrie');
@@ -11,7 +12,7 @@ const middle1 = (req, res, next) => {
   //res.send('this is middle 1');
 };
 
-app.use( (req, res, next) => {
+app.use((req, res, next) => {
   console.log('PATH >>>', req.path);
   next();
 });
@@ -22,11 +23,11 @@ const skipMiddle = (req, res, next) => {
 };
 
 app.use('/test-next', middle1, middle1, middle1, skipMiddle, middle1, middle1, (req, res) => {
-  res.send('test-next')
+  res.send('test-next');
 });
 
 app.get('/test-next', (req, res) => {
-  res.send('test-next-skipped')
+  res.send('test-next-skipped');
 });
 
 app.use(['/route', ['/route2', '/route3']], (req, res, next) => {
@@ -36,10 +37,10 @@ app.use(['/route', ['/route2', '/route3']], (req, res, next) => {
 
 app.route('/route')
   .get((req, res) => {
-    res.send('this is route in get')
+    res.send('this is route in get');
   })
   .post((req, res) => {
-    res.send('this is the same route in post')
+    res.send('this is the same route in post');
   })
   .head((req, res, next) => {
     res.sendStatus(201);
@@ -79,12 +80,11 @@ router2.get('/hi', (req, res, next) => {
 
 app.use('*', (req, res, next) => {
   res.status(404).send('not found!');
-  next()
-
+  next();
 });
 
 app.describe();
 
-exports.handler = (req, context, callback) => {
-  app.start(req, context, callback);
+exports.handler = (...args) => {
+  app.start(...args);
 };
