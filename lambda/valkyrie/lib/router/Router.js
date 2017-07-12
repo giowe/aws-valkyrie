@@ -4,22 +4,22 @@ const methods = require('methods');
 const Utils = require('./../Utils');
 const Route = require('./Route');
 
-const _defaultSettings =  {
-  sensitive: false, //When true the path will be case sensitive
-  strict: false,    //When false the trailing slash is optional
-  end: true,        //When false the path will match at the beginning
-  delimiter: '/'    //Set the default delimiter for repeat parameters
-};
-
 let _fakeRoute;
 module.exports = class Router {
   constructor(settings) {
-    this.mountpath = '';
-    this.settings = Object.assign({}, _defaultSettings, settings);
-    this.routeStack = [];
-    this._routeIndex = null;
-    this._parent = null;
-    this._started = false;
+    Object.assign(this, {
+      mountpath: '',
+      settings: Object.assign({
+        sensitive: false, //When true the path will be case sensitive
+        strict: false,    //When false the trailing slash is optional
+        end: true,        //When false the path will match at the beginning
+        delimiter: '/'    //Set the default delimiter for repeat parameters
+      }, settings),
+      routeStack: [],
+      _routeIndex: null,
+      _parent: null,
+      _started: false
+    });
 
     ['all', ...methods].forEach(method => {
       this[method] = function() { this._methodHandle(method, Array.from(arguments)); };
