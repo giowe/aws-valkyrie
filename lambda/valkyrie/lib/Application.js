@@ -1,39 +1,43 @@
 'use strict';
 
-const formatRequest = require('./format-request');
 const Response      = require('./Response');
 const Router        = require('./router/Router');
 
-module.exports = class Application extends Router{
+class Application extends Router{
   constructor(settings) {
     super(Object.assign({
       useContextSucceed: false
     }, settings));
     this.locales = Object.create(null);
     return this;
-  };
+  }
 
   static Router(settings) { return new Router(settings); }
 
-  start(req, context, callback){
-    this._started = true;
-
-    this.context = context;
-    this.callback = callback;
-
-    
-    this.req = Object.assign(req, {
+  start(event, context, callback){
+    const method = event.httpMethod.toLowerCase();
+    const req = Object.assign({}, event, {
       app: this,
       params: {},
       httpMethod: method,
       method
-    }, req);
-    this.res = new Response(this);
+    });
 
-    this.req.res = this.res;
-    this.res.req = this.req;
+    Object.assign(this, {
+      context,
+      callback,
+      req,
+      _started: true //todo valutare se possiamo levarla!
+    });
 
-    const firstRoute = this.getNextRoute(this.req, this.res);
-    if (firstRoute) firstRoute.getNextLayer(this.req, this.res).call();
-  };
-};
+    const res = new Response(this);
+    this.res = res;
+    res.req = req;
+    req.res = res;
+
+    const firstRoute = this.getNextRoute(req, res);
+    if (firstRoute) firstRoute.getNextLayer(req, res).call();
+  }
+}
+
+module.exports = Application;
