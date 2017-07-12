@@ -21,7 +21,13 @@ module.exports = class Application extends Router{
     this.context = context;
     this.callback = callback;
 
-    this.req = formatRequest(req, this);
+    
+    this.req = Object.assign(req, {
+      app: this,
+      params: {},
+      httpMethod: method,
+      method
+    }, req);
     this.res = new Response(this);
 
     this.req.res = this.res;
