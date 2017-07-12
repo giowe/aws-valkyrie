@@ -3,14 +3,12 @@
 const formatRequest = require('./format-request');
 const Response      = require('./Response');
 const Router        = require('./router/Router');
-const _defaultSettings = {
-  useContextSucceed: false
-};
 
 module.exports = class Application extends Router{
   constructor(settings) {
-    settings = Object.assign({}, _defaultSettings, settings);
-    super(settings);
+    super(Object.assign({
+      useContextSucceed: false
+    }, settings));
     this.locales = Object.create(null);
     return this;
   };

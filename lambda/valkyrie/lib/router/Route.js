@@ -1,11 +1,10 @@
 'use strict';
 
-const pathToRegexp     = require('path-to-regexp');
-const Layer            = require('./Layer');
-const Utils            = require('./../Utils');
-const supportedMethods = require('./../methods');
+const pathToRegexp = require('path-to-regexp');
+const Layer = require('./Layer');
+const Utils = require('./../Utils');
+const methods = require('methods');
 
-supportedMethods.push('all');
 module.exports = class Route {
   constructor(basePath) {
     this.basePath = basePath;
@@ -15,7 +14,7 @@ module.exports = class Route {
     this._routeIndex = null;
     this.stack = [];
 
-    Utils.forEach(supportedMethods, method => {
+    ['all', ...methods].forEach(method => {
       this[method] = function() {
         this._addLayers(method, Array.from(arguments));
         return this;

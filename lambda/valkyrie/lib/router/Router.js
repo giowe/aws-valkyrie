@@ -1,10 +1,9 @@
 'use strict';
 
-const supportedMethods = require('./../methods');
+const methods = require('methods');
 const Utils = require('./../Utils');
 const Route = require('./Route');
 
-supportedMethods.push('all');
 const _defaultSettings =  {
   sensitive: false, //When true the path will be case sensitive
   strict: false,    //When false the trailing slash is optional
@@ -22,14 +21,15 @@ module.exports = class Router {
     this._parent = null;
     this._started = false;
 
-    Utils.forEach(supportedMethods, method => {
+    ['all', ...methods].forEach(method => {
       this[method] = function() { this._methodHandle(method, Array.from(arguments)); };
     });
+
     return this;
   }
 
-//  get mountpathx() { return this.mountpaths}
-//  set mountpathx(value) {}
+  //get mountpathx() { return this.mountpaths}
+  //set mountpathx(value) {}
 
   get started() {
     if (this._parent) return this._parent.started;

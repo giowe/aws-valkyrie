@@ -42,7 +42,7 @@ app.route('/route')
   .post((req, res) => {
     res.send('this is the same route in post');
   })
-  .head((req, res, next) => {
+  .head((req, res) => {
     res.sendStatus(201);
   });
 
@@ -51,11 +51,11 @@ app.route('/route')
     res.sendStatus(201);
   });
 
-app.get('/send-status/:statusCode', (req, res, next) => {
+app.get('/send-status/:statusCode', (req, res) => {
   res.sendStatus(req.params.statusCode);
 });
 
-app.get('/log-request', (req, res, next) => {
+app.get('/log-request', (req, res) => {
   res.send(req);
 });
 
@@ -65,12 +65,12 @@ router.use((req, res, next) => {
   next();
 });
 
-router.get('/say/:text', (req, res, next) => {
+router.get('/say/:text', (req, res) => {
   console.log(`param text is equal to ${req.params.text}`);
   res.send(`I just want to say "${req.params.text}"`);
 });
 
-router2.get('/hi', (req, res, next) => {
+router2.get('/hi', (req, res) => {
   res.send('hi, this is router2!');
 });
 
@@ -85,6 +85,4 @@ app.use('*', (req, res, next) => {
 
 app.describe();
 
-exports.handler = (...args) => {
-  app.start(...args);
-};
+exports.handler = (...args) => app.start(...args);
