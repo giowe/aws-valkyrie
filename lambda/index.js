@@ -12,24 +12,25 @@ const middle1 = (req, res, next) => {
   //res.send('this is middle 1');
 };
 
-app.use((req, res, next) => {
-  console.log('PATH >>>', req.path);
-  next();
-});
-
 const skipMiddle = (req, res, next) => {
   console.log('this middleware skip to next route');
   next('route');
 };
 
-app.use('/test-next', middle1, middle1, middle1, skipMiddle, middle1, middle1, (req, res) => {
-  res.send('test-next');
-});
-
 app.get('/test-next', (req, res) => {
   res.send('test-next-skipped');
 });
 
+
+app.use((req, res, next) => {
+  console.log('PATH >>>', req.path);
+  next();
+});
+
+
+app.use('/test-next', middle1, middle1, middle1, skipMiddle, middle1, middle1, (req, res) => {
+  res.send('test-next');
+});
 //todo gestire eventualmente url multipli
 /*app.use(['/route', ['/route2', '/route3']], (req, res, next) => {
   console.log('sto qui');
@@ -54,6 +55,10 @@ app.route('/route')
 */
 app.get('/send-status/:statusCode', (req, res) => {
   res.sendStatus(req.params.statusCode);
+});
+
+app.post('/post-test', (req, res) => {
+  res.send('this is a test in post');
 });
 
 app.get('/log-request', (req, res) => {
@@ -86,4 +91,4 @@ app.use('*', (req, res, next) => {
 
 app.describe();
 
-exports.handler = (...args) => app.start(...args);
+exports.handler = (...args) => app.handleRequest(...args);

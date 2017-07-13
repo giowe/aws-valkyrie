@@ -14,7 +14,7 @@ class Application extends Router{
 
   static Router(settings) { return new Router(settings); }
 
-  start(event, context, callback){
+  handleRequest(event, context, callback){
     const method = event.httpMethod.toLowerCase();
     const req = Object.assign({}, event, {
       app: this,
@@ -34,8 +34,9 @@ class Application extends Router{
     res.req = req;
     req.res = res;
 
-    const firstRoute = this.getNextRoute(req, res);
-    if (firstRoute) firstRoute.getNextLayer(req, res).call();
+    super.handleRequest(req, res);
+   // const firstRoute = super.resolveRequest(req, res);
+    //if (firstRoute) firstRoute.getNextLayer(req, res).call();
   }
 }
 
