@@ -26,8 +26,7 @@ class Application extends Router{
     Object.assign(this, {
       context,
       callback,
-      req,
-      _started: true //todo valutare se possiamo levarla!
+      req
     });
 
     const res = new Response(this);

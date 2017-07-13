@@ -1,28 +1,29 @@
 'use strict';
 
 const methods = require('methods');
-const Utils = require('./../Utils');
+const { flatten, joinUrls, repeatText, forEach } = require('./../Utils');
 const Route = require('./Route');
 
 let _fakeRoute;
-module.exports = class Router {
+class Router {
   constructor(settings) {
+    this.settings = Object.assign({
+      sensitive: false, //When true the path will be case sensitive
+      strict: false,    //When false the trailing slash is optional
+      end: true,        //When false the path will match at the beginning
+      delimiter: '/'    //Set the default delimiter for repeat parameters
+    });
+    this.stack = [];
+
     Object.assign(this, {
       mountpath: '',
-      settings: Object.assign({
-        sensitive: false, //When true the path will be case sensitive
-        strict: false,    //When false the trailing slash is optional
-        end: true,        //When false the path will match at the beginning
-        delimiter: '/'    //Set the default delimiter for repeat parameters
-      }, settings),
       routeStack: [],
       _routeIndex: null,
-      _parent: null,
-      _started: false
+      _parent: null
     });
 
     ['all', ...methods].forEach(method => {
-      this[method] = function() { this._methodHandle(method, Array.from(arguments)); };
+      this[method] = (...args) => _register(this, method, ...args);
     });
 
     return this;
@@ -31,55 +32,13 @@ module.exports = class Router {
   //get mountpathx() { return this.mountpaths}
   //set mountpathx(value) {}
 
-  get started() {
-    if (this._parent) return this._parent.started;
-    return this._started;
+  use(...args) {
+    _register(this, 'all', ...args);
   }
-
-  use() {
-    this._methodHandle('all', Array.from(arguments));
-  };
 
   get path() {
     if (!this._parent) return this.mountpath;
-    else return Utils.joinUrls(this._parent.path, this.mountpath);
-  }
-
-  _methodHandle(method, args) {
-    if (this.started) return;
-
-    let path = '*';
-    let pathArg = args[0];
-    if (typeof pathArg === 'string') {
-      path = args.shift();
-    } else if (Array.isArray(pathArg) && pathArg.length) {
-      pathArg = Utils.flatten(pathArg);
-      if (typeof pathArg[0] === 'string') {
-        return Utils.forEach(args.shift(), path => this[method](path, args));
-      }
-    }
-
-    const mountables = [];
-    args = Utils.flatten(args);
-    Utils.forEach(args, arg => {
-      if (['Function', 'Router', 'Application'].indexOf(arg.constructor.name) !== -1) mountables.push(arg);
-    });
-
-    let route;
-    Utils.forEach(mountables, mountable => {
-      switch (mountable.constructor.name) {
-        case 'Function':
-          if (!route) route = new Route(path).mount(this);
-          route[method](mountable);
-          break;
-
-        case 'Application':
-        case 'Router':
-          route = null;
-          mountable._mount(path, this);
-          break;
-      }
-    });
+    else return joinUrls(this._parent.path, this.mountpath);
   }
 
   _mount(mountpath, parent){
@@ -91,17 +50,17 @@ module.exports = class Router {
   }
 
   route(path) {
-    if (this.started) {
+    /*if (this.started) {
       if (!_fakeRoute) _fakeRoute = new Route(path);
       return _fakeRoute;
     }
-    return new Route(path).mount(this);
+    return new Route(path).mount(this);*/
   }
 
 
   //todo sparisce
   getNextRoute(req, res, stackStartIndex){
-    if (typeof stackStartIndex === 'undefined') stackStartIndex = 0;
+  /*  if (typeof stackStartIndex === 'undefined') stackStartIndex = 0;
 
     const l = this.routeStack.length;
     for (let i = stackStartIndex; i < l; i++) {
@@ -126,7 +85,7 @@ module.exports = class Router {
       if (route) return route;
     }
 
-    return new Route('*').all( (req, res) => { res.status(500).send('no route found.') } );
+    return new Route('*').all( (req, res) => { res.status(500).send('no route found.') } );*/
   }
 
   /**
@@ -134,20 +93,30 @@ module.exports = class Router {
    * @param level
    */
   describe(level) {
-    if (typeof level !== 'number') level = 0;
-    let indent = Utils.repeatText('    ', level++);
-    console.log(`\u001B[32m${indent} (${this._routeIndex}) ${this.constructor.name} ${this.path}\u001B[39m`);
-    indent = Utils.repeatText('    ', level);
+    console.log(this.stack);
 
-    Utils.forEach(this.routeStack, (mountables) => {
+    if (typeof level !== 'number') level = 0;
+    let indent = repeatText('    ', level++);
+    console.log(`\u001B[32m${indent} (${this._routeIndex}) ${this.constructor.name} ${this.path}\u001B[39m`);
+    indent = repeatText('    ', level);
+
+    forEach(this.routeStack, (mountables) => {
       const type = mountables.constructor.name;
       if (type !== 'Route') mountables.describe(level);
       else {
         console.log(`\u001B[36m${indent}${type} (${mountables._routeIndex}) - ${mountables.path}\u001B[39m`);
-        Utils.forEach(mountables.stack, (layer, layerIndex) => {
+        forEach(mountables.stack, (layer, layerIndex) => {
           console.log(`${indent}  └──────(${layerIndex}) ${layer.name || '-'} [${layer.method}]`);
         });
       }
     });
   }
-};
+}
+
+function _register(self, method, ...args) {
+  const { stack, settings } = self;
+  const path = typeof args[0] === 'string' ? args.shift() : '*';
+  stack.push(new Route(method, path, flatten(args), settings));
+}
+
+module.exports = Router;

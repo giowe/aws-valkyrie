@@ -30,12 +30,13 @@ app.get('/test-next', (req, res) => {
   res.send('test-next-skipped');
 });
 
-app.use(['/route', ['/route2', '/route3']], (req, res, next) => {
+//todo gestire eventualmente url multipli
+/*app.use(['/route', ['/route2', '/route3']], (req, res, next) => {
   console.log('sto qui');
   next();
 });
-
-app.route('/route')
+*/
+/*app.route('/route')
   .get((req, res) => {
     res.send('this is route in get');
   })
@@ -50,7 +51,7 @@ app.route('/route')
   .put((req, res) => {
     res.sendStatus(201);
   });
-
+*/
 app.get('/send-status/:statusCode', (req, res) => {
   res.sendStatus(req.params.statusCode);
 });
@@ -74,7 +75,7 @@ router2.get('/hi', (req, res) => {
   res.send('hi, this is router2!');
 });
 
-//app.use('/router', router);
+app.use('/router', router);
 
 //router.use('/router2', router2);
 
