@@ -11,15 +11,23 @@ class Route {
     return this;
   }
 
-  handleRequest(req, res) {
-    const { method } = this;
+  handleRequest(req, res, prefix, stackIndex) {
+    const { method, layers } = this;
     //todo da gestire il metodo head come se fosse un get.
     //if (method === 'head' && !this._methods['head']) method = 'get';
     if (method !== 'all' && !(req.method === method)) {
       console.log('can`t resolve request');
       return false;
     }
-    console.log('i can handle it!', this.method, this.path);
+    
+    layers.forEach(layer => {
+      console.log(layer.constructor.name);
+      if (layer.constructor.name === 'Router') {
+        return layer.handleRequest(req, res, prefix);
+      }
+    });
+
+    //console.log('i can handle it!', this.method, this.path);
     return true;
   }
 

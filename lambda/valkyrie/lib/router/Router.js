@@ -46,10 +46,10 @@ class Router {
     return new Route(path).mount(this);*/
   }
 
-  handleRequest(req, res, stackIndex = 0) {
+  handleRequest(req, res,  prefix = '', stackIndex = 0) {
     const { stack, stackCount } = this;
-    for (stackIndex; stackIndex < stackCount; stackIndex++) {
-      if (stack[stackIndex].handleRequest(req, res)) break;
+    for (let i = stackIndex; i < stackCount; stackIndex++) {
+      if (stack[stackIndex].handleRequest(req, res, prefix, stackIndex)) break;
     }
 
   /*  if (typeof stackStartIndex === 'undefined') stackStartIndex = 0;
