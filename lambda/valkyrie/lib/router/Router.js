@@ -31,6 +31,10 @@ class Router {
     return this;
   }
 
+  get isRouter() {
+    return true;
+  }
+
   //get mountpathx() { return this.mountpaths}
   //set mountpathx(value) {}
 
@@ -80,12 +84,8 @@ class Router {
     return new Route('*').all( (req, res) => { res.status(500).send('no route found.') } );*/
   }
 
-  /**
-   * Debug function
-   * @param level
-   */
-  describe(level) {
-
+  describe(mountPrefix = '') {
+    this.stack.forEach(route => route.describe(mountPrefix));
   }
 }
 

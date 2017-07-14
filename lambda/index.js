@@ -29,7 +29,7 @@ app.use((req, res, next) => {
 });
 
 
-app.use('/test-next', middle1, middle1, middle1, skipMiddle, middle1, middle1, (req, res) => {
+app.use('/test-next-2', middle1, middle1, middle1, skipMiddle, middle1, middle1, (req, res) => {
   res.send('test-next');
 });
 //todo gestire eventualmente url multipli
@@ -66,11 +66,11 @@ app.get('/log-request', (req, res) => {
   res.send(req);
 });
 
-router.use((req, res, next) => {
-  res.append('custom-header-field', 'Valkyrie!');
-  console.log('possible auth middleware');
-  next();
-});
+// router.use((req, res, next) => {
+//   res.append('custom-header-field', 'Valkyrie!');
+//   console.log('possible auth middleware');
+//   next();
+// });
 
 router.get('/say/:text', (req, res) => {
   console.log(`param text is equal to ${req.params.text}`);
