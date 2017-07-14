@@ -1,6 +1,7 @@
 'use strict';
 
 const urlJoin = require('url-join');
+const pathToRegexp = require('path-to-regexp');
 
 class Route {
   constructor(router, methods, path, layers, settings) {
@@ -17,16 +18,9 @@ class Route {
     return this;
   }
 
-  handlesMethod(method) {
-    const { methods } = this;
-    if (methods.all) return true;
-    if (method === 'head' && !methods.head) method = 'get';
-    return methods[method];
-  }
-
   handleRequest(req, res, mountPath, stackIndex) {
     const { layers, middlewares, routers } = this;
-    if (!this.handlesMethod(req.method)) {
+    if (!_matchMethod(this, req)) {
       console.log('can`t handle request');
       return false;
     }
@@ -43,3 +37,41 @@ class Route {
 }
 
 module.exports = Route;
+
+function _matchMethod(self, req) {
+  const { methods } = self;
+  if (methods.all) return true;
+  let { method } = req;
+  if (method === 'head' && !methods.head) method = 'get';
+  return methods[method];
+}
+
+function _matchPath(self, req) {
+  const { settings, path } = self;
+  if (path === '*') return true;
+
+  const keys = [];
+  const re = pathToRegexp(path, keys, settings);
+  const m = re.exec(req.path);
+  if (!m) return false;
+
+  req.params = req.params || {};
+  keys.forEach((key, i) => {
+    const param = m[i + 1];
+    if (param){
+      req.params[key.name] = _decodeURIParam(param);
+      if (key.repeat) req.params[key.name] = req.params[key.name].split(key.delimiter);
+    }
+  });
+
+  return true;
+}
+
+function _decodeURIParam(param) {
+  try {
+    return decodeURIComponent(param);
+  }
+  catch (err) {
+    return err.toString();
+  }
+}
