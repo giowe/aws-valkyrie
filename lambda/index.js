@@ -17,8 +17,6 @@ const skipMiddle = (req, res, next) => {
   next('route');
 };
 
-app.use('/router', router);
-
 app.get('/test-next', (req, res) => {
   res.send('test-next-skipped');
 });
@@ -28,6 +26,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use('/router', router);
 
 app.use('/test-next-2', middle1, middle1, middle1, skipMiddle, middle1, middle1, (req, res) => {
   res.send('test-next');

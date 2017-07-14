@@ -3,10 +3,11 @@
 const urlJoin = require('url-join');
 
 class Route {
-  constructor(router, method, path, layers, settings) {
+  constructor(router, methods, path, layers, settings) {
+    //todo se il router non mi serve lo levo e sarebbe bello non servisse.
     this.router = router;
     this.stackIndex = router.stackCount;
-    this.method = method;
+    this.methods = methods;
     this.path = path;
     this.layers = layers;
     this.middlewares = [];
@@ -16,39 +17,27 @@ class Route {
     return this;
   }
 
-  handleRequest(req, res, prefix, stackIndex) {
-    const { method, layers } = this;
-    //todo da gestire il metodo head come se fosse un get.
-    //if (method === 'head' && !this._methods['head']) method = 'get';
-    if (method !== 'all' && !(req.method === method)) {
-      console.log('can`t resolve request');
+  handlesMethod(method) {
+    const { methods } = this;
+    if (methods.all) return true;
+    if (method === 'head' && !methods.head) method = 'get';
+    return methods[method];
+  }
+
+  handleRequest(req, res, mountPath, stackIndex) {
+    const { layers, middlewares, routers } = this;
+    if (!this.handlesMethod(req.method)) {
+      console.log('can`t handle request');
       return false;
     }
 
-    layers.forEach(layer => {
-      console.log(layer.constructor.name);
-      if (layer.constructor.name === 'Router') {
-        return layer.handleRequest(req, res, prefix);
-      }
-    });
-
-    //console.log('i can handle it!', this.method, this.path);
-    return true;
-  }
-
-  match(req, prefix = '') {
-    const { method } = this;
-    //todo da gestire il metodo head come se fosse un get.
-    //if (method === 'head' && !this._methods['head']) method = 'get';
-    if (method !== 'all' && !(req.method === method)) return false;
-
-    console.log(this.method, this.path);
+    console.log('i can handle it!', this.path);
     return true;
   }
 
   describe(mountPath = '') {
     const fullPath = mountPath ? urlJoin(mountPath, this.path) : this.path;
-    if (this.middlewares.length) console.log(this.method, fullPath);
+    if (this.middlewares.length) console.log(Object.keys(this.methods).join(', '), fullPath);
     this.routers.forEach(router => router.describe(fullPath));
   }
 }

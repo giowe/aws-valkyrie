@@ -1,10 +1,9 @@
 'use strict';
 
 const methods = require('methods');
-const { flatten, joinUrls, repeatText, forEach } = require('./../Utils');
+const { flatten } = require('./../Utils');
 const Route = require('./Route');
 
-let _fakeRoute;
 class Router {
   constructor(settings) {
     this.settings = Object.assign({
@@ -12,7 +11,7 @@ class Router {
       strict: false,    //When false the trailing slash is optional
       end: true,        //When false the path will match at the beginning
       delimiter: '/'    //Set the default delimiter for repeat parameters
-    });
+    }, settings);
 
     this.stack = [];
     this.stackCount = 0;
@@ -35,19 +34,13 @@ class Router {
     return true;
   }
 
-  //get mountpathx() { return this.mountpaths}
-  //set mountpathx(value) {}
-
   use(...args) {
     _register(this, 'all', ...args);
   }
 
+  //todo
   route(path) {
-    /*if (this.started) {
-      if (!_fakeRoute) _fakeRoute = new Route(path);
-      return _fakeRoute;
-    }
-    return new Route(path).mount(this);*/
+
   }
 
   handleRequest(req, res,  prefix = '', stackIndex = 0) {
@@ -55,33 +48,6 @@ class Router {
     for (let i = stackIndex; i < stackCount; stackIndex++) {
       if (stack[stackIndex].handleRequest(req, res, prefix, stackIndex)) break;
     }
-
-  /*  if (typeof stackStartIndex === 'undefined') stackStartIndex = 0;
-
-    const l = this.routeStack.length;
-    for (let i = stackStartIndex; i < l; i++) {
-      const mountable = this.routeStack[i];
-
-      let route;
-      switch (mountable.constructor.name) {
-        case 'Route':
-          route = mountable.match(req, this.settings);
-          break;
-        case 'Application':
-        case 'Router': {
-          route = mountable.getNextRoute(req, res);
-          break;
-        }
-      }
-      if (route) return route;
-    }
-
-    if (this._parent) {
-      const route = this._parent.getNextRoute(req, res, this._routeIndex + 1);
-      if (route) return route;
-    }
-
-    return new Route('*').all( (req, res) => { res.status(500).send('no route found.') } );*/
   }
 
   describe(mountPrefix = '') {
@@ -89,10 +55,17 @@ class Router {
   }
 }
 
-function _register(self, method, ...args) {
+function _register(self, methods, ...args) {
+
   const { stack, settings } = self;
   const path = typeof args[0] === 'string' ? args.shift() : '*';
-  stack.push(new Route(self, method, path, flatten(args), settings));
+  stack.push(new Route(
+    self,
+    typeof methods === 'string'? { [methods]:true } : methods,
+    path,
+    flatten(args),
+    settings)
+  );
   self.stackCount++;
 }
 
