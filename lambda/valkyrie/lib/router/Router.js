@@ -43,10 +43,12 @@ class Router {
 
   }
 
-  handleRequest(req, res,  prefix = '', stackIndex = 0) {
+  handleRequest(req, res, mountPath = '', routeStartIndex = 0) {
+    console.log('sono chiamato', routeStartIndex);
     const { stack, stackCount } = this;
-    for (let i = stackIndex; i < stackCount; stackIndex++) {
-      if (stack[stackIndex].handleRequest(req, res, prefix, stackIndex)) break;
+    for (let routeIndex = routeStartIndex; routeIndex < stackCount; routeIndex++) {
+      console.log('ROUTE', routeIndex);
+      if (stack[routeIndex].handleRequest(req, res, mountPath /*routeStartIndex*/)) return true;
     }
   }
 
@@ -56,16 +58,17 @@ class Router {
 }
 
 function _register(self, methods, ...args) {
-
   const { stack, settings } = self;
   const path = typeof args[0] === 'string' ? args.shift() : '*';
   stack.push(new Route(
-    self,
+    self, //todo non sono sicuro che serva
     typeof methods === 'string'? { [methods]:true } : methods,
     path,
     flatten(args),
     settings)
   );
+
+  //todo non sono sicuro che serva
   self.stackCount++;
 }
 

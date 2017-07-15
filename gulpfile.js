@@ -3,7 +3,6 @@
 const clc      = require('cli-color');
 const zipdir   = require('zip-dir');
 const gulp     = require('gulp');
-const data     = require('gulp-data');
 const usage    = require('gulp-help-doc');
 const install  = require('gulp-install');
 const fs       = require('fs');
@@ -41,15 +40,15 @@ gulp.task('default', ['help']);
  */
 gulp.task('configure', function(next){
   inquirer.prompt([
-    {type: 'input', name: 'FunctionName', message: 'Function name:', default: lambdaConfig? lambdaConfig.ConfigOptions.FunctionName:'my-lambda'},
-    {type: 'input', name: 'Region', message: 'Region:',  default: lambdaConfig? lambdaConfig.Region:'eu-west-1'},
-    {type: 'input', name: 'Description', message: 'Description:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Description:null},
-    {type: 'input', name: 'Role', message: 'Role arn:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Role:null},
-    {type: 'input', name: 'Handler', message: 'Handler:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Handler:'index.handler'},
-    {type: 'input', name: 'MemorySize', message: 'MemorySize:',  default: lambdaConfig? lambdaConfig.ConfigOptions.MemorySize:'128'},
-    {type: 'input', name: 'Timeout', message: 'Timeout:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Timeout:'3'},
-    {type: 'input', name: 'Runtime', message: 'Runtime:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Runtime:'nodejs4.3'}
-  ]).then( function (config_answers) {
+    { type: 'input', name: 'FunctionName', message: 'Function name:', default: lambdaConfig? lambdaConfig.ConfigOptions.FunctionName:'my-lambda' },
+    { type: 'input', name: 'Region', message: 'Region:',  default: lambdaConfig? lambdaConfig.Region:'eu-west-1' },
+    { type: 'input', name: 'Description', message: 'Description:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Description:null },
+    { type: 'input', name: 'Role', message: 'Role arn:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Role:null },
+    { type: 'input', name: 'Handler', message: 'Handler:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Handler:'index.handler' },
+    { type: 'input', name: 'MemorySize', message: 'MemorySize:',  default: lambdaConfig? lambdaConfig.ConfigOptions.MemorySize:'128' },
+    { type: 'input', name: 'Timeout', message: 'Timeout:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Timeout:'3' },
+    { type: 'input', name: 'Runtime', message: 'Runtime:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Runtime:'nodejs6.10' }
+  ]).then((config_answers) => {
     lambdaConfig = {
       Region: config_answers.Region,
       ConfigOptions: {
@@ -68,7 +67,7 @@ gulp.task('configure', function(next){
     lambdaPackage.description = config_answers.Description;
     fs.writeFileSync(path.join(__dirname, '/lambda/package.json'), JSON.stringify(lambdaPackage, null, 2));
     fs.writeFileSync(path.join(__dirname, '/lambda-config.json'), JSON.stringify(lambdaConfig, null, 2));
-    console.log('\n',lambdaConfig,'\n\n', clc.green('Lambda configuration saved'));
+    console.log('\n', lambdaConfig, '\n\n', clc.green('Lambda configuration saved'));
     next();
   });
 });
@@ -90,14 +89,13 @@ gulp.task('install', () => {
  *  @task {create}
  *  @order {3}
  */
-gulp.task('create', function(next){
+gulp.task('create', (next) => {
   zipdir(path.join(__dirname,'lambda'), function (err, buffer) {
     if (err) return console.log(clc.red('FAILED'), '-', clc.red(err));
     const params = lambdaConfig.ConfigOptions;
-    const lambda = new AWS.Lambda({ region: lambdaConfig.Region });
     params.Code = { ZipFile: buffer };
 
-    lambda.createFunction(params, function(err, data) {
+    new AWS.Lambda({ region: lambdaConfig.Region }).createFunction(params, (err, data) => {
       if (err){
         console.log(clc.red('FAILED'), '-', clc.red(err.message));
         console.log(err);
@@ -123,15 +121,14 @@ gulp.task('update', ['update-config', 'update-code']);
  *  @task {update-code}
  *  @order {5}
  */
-gulp.task('update-code', function(next){
-  zipdir(path.join(__dirname,'lambda'), function (err, buffer) {
+gulp.task('update-code', (next) => {
+  zipdir(path.join(__dirname, 'lambda'), function (err, buffer) {
     if (err) return console.log(clc.red('FAILED'), '-', clc.red(err));
-    const lambda = new AWS.Lambda({ region: lambdaConfig.Region });
-    const params = {
+
+    new AWS.Lambda({ region: lambdaConfig.Region }).updateFunctionCode({
       FunctionName: lambdaConfig.ConfigOptions.FunctionName,
       ZipFile: buffer
-    };
-    lambda.updateFunctionCode(params, function(err, data) {
+    }, (err, data) => {
       if (err){
         console.log(clc.red('FAILED'), '-', clc.red(err.message));
         console.log(err);
@@ -151,10 +148,8 @@ gulp.task('update-code', function(next){
  *  @task {update-config}
  *  @order {6}
  */
-gulp.task('update-config', function(next){
-  const lambda = new AWS.Lambda({ region: lambdaConfig.Region });
-
-  lambda.updateFunctionConfiguration(lambdaConfig.ConfigOptions, function(err, data) {
+gulp.task('update-config', (next) => {
+  new AWS.Lambda({ region: lambdaConfig.Region }).updateFunctionConfiguration(lambdaConfig.ConfigOptions, function(err, data) {
     if (err){
       console.log(clc.red('FAILED'), '-', clc.red(err.message));
       console.log(err);
@@ -172,7 +167,7 @@ gulp.task('update-config', function(next){
  *  @task {update-config}
  *  @order {7}
  */
-gulp.task('delete',function(next){
+gulp.task('delete', (next) => {
   const lambda = new AWS.Lambda({ region: lambdaConfig.Region });
   lambda.deleteFunction({ FunctionName: lambdaConfig.ConfigOptions.FunctionName }, function(err) {
     if (err){
@@ -191,7 +186,7 @@ gulp.task('delete',function(next){
  *  @task {logs}
  *  @order {8}
  */
-gulp.task('logs', function(){
+gulp.task('logs', () => {
   const cwlogs = new CwLogs({
     logGroupName:`/aws/lambda/${lambdaConfig.ConfigOptions.FunctionName}`,
     region: lambdaConfig.Region,
@@ -208,7 +203,7 @@ gulp.task('logs', function(){
  * @task {invoke}
  * @order {9}
  */
-gulp.task('invoke', function(next){
+gulp.task('invoke', (next) => {
   const lambda = new AWS.Lambda({ region: lambdaConfig.Region });
 
   let payload;
@@ -218,23 +213,18 @@ gulp.task('invoke', function(next){
     payload = null;
   }
 
-  var params = {
+  lambda.invoke({
     FunctionName: lambdaConfig.ConfigOptions.FunctionName,
     InvocationType: 'RequestResponse',
     LogType: 'None',
     Payload: payload
-  };
-
-  lambda.invoke(params, function(err, data) {
-    if (err) console.log(err, err.routeStack);
-    else {
-      try {
-        console.log(JSON.parse(data.Payload));
-      } catch (err) {
-        console.log(data.Payload);
-      }
+  }, (err, data) => {
+    if (err) return console.log(err, err.routeStack);
+    try {
+      console.log(JSON.parse(data.Payload));
+    } catch (err) {
+      console.log(data.Payload);
     }
-
     next();
   });
 });
@@ -245,6 +235,6 @@ gulp.task('invoke', function(next){
  * @task {invoke-local}
  * @order {10}
  */
-gulp.task('invoke-local', function(next){
+gulp.task('invoke-local', (next) => {
   require(path.join(__dirname, 'test-local.js'))(next);
 });

@@ -22,9 +22,13 @@ app.get('/test-next', (req, res) => {
 });
 
 app.use((req, res, next) => {
+  console.log('An other middleware');
+  next();
+}, (req, res, next) => {
   console.log('PATH >>>', req.path);
   next();
 });
+
 
 app.use('/router', router);
 
@@ -76,9 +80,9 @@ router.get('/say/:text', (req, res) => {
   res.send(`I just want to say "${req.params.text}"`);
 });
 
-router2.get('/hi', (req, res) => {
-  res.send('hi, this is router2!');
-});
+// router2.get('/hi', (req, res) => {
+//   res.send('hi, this is router2!');
+// });
 
 //router.use('/router2', router2);
 

@@ -25,7 +25,6 @@
     "aws-sdk": "^2.2.16",
     "cli-color": "^1.1.0",
     "gulp": "^3.9.0",
-    "gulp-data": "^1.2.0",
     "gulp-help-doc": "^1.0.7",
     "gulp-install": "^0.6.0",
     "inquirer": "^1.1.2",

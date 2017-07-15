@@ -6,7 +6,7 @@ const pathToRegexp = require('path-to-regexp');
 class Route {
   constructor(router, methods, path, layers, settings) {
     this.router = router;
-    this.stackIndex = router.stackCount;
+    this.routeIndex = router.stackCount;
     this.methods = methods;
     this.path = path;
     this.layers = layers;
@@ -17,19 +17,41 @@ class Route {
     return this;
   }
 
-  handleRequest(req, res, mountPath, stackIndex) {
-    const { layers, middlewares, routers } = this;
+  handleRequest(req, res, mountPath, layerStartIndex = 0) {
+    const { layers, middlewares, routers, router } = this;
+    if (layerStartIndex >= layers.length) return false;
     if (!_matchMethod(this, req)) {
       console.log('can`t handle request');
       return false;
     }
 
     const fullPath = _getFullPath(mountPath, this.path);
-    const matchPath = _matchPath(this, req);
-    
+    const matchPath = _matchPath(this, req, fullPath);
+    const l = layers.length;
+    for (let layerIndex = layerStartIndex; layerIndex < l; layerIndex++) {
+      console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH');
+      const layer = layers[layerIndex];
+      if (layer.isRouter) {
+        console.log('got router');
+        if (layer.handleRequest(req, res, mountPath)) return true;
+      } else if (matchPath) {
+        try {
+          layer(req, res, () => {
+            console.log('next called');
+            if (!this.handleRequest(req, res, mountPath, layerIndex + 1)) {
+              console.log('no more layers here, going to next route (', this.routeIndex + 1, ')');
+              router.handleRequest(req, res, mountPath, this.routeIndex + 1);
+            }
+          });
+        } catch (err) {
+          //todo get error handling middleware.
+          res.status(500).send(`${err.toString()}`);
+        }
+        return true;
+      }
+    }
 
-    console.log('i can handle it!', this.path);
-    return true;
+    return false;
   }
 
   describe(mountPath = '') {
@@ -53,8 +75,8 @@ function _matchMethod(self, req) {
   return methods[method];
 }
 
-function _matchPath(self, req) {
-  const { settings, path } = self;
+function _matchPath(self, req, path) {
+  const { settings } = self;
   if (path === '*') return true;
 
   const keys = [];

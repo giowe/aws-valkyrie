@@ -35,8 +35,12 @@ class Application extends Router{
     req.res = res;
 
     super.handleRequest(req, res);
-   // const firstRoute = super.resolveRequest(req, res);
-    //if (firstRoute) firstRoute.getNextLayer(req, res).call();
+  }
+
+  describe(mountPrefix = '') {
+    console.log('---------APP-DESCRIPTION---------\n');
+    super.describe(mountPrefix);
+    console.log('\n---------------------------------');
   }
 }
 
