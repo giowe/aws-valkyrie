@@ -18,10 +18,10 @@ class Route {
   }
 
   handleRequest(req, res, mountPath, layerStartIndex = 0) {
-    const { layers, middlewares, routers, router } = this;
+    const { layers } = this;
     if (layerStartIndex >= layers.length) return false;
     if (!_matchMethod(this, req)) {
-      console.log('can`t handle request');
+      //console.log('can`t handle request');
       return false;
     }
 
@@ -29,18 +29,15 @@ class Route {
     const matchPath = _matchPath(this, req, fullPath);
     const l = layers.length;
     for (let layerIndex = layerStartIndex; layerIndex < l; layerIndex++) {
-      console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH');
+      //console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH');
       const layer = layers[layerIndex];
       if (layer.isRouter) {
-        console.log('got router');
-        if (layer.handleRequest(req, res, mountPath)) return true;
+        if (layer.handleRequest(req, res, fullPath)) return true;
       } else if (matchPath) {
         try {
           layer(req, res, () => {
-            console.log('next called');
             if (!this.handleRequest(req, res, mountPath, layerIndex + 1)) {
-              console.log('no more layers here, going to next route (', this.routeIndex + 1, ')');
-              router.handleRequest(req, res, mountPath, (this.routeIndex + 1));
+              this.router.handleRequest(req, res, mountPath, this.routeIndex + 1);
             }
           });
         } catch (err) {

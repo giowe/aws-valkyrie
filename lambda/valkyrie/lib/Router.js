@@ -1,7 +1,7 @@
 'use strict';
 
 const methods = require('methods');
-const { flatten } = require('./../Utils');
+const { flatten } = require('./Utils');
 const Route = require('./Route');
 
 class Router {
@@ -44,11 +44,10 @@ class Router {
   }
 
   handleRequest(req, res, mountPath = '', routeStartIndex = 0) {
-    console.log('sono chiamato', routeStartIndex);
     const { stack, stackCount } = this;
     for (let routeIndex = routeStartIndex; routeIndex < stackCount; routeIndex++) {
-      console.log('ROUTE', routeIndex);
-      if (stack[routeIndex].handleRequest(req, res, mountPath /*routeStartIndex*/)) return true;
+      //console.log('ROUTE', routeIndex);
+      if (stack[routeIndex].handleRequest(req, res, mountPath)) return true;
     }
   }
 
@@ -61,14 +60,13 @@ function _register(self, methods, ...args) {
   const { stack, settings } = self;
   const path = typeof args[0] === 'string' ? args.shift() : '*';
   stack.push(new Route(
-    self, //todo non sono sicuro che serva
+    self,
     typeof methods === 'string'? { [methods]:true } : methods,
     path,
     flatten(args),
     settings)
   );
 
-  //todo non sono sicuro che serva
   self.stackCount++;
 }
 

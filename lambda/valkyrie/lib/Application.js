@@ -1,7 +1,7 @@
 'use strict';
 
 const Response      = require('./Response');
-const Router        = require('./router/Router');
+const Router        = require('./Router');
 
 class Application extends Router{
   constructor(settings) {
@@ -14,7 +14,8 @@ class Application extends Router{
 
   static Router(settings) { return new Router(settings); }
 
-  handleRequest(event, context, callback){
+  listen(event, context, callback){
+    console.log('started');
     const method = event.httpMethod.toLowerCase();
     const req = Object.assign({}, event, {
       app: this,
@@ -34,7 +35,7 @@ class Application extends Router{
     res.req = req;
     req.res = res;
 
-    super.handleRequest(req, res);
+    this.handleRequest(req, res);
   }
 
   describe(mountPrefix = '') {

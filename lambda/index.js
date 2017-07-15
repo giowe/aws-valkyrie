@@ -30,7 +30,11 @@ app.use((req, res, next) => {
 });
 
 
-app.use('/router', router);
+app.use('/router/:user/', (req, res, next) => {
+  const { user } = req.params;
+  if (user !== 'admin') res.send(`${user} not allowed.`);
+  else next();
+}, router);
 
 app.use('/test-next-2', middle1, middle1, middle1, skipMiddle, middle1, middle1, (req, res) => {
   res.send('test-next');
@@ -93,4 +97,4 @@ app.use('*', (req, res, next) => {
 
 app.describe();
 
-exports.handler = (...args) => app.handleRequest(...args);
+exports.handler = (...args) => app.listen(...args);
