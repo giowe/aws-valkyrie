@@ -1,6 +1,5 @@
 'use strict';
 
-const urlJoin = require('url-join');
 const pathToRegexp = require('path-to-regexp');
 
 class Route {
@@ -18,15 +17,23 @@ class Route {
   }
 
   handleRequest(req, res, mountPath, layerStartIndex = 0) {
-    const { layers } = this;
+    const { layers, methods } = this;
     if (layerStartIndex >= layers.length) return false;
     if (!_matchMethod(this, req)) {
       //console.log('can`t handle request');
       return false;
     }
 
-    const fullPath = _getFullPath(mountPath, this.path);
-    const matchPath = _matchPath(this, req, fullPath);
+    const fullPath = _getFullPath(this, mountPath, this.path);
+    let path2Match;
+    if (methods.use) {
+      console.log(fullPath);
+      path2Match = `${fullPath}*`;
+    } else {
+      path2Match = fullPath;
+    }
+
+    const matchPath = _matchPath(this, req, path2Match);
     const l = layers.length;
     for (let layerIndex = layerStartIndex; layerIndex < l; layerIndex++) {
       //console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH');
@@ -52,7 +59,7 @@ class Route {
   }
 
   describe(mountPath = '') {
-    const fullPath = _getFullPath(mountPath, this.path);
+    const fullPath = _getFullPath(this, mountPath, this.path);
     if (this.middlewares.length) console.log(Object.keys(this.methods).join(', '), fullPath);
     this.routers.forEach(router => router.describe(fullPath));
   }
@@ -60,13 +67,18 @@ class Route {
 
 module.exports = Route;
 
-function _getFullPath(mountPath, path) {
-  return mountPath ? urlJoin(mountPath, path) : path;
+function _getFullPath(self, ...paths) {
+  const { delimiter } = self.settings;
+  return paths.reduce((acc, path) => {
+    if (!path) return acc;
+    return `${acc}${!acc || [acc[acc.length-1], path[0]].includes(delimiter)? '' : delimiter}${path}`;
+  }, '');
+  //return mountPath ? urlJoin(mountPath, path) : path;
 }
 
 function _matchMethod(self, req) {
   const { methods } = self;
-  if (methods.all) return true;
+  if (methods.all || methods.use) return true;
   let { method } = req;
   if (method === 'head' && !methods.head) method = 'get';
   return methods[method];

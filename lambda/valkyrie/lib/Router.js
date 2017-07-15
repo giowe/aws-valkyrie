@@ -35,7 +35,7 @@ class Router {
   }
 
   use(...args) {
-    _register(this, 'all', ...args);
+    _register(this, 'use', ...args);
   }
 
   //todo
