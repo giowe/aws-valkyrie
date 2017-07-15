@@ -17,7 +17,7 @@ class Route {
   }
 
   handleRequest(req, res, mountPath, layerStartIndex = 0) {
-    const { layers, methods } = this;
+    const { layers, methods, settings } = this;
     if (layerStartIndex >= layers.length) return false;
     if (!_matchMethod(this, req)) {
       //console.log('can`t handle request');
@@ -33,7 +33,7 @@ class Route {
       path2Match = fullPath;
     }
 
-    const matchPath = _matchPath(this, req, path2Match);
+    const matchPath = _matchPath(req, path2Match, settings);
     const l = layers.length;
     for (let layerIndex = layerStartIndex; layerIndex < l; layerIndex++) {
       //console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH');
@@ -84,13 +84,25 @@ function _matchMethod(self, req) {
   return methods[method];
 }
 
-function _matchPath(self, req, path) {
-  const { settings } = self;
+//todo test if it works properly
+const _regexCache = {};
+function _getPathRegex(path, settings) {
+  const key = `${JSON.stringify(settings)}${path}`;
+  if (!_regexCache[key]) {
+    const keys = [];
+    _regexCache[key] = [
+      pathToRegexp(path, keys, settings),
+      keys
+    ];
+  }
+  return _regexCache[key];
+}
+
+function _matchPath(req, path, settings) {
   if (path === '*') return true;
 
-  const keys = [];
-  const re = pathToRegexp(path, keys, settings);
-  const m = re.exec(req.path);
+  const [regex, keys] = _getPathRegex(path, settings);
+  const m = regex.exec(req.path);
   if (!m) return false;
 
   req.params = req.params || {};
