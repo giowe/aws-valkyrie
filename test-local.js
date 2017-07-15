@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use strict';
 const clc  = require('cli-color');
 const path = require('path');
@@ -15,11 +16,11 @@ module.exports = function(next){
   try {
     payload = require('./test-payload.js')(argv.path || argv.p, argv.method || argv.m);
   } catch (err) {
-    return console.log('WARNING! "test-payload.js" not found!')
+    return console.log('WARNING! "test-payload.js" not found!');
   }
 
   const _fail = function(err) {
-    console.log({errorMessage: err});
+    console.log({ errorMessage: err });
     next();
     process.exit();
   };
