@@ -5,7 +5,6 @@ const pathToRegexp = require('path-to-regexp');
 
 class Route {
   constructor(router, methods, path, layers, settings) {
-    //todo se il router non mi serve lo levo e sarebbe bello non servisse.
     this.router = router;
     this.stackIndex = router.stackCount;
     this.methods = methods;
@@ -25,18 +24,26 @@ class Route {
       return false;
     }
 
+    const fullPath = _getFullPath(mountPath, this.path);
+    const matchPath = _matchPath(this, req);
+    
+
     console.log('i can handle it!', this.path);
     return true;
   }
 
   describe(mountPath = '') {
-    const fullPath = mountPath ? urlJoin(mountPath, this.path) : this.path;
+    const fullPath = _getFullPath(mountPath, this.path);
     if (this.middlewares.length) console.log(Object.keys(this.methods).join(', '), fullPath);
     this.routers.forEach(router => router.describe(fullPath));
   }
 }
 
 module.exports = Route;
+
+function _getFullPath(mountPath, path) {
+  return mountPath ? urlJoin(mountPath, path) : path;
+}
 
 function _matchMethod(self, req) {
   const { methods } = self;
