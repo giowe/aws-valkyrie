@@ -24,16 +24,8 @@ class Route {
       return false;
     }
 
-    const fullPath = _getFullPath(this, mountPath, this.path);
-    let path2Match;
-    if (methods.use) {
-      console.log(fullPath);
-      path2Match = `${fullPath}*`;
-    } else {
-      path2Match = fullPath;
-    }
-
-    const matchPath = _matchPath(req, path2Match, settings);
+    const fullPath = _urlJoin(mountPath, this.path);
+    const matchPath = _matchPath(this, req, fullPath);
     const l = layers.length;
     for (let layerIndex = layerStartIndex; layerIndex < l; layerIndex++) {
       //console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH');
@@ -59,7 +51,7 @@ class Route {
   }
 
   describe(mountPath = '') {
-    const fullPath = _getFullPath(this, mountPath, this.path);
+    const fullPath = _urlJoin(mountPath, this.path);
     if (this.middlewares.length) console.log(Object.keys(this.methods).join(', '), fullPath);
     this.routers.forEach(router => router.describe(fullPath));
   }
@@ -67,13 +59,12 @@ class Route {
 
 module.exports = Route;
 
-function _getFullPath(self, ...paths) {
-  const { delimiter } = self.settings;
+function _urlJoin(...paths) {
   return paths.reduce((acc, path) => {
     if (!path) return acc;
-    return `${acc}${!acc || [acc[acc.length-1], path[0]].includes(delimiter)? '' : delimiter}${path}`;
+    if (path[0] === '/') path = path.substr(1);
+    return `${acc}${(!acc && path === '*') || [acc[acc.length-1], path[0]].includes('/')? '' : '/'}${path}`;
   }, '');
-  //return mountPath ? urlJoin(mountPath, path) : path;
 }
 
 function _matchMethod(self, req) {
@@ -98,11 +89,11 @@ function _getPathRegex(path, settings) {
   return _regexCache[key];
 }
 
-function _matchPath(req, path, settings) {
+function _matchPath(self, req, path) {
   if (path === '*') return true;
-
+  const { methods, settings } = self;
   const [regex, keys] = _getPathRegex(path, settings);
-  const m = regex.exec(req.path);
+  const m = regex.exec(!methods.use ? req.path : req.path.substr(0, req.path.split('/', path.replace(/\/$/).split('/').length).join('/').length));
   if (!m) return false;
 
   req.params = req.params || {};

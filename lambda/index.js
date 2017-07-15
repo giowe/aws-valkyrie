@@ -30,9 +30,9 @@ app.use((req, res, next) => {
 });
 
 
-app.use('/router/:user/', (req, res, next) => {
+app.use('/router/:user', (req, res, next) => {
   const { user } = req.params;
-  if (user !== 'admin') res.send(`${user} not allowed.`);
+  if (user !== 'admin') res.status(403).send(`AUTH ERROR: ${user} not allowed.`);
   else next();
 }, router);
 
