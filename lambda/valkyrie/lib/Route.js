@@ -8,6 +8,7 @@ class Route {
     this.routeIndex = router.stackCount;
     this.methods = methods;
     this.path = path;
+    //todo vorrei togliere la distinzione tra middlewares e routers
     this.layers = layers;
     this.middlewares = [];
     this.routers = [];
