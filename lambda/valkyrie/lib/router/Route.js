@@ -40,7 +40,7 @@ class Route {
             console.log('next called');
             if (!this.handleRequest(req, res, mountPath, layerIndex + 1)) {
               console.log('no more layers here, going to next route (', this.routeIndex + 1, ')');
-              router.handleRequest(req, res, mountPath, this.routeIndex + 1);
+              router.handleRequest(req, res, mountPath, (this.routeIndex + 1));
             }
           });
         } catch (err) {
