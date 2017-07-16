@@ -8,17 +8,12 @@ class Route {
     this.routeIndex = router.stackCount;
     this.methods = methods;
     this.path = path;
-    //todo vorrei togliere la distinzione tra middlewares e routers
     this.layers = layers;
-    this.middlewares = [];
-    this.routers = [];
     this.settings = settings;
-    layers.forEach(layer => layer.isRouter ? this.routers.push(layer) : this.middlewares.push(layer));
-    return this;
   }
 
   handleRequest(req, res, mountPath, layerStartIndex = 0) {
-    const { layers, methods, settings } = this;
+    const { layers } = this;
     if (layerStartIndex >= layers.length) return false;
     if (!_matchMethod(this, req)) {
       //console.log('can`t handle request');
@@ -54,8 +49,15 @@ class Route {
 
   describe(mountPath = '') {
     const fullPath = _urlJoin(mountPath, this.path);
-    if (this.middlewares.length) console.log(Object.keys(this.methods).join(', '), fullPath);
-    this.routers.forEach(router => router.describe(fullPath));
+    let described = false;
+    this.layers.forEach(layer => {
+      if (layer.isRouter) layer.describe(fullPath);
+      else if (!described) {
+        // eslint-disable-next-line no-console
+        console.log(Object.keys(this.methods).join(', '), fullPath);
+        described = true;
+      }
+    });
   }
 }
 

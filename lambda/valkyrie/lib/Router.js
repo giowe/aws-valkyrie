@@ -12,22 +12,12 @@ class Router {
       end: true,        //When false the path will match at the beginning
       delimiter: '/'    //Set the default delimiter for repeat parameters
     }, settings);
-
     this.stack = [];
     this.stackCount = 0;
-
-    Object.assign(this, {
-      mountpath: '',
-      routeStack: [],
-      _routeIndex: null,
-      _parent: null
-    });
 
     ['all', ...methods].forEach(method => {
       this[method] = (...args) => _register(this, method, ...args);
     });
-
-    return this;
   }
 
   get isRouter() {

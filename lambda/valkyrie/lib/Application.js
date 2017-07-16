@@ -24,11 +24,9 @@ class Application extends Router{
       method
     });
 
-    Object.assign(this, {
-      context,
-      callback,
-      req
-    });
+    this.context = context;
+    this.callback = callback;
+    this.req = req;
 
     const res = new Response(this);
     this.res = res;
@@ -39,8 +37,11 @@ class Application extends Router{
   }
 
   describe(mountPrefix = '') {
+
+    //eslint-disable-next-line no-console
     console.log('---------APP-DESCRIPTION---------\n');
     super.describe(mountPrefix);
+    //eslint-disable-next-line no-console
     console.log('\n---------------------------------');
   }
 }
