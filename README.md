@@ -1,12 +1,10 @@
-# aws-valkyrie dev solution
+# valkyrie-dev-solution
+[![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Dependency Status][dependencies-image]][dependencies-url] [![Gandalf Status][gandalf-image]][gandalf-url]
 
-<div>
-	<a href="https://www.npmjs.com/package/aws-valkyrie"><img src='http://img.shields.io/npm/v/aws-valkyrie.svg?style=flat'></a>
-	<a href="https://www.npmjs.com/package/aws-valkyrie"><img src='https://img.shields.io/npm/dm/aws-valkyrie.svg?style=flat-square'></a>
-	<a href="https://david-dm.org/giowe/aws-valkyrie"><img src='https://david-dm.org/giowe/aws-valkyrie/status.svg'></a>
-	<a href="https://www.youtube.com/watch?v=Sagg08DrO5U"><img src='http://img.shields.io/badge/gandalf-approved-61C6FF.svg'></a>
-</div>
-
+[dependencies-url]: href="https://david-dm.org/giowe/valkyrie-dev-solution
+[dependencies-image]: https://david-dm.org/giowe/valkyrie-dev-solution.svg
+[gandalf-url]: https://www.youtube.com/watch?v=Sagg08DrO5U
+[gandalf-image]: http://img.shields.io/badge/gandalf-approved-61C6FF.svg
 Simple, Express inspired, web framework for AWS Lambda & Api Gateway
 
 ## Installation
