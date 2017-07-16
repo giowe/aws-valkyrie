@@ -1,5 +1,5 @@
 # valkyrie-dev-solution
-[![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Dependency Status][dependencies-image]][dependencies-url] [![Gandalf Status][gandalf-image]][gandalf-url]
+[![Dependency Status][dependencies-image]][dependencies-url] [![Gandalf Status][gandalf-image]][gandalf-url]
 
 [dependencies-url]: href="https://david-dm.org/giowe/valkyrie-dev-solution
 [dependencies-image]: https://david-dm.org/giowe/valkyrie-dev-solution.svg
