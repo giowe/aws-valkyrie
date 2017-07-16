@@ -60,7 +60,7 @@ class Route {
         // eslint-disable-next-line no-console
         return console.log(string);
       case 'json':
-        return {};
+        return { todo: 'todo' }; //todo
       default:
         throw new Error(`${format} is not a supported format; chose between "console", "string", "html" and "json"`);
     }
