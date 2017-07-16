@@ -47,17 +47,16 @@ class Router {
 }
 
 function _register(self, methods, ...args) {
-  const { routes, settings } = self;
   const path = typeof args[0] === 'string' ? args.shift() : '*';
-  routes.push(new Route(
+  const route = new Route(
     self,
     typeof methods === 'string'? { [methods]:true } : methods,
     path,
-    flatten(args),
-    settings)
+    flatten(args)
   );
-
+  self.routes.push(route);
   self.routesCount++;
+  return route;
 }
 
 module.exports = Router;

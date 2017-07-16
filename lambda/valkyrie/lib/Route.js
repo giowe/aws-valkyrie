@@ -9,7 +9,6 @@ class Route {
     this.methods = methods;
     this.path = path;
     this.layers = layers;
-    this.settings = settings;
   }
 
   handleRequest(req, res, mountPath, layerStartIndex = 0) {
@@ -95,7 +94,7 @@ function _getPathRegex(path, settings) {
 
 function _matchPath(self, req, path) {
   if (path === '*') return true;
-  const { methods, settings } = self;
+  const { methods, router: { settings } } = self;
   const [regex, keys] = _getPathRegex(path, settings);
   const m = regex.exec(!methods.use ? req.path : req.path.substr(0, req.path.split('/', path.replace(/\/$/).split('/').length).join('/').length));
   if (!m) return false;
