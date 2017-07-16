@@ -20,7 +20,7 @@ module.exports = class Response {
     this.headers = Object.create(null);
     this.body = null;
     return this;
-  };
+  }
 
   append(key, value) {
     if ( typeof value !== 'undefined' ) {
@@ -106,7 +106,7 @@ module.exports = class Response {
       let value = Array.isArray(val) ? val.map(String) : String(val);
 
       if (field.toLowerCase() === 'content-type' && !charsetRegExp.test(value)) {
-          const charset = mime.lookup(value.split(';')[0]);
+        const charset = mime.lookup(value.split(';')[0]);
         if (charset) value += ';charset=' + charset.toLowerCase();
 
         this.set(field, value);
@@ -169,24 +169,24 @@ module.exports = class Response {
   }
 
   render(view, locals, callback) {
-      const app = this.app;
-      let done = callback;
-      let opts = locals || {};
-      const req = this.app.req;
+    const app = this.app;
+    let done = callback;
+    let opts = locals || {};
+    const req = this.app.req;
 
-      if (typeof opts === 'function') {
-          done = opts;
-          opts = {};
-      }
+    if (typeof opts === 'function') {
+      done = opts;
+      opts = {};
+    }
 
-      opts._locals = this.locals;
+    opts._locals = this.locals;
 
-      done = done || function (err, str) {
-          if (err) return req.next(err);
-          this.send(str);
-      };
+    done = done || function (err, str) {
+      if (err) return req.next(err);
+      this.send(str);
+    };
 
-      app.render(view, opts, done);
+    app.render(view, opts, done);
   }
 
   send(body) {

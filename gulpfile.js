@@ -69,7 +69,8 @@ gulp.task('configure', function(next){
     fs.writeFileSync(path.join(__dirname, '/lambda-config.json'), JSON.stringify(lambdaConfig, null, 2));
     console.log('\n', lambdaConfig, '\n\n', clc.green('Lambda configuration saved'));
     next();
-  });
+  })
+    .catch(console.log);
 });
 
 /**
