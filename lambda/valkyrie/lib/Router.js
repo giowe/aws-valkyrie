@@ -12,8 +12,8 @@ class Router {
       end: true,        //When false the path will match at the beginning
       delimiter: '/'    //Set the default delimiter for repeat parameters
     }, settings);
-    this.stack = [];
-    this.stackCount = 0;
+    this.routes = [];
+    this.routesCount = 0;
 
     ['all', ...methods].forEach(method => {
       this[method] = (...args) => _register(this, method, ...args);
@@ -34,22 +34,22 @@ class Router {
   }
 
   handleRequest(req, res, mountPath = '', routeStartIndex = 0) {
-    const { stack, stackCount } = this;
-    for (let routeIndex = routeStartIndex; routeIndex < stackCount; routeIndex++) {
+    const { routes, routesCount } = this;
+    for (let routeIndex = routeStartIndex; routeIndex < routesCount; routeIndex++) {
       //console.log('ROUTE', routeIndex);
-      if (stack[routeIndex].handleRequest(req, res, mountPath)) return true;
+      if (routes[routeIndex].handleRequest(req, res, mountPath)) return true;
     }
   }
 
   describe(mountPrefix = '') {
-    this.stack.forEach(route => route.describe(mountPrefix));
+    this.routes.forEach(route => route.describe(mountPrefix));
   }
 }
 
 function _register(self, methods, ...args) {
-  const { stack, settings } = self;
+  const { routes, settings } = self;
   const path = typeof args[0] === 'string' ? args.shift() : '*';
-  stack.push(new Route(
+  routes.push(new Route(
     self,
     typeof methods === 'string'? { [methods]:true } : methods,
     path,
@@ -57,7 +57,7 @@ function _register(self, methods, ...args) {
     settings)
   );
 
-  self.stackCount++;
+  self.routesCount++;
 }
 
 module.exports = Router;

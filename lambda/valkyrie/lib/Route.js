@@ -5,7 +5,7 @@ const pathToRegexp = require('path-to-regexp');
 class Route {
   constructor(router, methods, path, layers, settings) {
     this.router = router;
-    this.routeIndex = router.stackCount;
+    this.routeIndex = router.routesCount;
     this.methods = methods;
     this.path = path;
     this.layers = layers;
