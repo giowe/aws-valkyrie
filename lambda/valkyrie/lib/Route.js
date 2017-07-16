@@ -40,11 +40,30 @@ class Route {
     return false;
   }
 
-  describe(mountPath = '', level = 0) {
+  describe(options, mountPath = '', level = 0) {
+    const { format } = Object.assign({ format: 'console' }, options);
     const fullPath = _urlJoin(mountPath, this.path);
-    const out = [` ${level > 0 ? '│' : ''}${' '.repeat((level > 0? -1 : 0) + level * 4)}${this.routeIndex === this.router.routesCount - 1 ? '└' : '├'}─┬ROUTE ${fullPath}`];
-    this.layers.forEach(layer => out.push(...layer.describe(fullPath, level)));
-    return out;
+
+    let string;
+    if (['html', 'string', 'console'].includes(format)) {
+      string = this.layers.reduce((acc, layer) => `${acc}\n${layer.describe({ format: 'string' }, fullPath, level)}`,
+        ` ${level > 0 ? '│' : ''}${' '.repeat((level > 0? -1 : 0) + level * 4)}${this.routeIndex === this.router.routesCount - 1 ? '└' : '├'}─┬Route ${fullPath}`
+      );
+    }
+
+    switch (format) {
+      case 'html':
+        return `</code>${string.replace(/\n/g, '</br>').replace(/ /g, '&nbsp;')}</code>`;
+      case 'string':
+        return string;
+      case 'console':
+        // eslint-disable-next-line no-console
+        return console.log(string);
+      case 'json':
+        return {};
+      default:
+        throw new Error(`${format} is not a supported format; chose between "console", "string", "html" and "json"`);
+    }
   }
 }
 

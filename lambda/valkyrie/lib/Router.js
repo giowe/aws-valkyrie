@@ -40,10 +40,29 @@ class Router {
     return false;
   }
 
-  describe(mountPath = '', level = 0) {
-    const out = [];
-    this.routes.forEach(route => out.push(...route.describe(mountPath, level)));
-    return out;
+  describe(options, mountPath = '', level = 0) {
+    const { format } = Object.assign({ format: 'console' }, options);
+
+    let string;
+    if (['html', 'string', 'console'].includes(format)) {
+      string = this.routes.reduce((acc, route) => `${acc}${route.describe({ format: 'string' }, mountPath, level)}${route.routeIndex < route.router.routesCount - 1 ? '\n' : ''}`,
+        `${level === 0 ? ' ' : ' │'}${' '.repeat(-1 + (level + 1) + level * 2)}├Router \n`
+      );
+    }
+
+    switch (format) {
+      case 'html':
+        return `</code>${string.replace(/\n/g, '</br>').replace(/ /g, '&nbsp;')}</code>`;
+      case 'string':
+        return string;
+      case 'console':
+        // eslint-disable-next-line no-console
+        return console.log(string);
+      case 'json':
+        return {};
+      default:
+        throw new Error(`${format} is not a supported format; chose between "console", "string", "html" and "json"`);
+    }
   }
 }
 

@@ -9,10 +9,11 @@ class Application extends Router{
       useContextSucceed: false
     }, settings));
     this.locales = Object.create(null);
-    return this;
   }
 
-  static Router(settings) { return new Router(settings); }
+  static Router(settings) {
+    return new Router(settings);
+  }
 
   listen(event, context, callback){
     const method = event.httpMethod.toLowerCase();
@@ -35,8 +36,27 @@ class Application extends Router{
     this.handleRequest(req, res);
   }
 
-  describe(format = 'text') {
-    return ['─┬APPLICATIN', ...super.describe()].join('\n');
+  describe(options) {
+    const { format } = Object.assign({ format: 'console' }, options);
+
+    let string;
+    if (['html', 'string', 'console'].includes(format)) {
+      string = `─┬Application\n${super.describe({ format: 'string' })}`;
+    }
+
+    switch (format) {
+      case 'html':
+        return `</code>${string.replace(/\n/g, '</br>').replace(/ /g, '&nbsp;')}</code>`;
+      case 'string':
+        return string;
+      case 'console':
+        // eslint-disable-next-line no-console
+        return console.log(string);
+      case 'json':
+        return {};
+      default:
+        throw new Error(`${format} is not a supported format; chose between "console", "string", "html" and "json"`);
+    }
   }
 }
 

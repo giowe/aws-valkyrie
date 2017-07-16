@@ -95,6 +95,6 @@ app.use('*', (req, res, next) => {
   next();
 });
 
-console.log(app.describe());
+app.describe();
 
 exports.handler = (...args) => app.listen(...args);
