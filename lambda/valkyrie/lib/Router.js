@@ -1,7 +1,6 @@
 'use strict';
 
 const availableMethods = require('methods');
-const { flatten } = require('./Utils');
 const Route = require('./Route');
 
 class Router {
@@ -16,7 +15,7 @@ class Router {
     this.routesCount = 0;
 
     ['all', ...availableMethods].forEach(method => {
-      this[method] = (...args) => _register(this, method, ...args);
+      this[method] = (...args) => _registerRoute(this, { [method]: true }, ...args);
     });
   }
 
@@ -25,17 +24,17 @@ class Router {
   }
 
   use(...args) {
-    return _register(this, 'use', ...args);
+    return _registerRoute(this, { use: true }, ...args);
   }
 
   route(path) {
-    return _register(this, {}, path);
+    return _registerRoute(this, {}, path);
   }
 
   handleRequest(req, res, mountPath = '', routeStartIndex = 0) {
     const { routes, routesCount } = this;
     for (let routeIndex = routeStartIndex; routeIndex < routesCount; routeIndex++) {
-      //console.log('ROUTE', routeIndex);
+      console.log('ROUTE', routeIndex, routes[routeIndex].path);
       if (routes[routeIndex].handleRequest(req, res, mountPath)) return true;
     }
   }
@@ -45,13 +44,13 @@ class Router {
   }
 }
 
-function _register(self, methods = {}, ...args) {
+function _registerRoute(self, methods = {}, ...args) {
   const path = typeof args[0] === 'string' ? args.shift() : '*';
   const route = new Route(
     self,
-    typeof methods === 'string'? { [methods]:true } : methods,
+    methods,
     path,
-    flatten(args)
+    args
   );
   self.routes.push(route);
   self.routesCount++;

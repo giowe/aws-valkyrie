@@ -2,52 +2,41 @@
 
 const availableMethods = require('methods');
 const pathToRegexp = require('path-to-regexp');
+const Layer = require('./Layer');
+
 const { flatten } = require('./Utils');
 
 class Route {
-  constructor(router, methods, path, layers) {
+  constructor(router, methods, path, fns) {
     this.router = router;
     this.routeIndex = router.routesCount;
     this.methods = methods;
     this.path = path;
-    this.layers = layers;
+    this.layers = [...flatten(fns).map(fn => new Layer(this, methods, fn))];
+    this.layersCount = this.layers.length;
+
     ['all', ...availableMethods].forEach(method => {
-      this[method] = (...layers) => _update(this, method, ...layers);
+      this[method] = (fn) => _registerLayer(this, { [method]: true }, fn);
     });
   }
 
   handleRequest(req, res, mountPath, layerStartIndex = 0) {
-    const { layers } = this;
+    const { layers, layersCount } = this;
     if (layerStartIndex >= layers.length) return false;
     if (!_matchMethod(this, req)) return false;
 
     const fullPath = _urlJoin(mountPath, this.path);
     const matchPath = _matchPath(this, req, fullPath);
-    const l = layers.length;
-    for (let layerIndex = layerStartIndex; layerIndex < l; layerIndex++) {
-      //console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH');
+    for (let layerIndex = layerStartIndex; layerIndex < layersCount; layerIndex++) {
       const layer = layers[layerIndex];
-      if (layer.isRouter) {
-        if (layer.handleRequest(req, res, fullPath)) return true;
-      } else if (matchPath) {
-        try {
-          layer(req, res, (err) => {
-            if (err && err !== 'route') throw err;
-            else if (err === 'route' || !this.handleRequest(req, res, mountPath, layerIndex + 1)) {
-              this.router.handleRequest(req, res, mountPath, this.routeIndex + 1);
-            }
-          });
-        } catch (err) {
-          //todo get error handling middleware.
-          res.status(500).send(`${err.toString()}`);
-        }
-        return true;
-      }
+      console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH', 'containsRouter?', layer.containsRouter);
+      if (layer.containsRouter && layer.handleRequest(req, res, fullPath)) return true;
+      else if (matchPath) return layer.handleRequest(req, res, mountPath);
     }
-
     return false;
   }
 
+  //todo va ripensato in funzione dei Layers.
   describe(mountPath = '') {
     const fullPath = _urlJoin(mountPath, this.path);
     let described = false;
@@ -122,8 +111,10 @@ function _decodeURIParam(param) {
   }
 }
 
-function _update(self, method, ...layers) {
-  self.methods[method] = true;
-  self.layers.push(...flatten(layers));
-  return self;
+function _registerLayer(self, methods, fn) {
+  const layer = new Layer(self, methods, fn);
+  Object.assign(self.methods, methods);
+  self.layers.push(layer);
+  self.layersCount++;
+  return layer;
 }
