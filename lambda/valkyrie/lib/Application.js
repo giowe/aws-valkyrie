@@ -15,7 +15,6 @@ class Application extends Router{
   static Router(settings) { return new Router(settings); }
 
   listen(event, context, callback){
-    console.log('started');
     const method = event.httpMethod.toLowerCase();
     const req = Object.assign({}, event, {
       app: this,
@@ -36,13 +35,8 @@ class Application extends Router{
     this.handleRequest(req, res);
   }
 
-  describe(mountPrefix = '') {
-
-    //eslint-disable-next-line no-console
-    console.log('---------APP-DESCRIPTION---------\n');
-    super.describe(mountPrefix);
-    //eslint-disable-next-line no-console
-    console.log('\n---------------------------------');
+  describe(format = 'text') {
+    return ['─┬APPLICATIN', ...super.describe()].join('\n');
   }
 }
 

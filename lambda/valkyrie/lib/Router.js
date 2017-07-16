@@ -40,8 +40,10 @@ class Router {
     return false;
   }
 
-  describe(mountPrefix = '') {
-    this.routes.forEach(route => route.describe(mountPrefix));
+  describe(mountPath = '', level = 0) {
+    const out = [];
+    this.routes.forEach(route => out.push(...route.describe(mountPath, level)));
+    return out;
   }
 }
 

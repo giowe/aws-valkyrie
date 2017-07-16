@@ -31,7 +31,19 @@ class Layer {
     return true;
   }
 
-  describe(mountPath = '') {}
+  describe(path = '', level = 0) {
+    const out = [];
+    const lastLayer = this.layerIndex === this.route.layersCount - 1;
+    const lastRoute = this.route.routeIndex === this.route.router.routesCount -1;
+    const prefix = ` ${lastRoute && lastLayer && level === 0 ? ' ' : '│'}${' '.repeat(-1 + (level + 1) * 2 + level * 2)}${lastLayer ? '└' : '├'}`;
+    const keys = Object.keys(this.methods).join(', ');
+    if (this.containsRouter) {
+      out.push(`${prefix}─┬ROUTER ${keys}`);
+      out.push(...this._fn.describe(path, level + 1));
+    }
+    else out.push(`${prefix}──MIDDLEWARE ${keys}`);
+    return out;
+  }
 }
 
 module.exports = Layer;

@@ -40,18 +40,11 @@ class Route {
     return false;
   }
 
-  //todo va ripensato in funzione dei Layers.
-  describe(mountPath = '') {
+  describe(mountPath = '', level = 0) {
     const fullPath = _urlJoin(mountPath, this.path);
-    let described = false;
-    this.layers.forEach(layer => {
-      if (layer.isRouter) layer.describe(fullPath);
-      else if (!described) {
-        // eslint-disable-next-line no-console
-        console.log(Object.keys(this.methods).join(', '), fullPath);
-        described = true;
-      }
-    });
+    const out = [` ${level > 0 ? '│' : ''}${' '.repeat((level > 0? -1 : 0) + level * 4)}${this.routeIndex === this.router.routesCount - 1 ? '└' : '├'}─┬ROUTE ${fullPath}`];
+    this.layers.forEach(layer => out.push(...layer.describe(fullPath, level)));
+    return out;
   }
 }
 
@@ -83,9 +76,6 @@ function _getPathRegex(path, settings) {
       pathToRegexp(path, keys, settings),
       keys
     ];
-  } else {
-    //todo check it
-    console.log('>>>>>>>> REGEX LOADED FROM CACHE');
   }
   return _regexCache[key];
 }
