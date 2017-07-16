@@ -14,7 +14,7 @@ class Layer {
   }
 
   handleRequest(req, res, path) {
-    //todo I have to match method!
+    if (!_matchMethod(this, req)) return this.route.handleRequest(req, res, path, this.layerIndex + 1);
     const { _fn } = this;
     if (this.containsRouter) return _fn.handleRequest(req, res, path);
     try {
@@ -59,6 +59,14 @@ class Layer {
         throw new Error(`${format} is not a supported format; chose between "console", "string", "html" and "json"`);
     }
   }
+}
+
+function _matchMethod(self, req) {
+  const { methods, route } = self;
+  if (methods.all || methods.use) return true;
+  let { method } = req;
+  if (method === 'head' && !methods.head && !route.methods.head) method = 'get';
+  return methods[method];
 }
 
 module.exports = Layer;

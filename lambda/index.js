@@ -45,7 +45,7 @@ app.use('/test-next-2', middle1, middle1, middle1, skipMiddle, middle1, middle1,
   next();
 });
 */
-/*app.route('/route')
+app.route('/route')
   .get((req, res) => {
     res.send('this is route in get');
   })
@@ -53,14 +53,15 @@ app.use('/test-next-2', middle1, middle1, middle1, skipMiddle, middle1, middle1,
     res.send('this is the same route in post');
   })
   .head((req, res) => {
-    res.sendStatus(201);
+    console.log('head request!');
+    res.sendStatus(200);
   });
 
 app.route('/route')
   .put((req, res) => {
     res.sendStatus(201);
   });
-*/
+
 app.get('/send-status/:statusCode', (req, res) => {
   res.sendStatus(req.params.statusCode);
 });

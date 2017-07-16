@@ -132,5 +132,5 @@ function _registerLayer(self, methods, fn) {
   Object.assign(self.methods, methods);
   self.layers.push(layer);
   self.layersCount++;
-  return layer;
+  return self;
 }
