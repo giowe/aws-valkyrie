@@ -83,6 +83,9 @@ function _getPathRegex(path, settings) {
       pathToRegexp(path, keys, settings),
       keys
     ];
+  } else {
+    //todo check it
+    console.log('>>>>>>>> REGEX LOADED FROM CACHE');
   }
   return _regexCache[key];
 }
