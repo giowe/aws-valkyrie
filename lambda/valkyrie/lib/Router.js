@@ -1,6 +1,6 @@
 'use strict';
 
-const methods = require('methods');
+const availableMethods = require('methods');
 const { flatten } = require('./Utils');
 const Route = require('./Route');
 
@@ -15,7 +15,7 @@ class Router {
     this.routes = [];
     this.routesCount = 0;
 
-    ['all', ...methods].forEach(method => {
+    ['all', ...availableMethods].forEach(method => {
       this[method] = (...args) => _register(this, method, ...args);
     });
   }

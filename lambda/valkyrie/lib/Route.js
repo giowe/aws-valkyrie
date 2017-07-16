@@ -1,5 +1,6 @@
 'use strict';
 
+const availableMethods = require('methods');
 const pathToRegexp = require('path-to-regexp');
 const { flatten } = require('./Utils');
 
@@ -10,7 +11,7 @@ class Route {
     this.methods = methods;
     this.path = path;
     this.layers = layers;
-    ['all', ...methods].forEach(method => {
+    ['all', ...availableMethods].forEach(method => {
       this[method] = (...layers) => _update(this, method, ...layers);
     });
   }
