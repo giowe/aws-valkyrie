@@ -35,8 +35,9 @@ class Route {
         if (layer.handleRequest(req, res, fullPath)) return true;
       } else if (matchPath) {
         try {
-          layer(req, res, () => {
-            if (!this.handleRequest(req, res, mountPath, layerIndex + 1)) {
+          layer(req, res, (err) => {
+            if (err && err !== 'route') throw err;
+            else if (err === 'route' || !this.handleRequest(req, res, mountPath, layerIndex + 1)) {
               this.router.handleRequest(req, res, mountPath, this.routeIndex + 1);
             }
           });
