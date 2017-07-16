@@ -1,14 +1,11 @@
 {
   "private": true,
-  "name": "aws-valkyrie-dev-lambda",
-  "version": "0.1.1",
+  "name": "aws-valkyrie-dev-solution",
+  "version": "0.2.0",
   "description": "Simple, Express inspired, web framework for AWS Lambda & Api Gateway",
   "author": "Giovanni Bruno",
   "contributors": [
-    {
-      "name": "Giovanni Bruno",
-      "email": "giovanni.bruno@soluzionifutura.it"
-    }
+    "Giovanni Bruno <giovanni.bruno@soluzionifutura.it>"
   ],
   "scripts": {
     "test": "gulp invoke-local",
@@ -20,7 +17,7 @@
   },
   "license": "ISC",
   "main": "main.js",
-  "dependencies": { },
+  "dependencies": {},
   "devDependencies": {
     "eslint": "^4.2.0",
     "aws-cwlogs": "1.0.5",
@@ -32,5 +29,9 @@
     "inquirer": "^1.1.2",
     "yargs": "^6.3.0",
     "zip-dir": "^1.0.2"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/giowe/aws-valkyrie/issues"
+  },
+  "homepage": "https://github.com/giowe/aws-valkyrie#readme"
 }
