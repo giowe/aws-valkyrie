@@ -30,7 +30,8 @@ class Router {
 
   //todo
   route(path) {
-
+    const route = _register(self, {}, path);
+    return route;
   }
 
   handleRequest(req, res, mountPath = '', routeStartIndex = 0) {
@@ -46,7 +47,7 @@ class Router {
   }
 }
 
-function _register(self, methods, ...args) {
+function _register(self, methods = {}, ...args) {
   const path = typeof args[0] === 'string' ? args.shift() : '*';
   const route = new Route(
     self,

@@ -1,23 +1,24 @@
 'use strict';
 
 const pathToRegexp = require('path-to-regexp');
+const { flatten } = require('./Utils');
 
 class Route {
-  constructor(router, methods, path, layers, settings) {
+  constructor(router, methods, path, layers) {
     this.router = router;
     this.routeIndex = router.routesCount;
     this.methods = methods;
     this.path = path;
     this.layers = layers;
+    ['all', ...methods].forEach(method => {
+      this[method] = (...layers) => _update(this, method, ...layers);
+    });
   }
 
   handleRequest(req, res, mountPath, layerStartIndex = 0) {
     const { layers } = this;
     if (layerStartIndex >= layers.length) return false;
-    if (!_matchMethod(this, req)) {
-      //console.log('can`t handle request');
-      return false;
-    }
+    if (!_matchMethod(this, req)) return false;
 
     const fullPath = _urlJoin(mountPath, this.path);
     const matchPath = _matchPath(this, req, fullPath);
@@ -118,4 +119,10 @@ function _decodeURIParam(param) {
   catch (err) {
     return err.toString();
   }
+}
+
+function _update(self, method, ...layers) {
+  self.methods[method] = true;
+  self.layers.push(...flatten(layers));
+  return self;
 }
