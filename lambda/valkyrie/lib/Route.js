@@ -12,8 +12,12 @@ class Route {
     this.routeIndex = router.routesCount;
     this.methods = methods;
     this.path = path;
-    this.layers = [...flatten(fns).map(fn => new Layer(this, methods, fn))];
-    this.layersCount = this.layers.length;
+    this.layersCount = 0;
+    this.layers = [...flatten(fns).map(fn => {
+      const layer = new Layer(this, methods, fn);
+      this.layersCount++;
+      return layer;
+    })];
 
     ['all', ...availableMethods].forEach(method => {
       this[method] = (fn) => _registerLayer(this, { [method]: true }, fn);
@@ -29,7 +33,7 @@ class Route {
     const matchPath = _matchPath(this, req, fullPath);
     for (let layerIndex = layerStartIndex; layerIndex < layersCount; layerIndex++) {
       const layer = layers[layerIndex];
-      console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH', 'containsRouter?', layer.containsRouter);
+      //console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH', 'containsRouter?', layer.containsRouter);
       if (layer.containsRouter && layer.handleRequest(req, res, fullPath)) return true;
       else if (matchPath) return layer.handleRequest(req, res, mountPath);
     }

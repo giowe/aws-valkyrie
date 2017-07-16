@@ -22,7 +22,7 @@ app.get('/test-next', (req, res) => {
 });
 
 app.use((req, res, next) => {
-  console.log('An other middleware');
+  //console.log('An other middleware');
   next();
 }, (req, res, next) => {
   console.log('PATH >>>', req.path);

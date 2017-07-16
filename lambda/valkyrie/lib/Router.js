@@ -34,9 +34,10 @@ class Router {
   handleRequest(req, res, mountPath = '', routeStartIndex = 0) {
     const { routes, routesCount } = this;
     for (let routeIndex = routeStartIndex; routeIndex < routesCount; routeIndex++) {
-      console.log('ROUTE', routeIndex, routes[routeIndex].path);
+      //console.log('ROUTE', routeIndex, routes[routeIndex].path);
       if (routes[routeIndex].handleRequest(req, res, mountPath)) return true;
     }
+    return false;
   }
 
   describe(mountPrefix = '') {

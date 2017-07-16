@@ -19,7 +19,7 @@ class Layer {
     try {
       _fn(req, res, (err) => {
         if (err && err !== 'route') throw err;
-        else if (err === 'route' || !this.handleRequest(req, res, path, this.layerIndex + 1)) {
+        else if (err === 'route' || !this.route.handleRequest(req, res, path, this.layerIndex + 1)) {
           this.router.handleRequest(req, res, path, this.route.routeIndex + 1);
         }
       });
