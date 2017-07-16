@@ -25,13 +25,11 @@ class Router {
   }
 
   use(...args) {
-    _register(this, 'use', ...args);
+    return _register(this, 'use', ...args);
   }
 
-  //todo
   route(path) {
-    const route = _register(self, {}, path);
-    return route;
+    return _register(this, {}, path);
   }
 
   handleRequest(req, res, mountPath = '', routeStartIndex = 0) {
