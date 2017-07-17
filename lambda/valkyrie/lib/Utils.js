@@ -2,7 +2,7 @@
 
 
 //TODO: REVIEW
-var mime = require('send').mime;
+const mime = require('send').mime;
 
 function _acceptParams(str, index) {
   var parts = str.split(/ *; */);
@@ -20,9 +20,6 @@ function _acceptParams(str, index) {
   return ret;
 }
 
-
-
-
 module.exports = class Utils {
   static forEach(arr, fn) {
     let i = 0;
@@ -31,12 +28,7 @@ module.exports = class Utils {
       fn (arr[i], i);
       i++;
     }
-  };
-
-  static decodeURIParam(param) {
-    try { return decodeURIComponent(param); }
-    catch (err) { return err.toString() }
-  };
+  }
 
   static stringify(entity) {
     if (typeof entity === 'object') {
