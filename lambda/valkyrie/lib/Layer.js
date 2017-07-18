@@ -13,15 +13,15 @@ class Layer {
     return this._fn.isRouter === true;
   }
 
-  handleRequest(req, res, path) {
-    if (!_matchMethod(this, req)) return this.route.handleRequest(req, res, path, this.layerIndex + 1);
+  handleRequest(req, res, paths) {
+    if (!_matchMethod(this, req)) return this.route.handleRequest(req, res, paths, this.layerIndex + 1);
     const { _fn } = this;
-    if (this.containsRouter) return _fn.handleRequest(req, res, path);
+    if (this.containsRouter) return _fn.handleRequest(req, res, paths);
     try {
       _fn(req, res, (err) => {
         if (err && err !== 'route') throw err;
-        else if (err === 'route' || !this.route.handleRequest(req, res, path, this.layerIndex + 1)) {
-          this.router.handleRequest(req, res, path, this.route.routeIndex + 1);
+        else if (err === 'route' || !this.route.handleRequest(req, res, paths, this.layerIndex + 1)) {
+          this.router.handleRequest(req, res, paths, this.route.routeIndex + 1);
         }
       });
     } catch (err) {
@@ -31,7 +31,7 @@ class Layer {
     return true;
   }
 
-  describe(options, path = this.route.path, level = 0) {
+  describe(options, paths = this.route.paths, level = 0) {
     const { format } = Object.assign({ format: 'console' }, options);
     let string;
     if (['html', 'string', 'console'].includes(format)) {
@@ -40,7 +40,7 @@ class Layer {
       const prefix = ` ${lastRoute && lastLayer && level === 0 ? ' ' : '│'}${' '.repeat(-1 + (level + 1) * 2 + level * 2)}${lastLayer ? '└' : '├'}`;
       const keys = Object.keys(this.methods).join(', ');
       if (this.containsRouter) {
-        string = `${prefix}─┬Layer: ${keys}\n${this._fn.describe({ format: 'string' }, path, level + 1)}`;
+        string = `${prefix}─┬Layer: ${keys}\n${this._fn.describe({ format: 'string' }, paths, level + 1)}`;
       }
       else string = `${prefix}──Layer: ${keys}`;
     }

@@ -4,16 +4,14 @@ const availableMethods = require('methods');
 const pathToRegexp = require('path-to-regexp');
 const Layer = require('./Layer');
 
-const { flatten } = require('./Utils');
-
 class Route {
-  constructor(router, methods, path, fns) {
+  constructor(router, methods, paths, fns) {
     this.router = router;
     this.routeIndex = router.routesCount;
     this.methods = methods;
-    this.path = path;
+    this.paths = paths;
     this.layersCount = 0;
-    this.layers = [...flatten(fns).map(fn => {
+    this.layers = [...fns.map(fn => {
       const layer = new Layer(this, methods, fn);
       this.layersCount++;
       return layer;
@@ -25,12 +23,18 @@ class Route {
   }
 
   handleRequest(req, res, mountPath, layerStartIndex = 0) {
-    const { layers, layersCount } = this;
+    const { layers, layersCount, paths } = this;
     if (layerStartIndex >= layers.length) return false;
     if (!_matchMethod(this, req)) return false;
 
-    const fullPath = _urlJoin(mountPath, this.path);
-    const matchPath = _matchPath(this, req, fullPath);
+    const l = paths.length;
+    let fullPath, matchPath;
+    for (let i = 0; i < l; i ++) {
+      fullPath = _urlJoin(mountPath, paths[i]);
+      matchPath = _matchPath(this, req, fullPath);
+      if (matchPath) break;
+    }
+
     for (let layerIndex = layerStartIndex; layerIndex < layersCount; layerIndex++) {
       const layer = layers[layerIndex];
       //console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH', 'containsRouter?', layer.containsRouter);
@@ -42,12 +46,12 @@ class Route {
 
   describe(options, mountPath = '', level = 0) {
     const { format } = Object.assign({ format: 'console' }, options);
-    const fullPath = _urlJoin(mountPath, this.path);
+    const fullPaths = this.paths.map(path => _urlJoin(mountPath, path));
 
     let string;
     if (['html', 'string', 'console'].includes(format)) {
-      string = this.layers.reduce((acc, layer) => `${acc}\n${layer.describe({ format: 'string' }, fullPath, level)}`,
-        ` ${level > 0 ? '│' : ''}${' '.repeat((level > 0? -1 : 0) + level * 4)}${this.routeIndex === this.router.routesCount - 1 ? '└' : '├'}─┬Route ${fullPath}`
+      string = this.layers.reduce((acc, layer) => `${acc}\n${layer.describe({ format: 'string' }, fullPaths, level)}`,
+        ` ${level > 0 ? '│' : ''}${' '.repeat((level > 0? -1 : 0) + level * 4)}${this.routeIndex === this.router.routesCount - 1 ? '└' : '├'}─┬Route ${fullPaths.join(', ')}`
       );
     }
 

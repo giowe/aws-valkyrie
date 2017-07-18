@@ -17,6 +17,15 @@ const skipMiddle = (req, res, next) => {
   next('route');
 };
 
+app.get(['/multiple', '/path', ['/matching']], (req, res) => {
+  res.send('multiple path matching');
+});
+
+app.get('/explorer', (req, res) => {
+  res.header('content-type', 'text/html');
+  res.send(app.describe({ format: 'html' }));
+});
+
 app.get('/test-next', (req, res) => {
   res.send('test-next-skipped');
 });
@@ -91,11 +100,11 @@ router.get('/say/:text', (req, res) => {
 
 //router.use('/router2', router2);
 
+app.describe();
+
 app.use('*', (req, res, next) => {
   res.status(404).send('not found!');
   next();
 });
-
-app.describe();
 
 exports.handler = (...args) => app.listen(...args);

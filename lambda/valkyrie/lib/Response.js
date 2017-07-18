@@ -192,12 +192,13 @@ module.exports = class Response {
   send(body) {
     if (typeof body !== 'undefined') this.body = body;
 
-    const resBody = Utils.stringify(body);
+    if (typeof body !== 'string') body = Utils.stringify(body);
 
+    console.log(body);
     const response = {
       statusCode: this.statusCode,
       headers: this.headers,
-      body: resBody,
+      body
     };
 
     if (this.app.settings.useContextSucceed) this.context.succeed(response);

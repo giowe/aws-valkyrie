@@ -2,6 +2,7 @@
 
 const availableMethods = require('methods');
 const Route = require('./Route');
+const { flatten } = require('./Utils');
 
 class Router {
   constructor(settings) {
@@ -15,7 +16,7 @@ class Router {
     this.routesCount = 0;
 
     ['all', ...availableMethods].forEach(method => {
-      this[method] = (...args) => _registerRoute(this, { [method]: true }, ...args);
+      this[method] = (...args) => _registerRoute(this, _parseArgs({ [method]: true }, ...args));
     });
   }
 
@@ -24,17 +25,19 @@ class Router {
   }
 
   use(...args) {
-    return _registerRoute(this, { use: true }, ...args);
+    const parsedArgs = _parseArgs({ use: true }, ...args);
+    if (!parsedArgs.paths) parsedArgs.paths = ['*'];
+    return _registerRoute(this, parsedArgs);
   }
 
-  route(path) {
-    return _registerRoute(this, {}, path);
+  route(paths) {
+    return _registerRoute(this, _parseArgs({}, paths));
   }
 
   handleRequest(req, res, mountPath = '', routeStartIndex = 0) {
     const { routes, routesCount } = this;
     for (let routeIndex = routeStartIndex; routeIndex < routesCount; routeIndex++) {
-      //console.log('ROUTE', routeIndex, routes[routeIndex].path);
+      //console.log('ROUTE', routeIndex, routes[routeIndex].paths);
       if (routes[routeIndex].handleRequest(req, res, mountPath)) return true;
     }
     return false;
@@ -66,14 +69,20 @@ class Router {
   }
 }
 
-function _registerRoute(self, methods = {}, ...args) {
-  const path = typeof args[0] === 'string' ? args.shift() : '*';
-  const route = new Route(
-    self,
-    methods,
-    path,
-    args
-  );
+function _parseArgs(...args) {
+  const methods = args.shift();
+  let paths;
+  if (typeof args[0] === 'string') paths = [args.shift()];
+  else if (Array.isArray(args[0])) {
+    args[0] = flatten(args[0]);
+    if (args[0][0].length && typeof args[0][0] !== 'function') paths = args.shift();
+  }
+  const fns = flatten(args);
+  return { methods, paths, fns };
+}
+
+function _registerRoute(self, { methods, paths, fns }) {
+  const route = new Route(self, methods, paths, fns);
   self.routes.push(route);
   self.routesCount++;
   return route;
