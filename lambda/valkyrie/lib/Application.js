@@ -9,10 +9,31 @@ class Application extends Router{
       useContextSucceed: false
     }, settings));
     this.locales = Object.create(null);
+
+    const { get } = this;
+    this.get = (...args) => {
+      if (args.length === 1 && typeof args[0] === 'string') return this.settings[args[0]];
+      return get(...args);
+    };
   }
 
   static Router(settings) {
     return new Router(settings);
+  }
+
+  disable(prop) {
+    this.settings[prop] = false;
+    return this;
+  }
+
+  enable(prop) {
+    this.settings[prop] = true;
+    return this;
+  }
+
+  set(prop, value) {
+    this.settings[prop] = value;
+    return this;
   }
 
   listen(event, context, callback){

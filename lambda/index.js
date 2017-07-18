@@ -6,6 +6,9 @@ const app = new valkyrie();
 const router = valkyrie.Router();
 const router2 = valkyrie.Router();
 
+app.set('test', 'prova');
+console.log(app.get('test'));
+
 const middle1 = (req, res, next) => {
   console.log('middle1');
   next();
@@ -26,10 +29,6 @@ app.get('/explorer', (req, res) => {
   res.send(app.describe({ format: 'html' }));
 });
 
-app.get('/test-next', (req, res) => {
-  res.send('test-next-skipped');
-});
-
 app.use((req, res, next) => {
   //console.log('An other middleware');
   next();
@@ -45,8 +44,12 @@ app.use('/router/:user', (req, res, next) => {
   else next();
 }, router);
 
-app.use('/test-next-2', middle1, middle1, middle1, skipMiddle, middle1, middle1, (req, res) => {
-  res.send('test-next');
+app.use('/test-next', middle1, middle1, middle1, skipMiddle, middle1, middle1, (req, res) => {
+  res.send('you will not see this');
+});
+
+app.get('/test-next', (req, res) => {
+  res.send('this is the next test route');
 });
 //todo gestire eventualmente url multipli
 /*app.use(['/route', ['/route2', '/route3']], (req, res, next) => {
