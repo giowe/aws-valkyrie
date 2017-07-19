@@ -23,7 +23,10 @@ class Layer {
       _fn(req, res, (err) => {
         if (err && err !== 'route') throw err;
         else if (err === 'route' || !this.route.handleRequest(req, res, paths, this.layerIndex + 1)) {
-          this.router.handleRequest(req, res, paths, this.route.routeIndex + 1);
+          if (!this.router.handleRequest(req, res, paths, this.route.routeIndex + 1)) {
+            throw new Error();
+           // if (!this.router.containerLayer.router.handleRequest(req, res, paths, this.router.containerLayer.route.routeIndex +1)) throw new Error('No next layer found!');
+          }
         }
       });
     } catch (err) {

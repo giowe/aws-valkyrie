@@ -25,10 +25,7 @@ class Route {
 
   handleRequest(req, res, mountPath, layerStartIndex = 0) {
     const { layers, layersCount, paths } = this;
-    if (layerStartIndex >= layers.length) {
-      console.log('dovrei andare oltre');
-      return false;
-    }
+    if (layerStartIndex >= layers.length) return false;
     if (!_matchMethod(this, req)) return false;
 
     const l = paths.length;
