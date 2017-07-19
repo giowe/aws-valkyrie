@@ -91,7 +91,7 @@ function _matchMethod(self, req) {
   return methods[method];
 }
 
-//todo test if it works properly
+//todo tests if it works properly
 const _regexCache = {};
 function _getPathRegex(path, settings) {
   const key = `${JSON.stringify(settings)}${path}`;

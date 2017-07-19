@@ -58,12 +58,12 @@ app.use('/router/:user', (req, res, next) => {
   else next();
 }, router);
 
-app.use('/test-next', middle1, middle1, middle1, skipMiddle, middle1, middle1, (req, res) => {
+app.use('/tests-next', middle1, middle1, middle1, skipMiddle, middle1, middle1, (req, res) => {
   res.send('you will not see this');
 });
 
-app.get('/test-next', (req, res) => {
-  res.send('this is the next test route');
+app.get('/tests-next', (req, res) => {
+  res.send('this is the next tests route');
 });
 //todo gestire eventualmente url multipli
 /*app.use(['/route', ['/route2', '/route3']], (req, res, next) => {
@@ -92,8 +92,8 @@ app.get('/send-status/:statusCode', (req, res) => {
   res.sendStatus(req.params.statusCode);
 });
 
-app.post('/post-test', (req, res) => {
-  req.body.test = 'post-test';
+app.post('/post-tests', (req, res) => {
+  req.body.test = 'post-tests';
   res.json(req.body);
 });
 

@@ -1,0 +1,8 @@
+{
+  "url" : "http://localhost:8080",
+  "headers": {
+    "test" : "test",
+    "testFormat" : "html"
+  },
+  "method" : "GET"
+}

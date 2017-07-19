@@ -28,7 +28,7 @@ module.exports = function(path, method) {
     },
     'queryStringParameters': null,
     'pathParameters': {
-      'proxy': 'test/xxxxx'
+      'proxy': 'tests/xxxxx'
     },
     'stageVariables': null,
     'requestContext': {

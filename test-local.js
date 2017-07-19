@@ -16,7 +16,7 @@ module.exports = function(next){
   try {
     payload = require('./test-payload.js')(argv.path || argv.p, argv.method || argv.m);
   } catch (err) {
-    return console.log('WARNING! "test-payload.js" not found!');
+    return console.log('WARNING! "tests-payload.js" not found!');
   }
 
   const _fail = function(err) {
