@@ -1,16 +1,18 @@
 'use strict';
 
-const clc      = require('cli-color');
-const zipdir   = require('zip-dir');
-const gulp     = require('gulp');
-const usage    = require('gulp-help-doc');
-const install  = require('gulp-install');
-const fs       = require('fs');
-const path     = require('path');
+const request = require('request');
+const clc = require('cli-color');
+const zipdir = require('zip-dir');
+const gulp = require('gulp');
+const usage = require('gulp-help-doc');
+const install = require('gulp-install');
+const fs = require('fs');
+const path = require('path');
 const inquirer = require('inquirer');
-const AWS      = require('aws-sdk');
-const CwLogs   = require('aws-cwlogs');
-const argv     = require('yargs').argv;
+const AWS = require('aws-sdk');
+const CwLogs = require('aws-cwlogs');
+const argv = require('yargs').argv;
+const tester = require('./tester/tester');
 
 let lambdaConfig;
 try {
@@ -199,7 +201,7 @@ gulp.task('logs', () => {
 });
 
 /**
- * Invokes the Lambda function passing test-payload.js as
+ * Invokes the Lambda function passing tests-payload.js as
  * payload and printing the response to the console;
  * @task {invoke}
  * @order {9}
@@ -230,12 +232,35 @@ gulp.task('invoke', (next) => {
   });
 });
 
+gulp.task('start-scenario', () => {
+  const scenarioName = argv.s || argv.scenario;
+  if (!argv.s && !argv.scenario) return console.log('You must specify a scenarioName using flag -s or --scenario');
+  let scenario;
+  try {
+    scenario = require(`./tester/scenarios/${scenarioName}`);
+  } catch(err) {
+    console.log('Scenario', scenarioName, 'not found;');
+  }
+  tester(scenario);
+  console.log('Running scenario', scenarioName);
+});
+
+gulp.task('test', (next) => {
+  const testName = argv.t || argv.test;
+  const test = JSON.parse(require(`./tester/tests/${testName}`));
+  Object.assign(test.headers, { headers: { testFormat : argv.f || argv.format } });
+  request(test, (error, results) => {
+    if(error) console.log(error);
+
+  });
+});
+
 /**
- * Invokes the Lambda function LOCALLY passing test-payload.js
+ * Invokes the Lambda function LOCALLY passing tests-payload.js
  * as payload and printing the response to the console;
  * @task {invoke-local}
  * @order {10}
  */
 gulp.task('invoke-local', (next) => {
-  require(path.join(__dirname, 'test-local.js'))(next);
+  require(path.join(__dirname, 'tests-local.js'))(next);
 });
