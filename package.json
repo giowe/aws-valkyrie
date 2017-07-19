@@ -29,6 +29,7 @@
     "gulp-help-doc": "^1.0.7",
     "gulp-install": "^0.6.0",
     "inquirer": "^1.1.2",
+    "request": "^2.81.0",
     "yargs": "^6.3.0",
     "zip-dir": "^1.0.2"
   },

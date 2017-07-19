@@ -16,6 +16,7 @@ module.exports = (event) => new Promise((resolve, reject) => {
   };
 
   const _succeed = (data) => {
+    console.log(data.headers);
     resolve(data);
   };
 
