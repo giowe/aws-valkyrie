@@ -93,7 +93,8 @@ app.get('/send-status/:statusCode', (req, res) => {
 });
 
 app.post('/post-test', (req, res) => {
-  res.send('this is a test in post');
+  req.body.test = 'post-test';
+  res.json(req.body);
 });
 
 app.get('/log-request', (req, res) => {

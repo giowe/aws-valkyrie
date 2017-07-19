@@ -42,9 +42,9 @@ class Router {
       if (routes[routeIndex].handleRequest(req, res, mountPath)) return true;
     }
 
-    if (containerLayer) {
+    /*if (containerLayer) {
       containerLayer.router.handleRequest(req, res, mountPath, containerLayer.route.routeIndex +1);
-    }
+    }*/
 
     return false;
   }

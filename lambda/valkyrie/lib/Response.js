@@ -111,7 +111,6 @@ module.exports = class Response {
 
         this.set(field, value);
       }
-
     } else {
       const keys = Object.keys(field);
       const l = keys.length;
@@ -125,7 +124,8 @@ module.exports = class Response {
   }
 
   set(field, val) {
-    this.header(field, val)
+    this.headers[field] = val;
+   // this.header(field, val)
   }
 
   json(body){
