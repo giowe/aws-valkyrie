@@ -15,15 +15,17 @@ app.use('/', (req, res, next) => {
   next();
 });
 
-
 const r1 = Valkyrie.Router();
-r1.get('/', function (req, res, next) {
+r1.get('/', (req, res, next) => {
   console.log('r1');
-  console.log(next)
+  next();
+});
+r1.get('/', (req, res, next) => {
+  console.log('r1 bis');
   next();
 });
 const r2 = Valkyrie.Router();
-r2.get('/', function (req, res, next) {
+r2.get('/', (req, res, next) => {
   console.log('r2');
   next();
 });

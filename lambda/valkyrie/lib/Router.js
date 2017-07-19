@@ -12,6 +12,7 @@ class Router {
       end: true,        //When false the path will match at the beginning
       delimiter: '/'    //Set the default delimiter for repeat parameters
     }, settings);
+    this.containerLayer = null;
     this.routes = [];
     this.routesCount = 0;
 
@@ -35,11 +36,16 @@ class Router {
   }
 
   handleRequest(req, res, mountPath = '', routeStartIndex = 0) {
-    const { routes, routesCount } = this;
+    const { routes, routesCount, containerLayer } = this;
     for (let routeIndex = routeStartIndex; routeIndex < routesCount; routeIndex++) {
       //console.log('ROUTE', routeIndex, routes[routeIndex].paths);
       if (routes[routeIndex].handleRequest(req, res, mountPath)) return true;
     }
+
+    if (containerLayer) {
+      containerLayer.router.handleRequest(req, res, mountPath, containerLayer.route.routeIndex +1);
+    }
+
     return false;
   }
 

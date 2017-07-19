@@ -7,6 +7,8 @@ class Layer {
     this.layerIndex = route.layersCount;
     this.methods = methods;
     this._fn = fn;
+
+    if (this.containsRouter) this._fn.containerLayer = this;
   }
 
   get containsRouter() {
