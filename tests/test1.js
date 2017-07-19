@@ -6,6 +6,7 @@ module.exports = (engine) => {
   //const router = engine.Router();
 
   app.use('*', (req, res, next) => {
+    res.header('test', 'value');
     res.status(404).send('not found!');
     next();
   });
