@@ -93,7 +93,7 @@ gulp.task('install', () => {
  *  @order {3}
  */
 gulp.task('create', (next) => {
-  zipdir(path.join(__dirname,'lambda'), function (err, buffer) {
+  zipdir(path.join(__dirname, 'lambda'), function (err, buffer) {
     if (err) return console.log(clc.red('FAILED'), '-', clc.red(err));
     const params = lambdaConfig.ConfigOptions;
     params.Code = { ZipFile: buffer };
@@ -255,12 +255,14 @@ gulp.task('test', (next) => {
   });
 });
 
+
 /**
  * Invokes the Lambda function LOCALLY passing tests-payload.js
  * as payload and printing the response to the console;
  * @task {invoke-local}
  * @order {10}
  */
+
 gulp.task('invoke-local', (next) => {
-  require(path.join(__dirname, 'tests-local.js'))(next);
+  require('./test-local')(next);
 });
