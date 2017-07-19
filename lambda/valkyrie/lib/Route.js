@@ -3,6 +3,7 @@
 const availableMethods = require('methods');
 const pathToRegexp = require('path-to-regexp');
 const Layer = require('./Layer');
+const { flatten } = require('./Utils');
 
 class Route {
   constructor(router, methods, paths, fns) {
@@ -46,6 +47,7 @@ class Route {
 
   describe(options, mountPath = '', level = 0) {
     const { format } = Object.assign({ format: 'console' }, options);
+    //console.log(this.paths)
     const fullPaths = this.paths.map(path => _urlJoin(mountPath, path));
 
     let string;
@@ -74,7 +76,7 @@ class Route {
 module.exports = Route;
 
 function _urlJoin(...paths) {
-  return paths.reduce((acc, path) => {
+  return flatten(paths).reduce((acc, path) => {
     if (!path) return acc;
     if (path[0] === '/') path = path.substr(1);
     return `${acc}${(!acc && path === '*') || [acc[acc.length-1], path[0]].includes('/')? '' : '/'}${path}`;
@@ -83,7 +85,7 @@ function _urlJoin(...paths) {
 
 function _matchMethod(self, req) {
   const { methods } = self;
-  if (methods.all || methods.use) return true;
+  if (methods.use || methods.all) return true;
   let { method } = req;
   if (method === 'head' && !methods.head) method = 'get';
   return methods[method];
@@ -105,12 +107,9 @@ function _getPathRegex(path, settings) {
 
 function _matchPath(self, req, path) {
   if (path === '*') return true;
-  const { methods, router: { settings } } = self;
-  const [regex, keys] = _getPathRegex(path, settings);
-  const m = regex.exec(!methods.use ? req.path : req.path.substr(0, req.path.split('/', path.replace(/\/$/).split('/').length).join('/').length));
+  const [regex, keys] = _getPathRegex(path, self.router.settings);
+  const m = regex.exec(!self.methods.use ? req.path : req.path.substr(0, req.path.split('/', path.replace(/\/$/).split('/').length).join('/').length));
   if (!m) return false;
-
-  req.params = req.params || {};
   keys.forEach((key, i) => {
     const param = m[i + 1];
     if (param){
@@ -118,7 +117,6 @@ function _matchPath(self, req, path) {
       if (key.repeat) req.params[key.name] = req.params[key.name].split(key.delimiter);
     }
   });
-
   return true;
 }
 

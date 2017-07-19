@@ -1,13 +1,34 @@
 /* eslint-disable no-console */
 'use strict';
 
-const valkyrie = require('./valkyrie/valkyrie');
-const app = new valkyrie();
-const router = valkyrie.Router();
-const router2 = valkyrie.Router();
+const Valkyrie = require('./valkyrie/valkyrie');
+const app = new Valkyrie();
+const router = Valkyrie.Router();
+const router2 = Valkyrie.Router();
 
-app.set('test', 'prova');
-console.log(app.get('test'));
+
+app.use('/', (req, res, next) => {
+  console.log('A middleware');
+  next();
+}, (req, res, next) => {
+  console.log('PATH >>>', req.path);
+  next();
+});
+
+
+const r1 = Valkyrie.Router();
+r1.get('/', function (req, res, next) {
+  console.log('r1');
+  console.log(next)
+  next();
+});
+const r2 = Valkyrie.Router();
+r2.get('/', function (req, res, next) {
+  console.log('r2');
+  next();
+});
+
+app.use(r1, r2);
 
 const middle1 = (req, res, next) => {
   console.log('middle1');
@@ -28,15 +49,6 @@ app.get('/explorer', (req, res) => {
   res.header('content-type', 'text/html');
   res.send(app.describe({ format: 'html' }));
 });
-
-app.use((req, res, next) => {
-  //console.log('An other middleware');
-  next();
-}, (req, res, next) => {
-  console.log('PATH >>>', req.path);
-  next();
-});
-
 
 app.use('/router/:user', (req, res, next) => {
   const { user } = req.params;

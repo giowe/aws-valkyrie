@@ -63,7 +63,7 @@ class Layer {
 
 function _matchMethod(self, req) {
   const { methods, route } = self;
-  if (methods.all || methods.use) return true;
+  if (methods.use || methods.all) return true;
   let { method } = req;
   if (method === 'head' && !methods.head && !route.methods.head) method = 'get';
   return methods[method];

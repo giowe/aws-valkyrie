@@ -26,7 +26,7 @@ class Router {
 
   use(...args) {
     const parsedArgs = _parseArgs({ use: true }, ...args);
-    if (!parsedArgs.paths) parsedArgs.paths = ['*'];
+    if (!parsedArgs.paths.length) parsedArgs.paths.push('/');
     return _registerRoute(this, parsedArgs);
   }
 
@@ -71,7 +71,7 @@ class Router {
 
 function _parseArgs(...args) {
   const methods = args.shift();
-  let paths;
+  let paths = [];
   if (typeof args[0] === 'string') paths = [args.shift()];
   else if (Array.isArray(args[0])) {
     args[0] = flatten(args[0]);
