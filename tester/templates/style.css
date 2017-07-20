@@ -1,0 +1,137 @@
+html, body {
+  padding: 0;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 50px;
+}
+body {
+  color: #333;
+  font-family: monospace;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  display: block;
+}
+
+h1 {
+  text-align: center;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  margin: 0;
+  display: block;
+}
+
+
+table {
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.fail{
+  color: #a94442;
+  background-color: #f2dede;
+  border-color: #ebccd1;
+}
+table tbody tr{
+  background-color: #f7f7f9;
+}
+
+.success{
+  color: #3c763d;
+  background-color: #dff0d8;
+  border-color: #d6e9c6;
+}
+
+.success, .fail {
+  font-size: 22px;
+  text-align: center;
+  cursor: pointer;
+}
+
+table {
+  table-layout: auto;
+}
+
+table {
+  margin-bottom: 20px;
+  margin-right: 20vw;
+  margin-left: 20vw;
+}
+
+table, th, td {
+  border: 1px solid black;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+th {
+  white-space: nowrap;
+}
+
+@media (min-width: 700px){
+  table {
+    width: 60vw;
+    margin-left: 20vw;
+    margin-right: 20vw;
+    max-width: 60vw;
+  }
+}
+
+.uriViewer {
+  white-space: normal;
+  overflow-x: scroll;
+}
+
+@media (min-width: 1000px) {
+  .uriViewer {
+    overflow-x: hidden;
+  }
+}
+
+div.fail, div.success {
+  column-width: 60vm;
+}
+
+div.partial {
+  overflow-x: visible;
+  overflow-y: hidden;
+  max-height: 20vw
+}
+
+div.full {
+  overflow-x: visible;
+  overflow-y: hidden;
+}
+
+.viewMore a{
+  cursor: pointer;
+  text-decoration: none;
+  font-size: large;
+  color: #666;
+}
+.viewMore {
+  text-align: center;
+}
+
+.container {
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+.jsonViewer { }
+
+.footer{
+  position:fixed;
+  bottom:0px;
+  left:0px;
+  right:0px;
+  margin-bottom:0px;
+  background-color: #fff;
+  text-transform: uppercase;
+  color: #666;
+}
