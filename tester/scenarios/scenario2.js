@@ -8,7 +8,7 @@ module.exports = (engine, engineName) => {
   app.all('*', (req, res, next) => {
     console.log('calledFrom', engineName);
     res.header('test', 'value');
-    res.status(200).send({ test: 'test', name: 'John' });
+    res.status(200).json({ test: 'test', name: 'John' });
     //next();
   });
 
