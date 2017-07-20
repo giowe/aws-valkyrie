@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use strict';
 
 const request = require('request');
@@ -50,28 +51,28 @@ gulp.task('configure', function(next){
     { type: 'input', name: 'MemorySize', message: 'MemorySize:',  default: lambdaConfig? lambdaConfig.ConfigOptions.MemorySize:'128' },
     { type: 'input', name: 'Timeout', message: 'Timeout:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Timeout:'3' },
     { type: 'input', name: 'Runtime', message: 'Runtime:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Runtime:'nodejs6.10' }
-  ]).then((config_answers) => {
-    lambdaConfig = {
-      Region: config_answers.Region,
-      ConfigOptions: {
-        FunctionName: config_answers.FunctionName,
-        Description: config_answers.Description,
-        Role: config_answers.Role,
-        Handler: config_answers.Handler,
-        MemorySize: config_answers.MemorySize,
-        Timeout: config_answers.Timeout,
-        Runtime: config_answers.Runtime
-      }
-    };
-
-    const lambdaPackage = require(path.join(__dirname, 'lambda/package.json'));
-    lambdaPackage.name = config_answers.FunctionName;
-    lambdaPackage.description = config_answers.Description;
-    fs.writeFileSync(path.join(__dirname, '/lambda/package.json'), JSON.stringify(lambdaPackage, null, 2));
-    fs.writeFileSync(path.join(__dirname, '/lambda-config.json'), JSON.stringify(lambdaConfig, null, 2));
-    console.log('\n', lambdaConfig, '\n\n', clc.green('Lambda configuration saved'));
-    next();
-  })
+  ])
+    .then((config_answers) => {
+      lambdaConfig = {
+        Region: config_answers.Region,
+        ConfigOptions: {
+          FunctionName: config_answers.FunctionName,
+          Description: config_answers.Description,
+          Role: config_answers.Role,
+          Handler: config_answers.Handler,
+          MemorySize: config_answers.MemorySize,
+          Timeout: config_answers.Timeout,
+          Runtime: config_answers.Runtime
+        }
+      };
+      const lambdaPackage = require(path.join(__dirname, 'lambda/package.json'));
+      lambdaPackage.name = config_answers.FunctionName;
+      lambdaPackage.description = config_answers.Description;
+      fs.writeFileSync(path.join(__dirname, '/lambda/package.json'), JSON.stringify(lambdaPackage, null, 2));
+      fs.writeFileSync(path.join(__dirname, '/lambda-config.json'), JSON.stringify(lambdaConfig, null, 2));
+      console.log('\n', lambdaConfig, '\n\n', clc.green('Lambda configuration saved'));
+      next();
+    })
     .catch(console.log);
 });
 
@@ -125,7 +126,7 @@ gulp.task('update', ['update-config', 'update-code']);
  *  @order {5}
  */
 gulp.task('update-code', (next) => {
-  zipdir(path.join(__dirname, 'lambda'), function (err, buffer) {
+  zipdir(path.join(__dirname, 'lambda'), (err, buffer) => {
     if (err) return console.log(clc.red('FAILED'), '-', clc.red(err));
 
     new AWS.Lambda({ region: lambdaConfig.Region }).updateFunctionCode({
