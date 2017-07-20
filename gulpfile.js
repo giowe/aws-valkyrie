@@ -247,7 +247,9 @@ gulp.task('invoke-local', (next) => {
 });
 
 /**
- *
+ * Sets up both a Valkyrie and an Express app with the same template called scenario;
+ * then another Express app proxies all the requests to them.
+ * The responses are returned for further comparisons;
  * @task {start-scenario}
  * @order {11}
  */
@@ -267,8 +269,10 @@ gulp.task('start-scenario', (next) => {
 });
 
 /**
- * @task {start-test}
- * @order {12}
+ * Sends a request, created following a specified template called test,
+ * to the Express app, before sending the request it assures that a
+ * scenario is active and running, if not it starts one selected by the user
+ * and saves the response in files in the outputs directory;
  */
 gulp.task('start-test', (next) => {
   tester.startTest(argv.t || argv.test, argv.s || argv.scenario)
