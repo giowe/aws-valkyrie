@@ -1,5 +1,5 @@
 {
-  "scenario": "test1",
+  "scenario": "scenario1",
   "url" : "http://localhost:8080",
   "headers": {
     "test" : "test"

@@ -260,8 +260,8 @@ gulp.task('start-scenario', (next) => {
 });
 
 gulp.task('start-test', (next) => {
-  tester.startTest(argv.t || argv.test)
-    .then()
+  tester.startTest(argv.t || argv.test, argv.s || argv.scenario)
+    .then(data => console.log(data))
     .catch((err) => {
       if (err.message === 'Missing scenario name') console.log('You must specify a scenario name using flag -s or --scenario or you can set it in test file at key "scenario"');
       else if (err.message === 'Missing test name') console.log('You must specify a test name using flag -t or --test');
