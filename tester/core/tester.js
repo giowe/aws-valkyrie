@@ -11,6 +11,24 @@ module.exports.startScenario = (scenarioName) => new Promise((resolve, reject) =
       const { htmlFormatter, jsonFormatter } = require('./formatter');
       const app = new express();
 
+      /*
+      {
+        request: {
+          method,
+          url, contiene le query string? se si bene se no niente
+          headers,
+          body
+        },
+        response: {
+          express: {
+            ...
+          },
+          valkyrie: {
+            ...
+          }
+        }
+       */
+
       app.use(bodyParser.json(), bodyParser.raw(), bodyParser.text(), bodyParser.urlencoded({ extended: false }));
       app.all('*', (req, res) => {
         const { headers, method, body, query, params, originalUrl } = req;
