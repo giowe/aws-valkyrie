@@ -232,19 +232,20 @@ gulp.task('invoke', (next) => {
   });
 });
 
-const startScenario = (scenarioName) => {
-
-  tester.startScenario(scenarioName);
-};
-
 gulp.task('start-scenario', () => {
-  startScenario(argv.s || argv.scenario);
+  tester.startScenario(argv.s || argv.scenario)
+    .then(data => {
+      console.log(data.scenario.status);
+      console.log(data.express.status);
+      console.log(data.valkyrie.status);
+    })
+    .catch(console.log);
 });
 
 gulp.task('test', (next) => {
   const testName = argv.t || argv.test;
   const test = require(`./tester/tests/${testName}`);
-  startScenario(test.scenario || argv.s || argv.scenario);
+  tester.startScenario(test.scenario || argv.s || argv.scenario);
 
   request(test, (error, results) => {
     if(error) console.log(error);
