@@ -18,9 +18,9 @@
   "license": "ISC",
   "main": "main.js",
   "dependencies": {
-    "js-object-pretty-print": "^0.3.0"
   },
   "devDependencies": {
+    "js-object-pretty-print": "^0.3.0",
     "aws-cwlogs": "1.0.5",
     "aws-sdk": "^2.2.16",
     "body-parser": "^1.17.2",

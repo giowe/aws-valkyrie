@@ -21,5 +21,8 @@
     "path-to-regexp": "^1.6.0",
     "send": "^0.14.1",
     "vary": "^1.1.0"
+  },
+  "devDependencies": {
+    "gulp-zip": "^4.0.0"
   }
 }

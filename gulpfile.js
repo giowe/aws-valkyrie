@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 'use strict';
 
-const request = require('request');
 const clc = require('cli-color');
 const zipdir = require('zip-dir');
+const zip = require('gulp-zip');
 const gulp = require('gulp');
 const usage = require('gulp-help-doc');
 const install = require('gulp-install');
@@ -126,6 +126,8 @@ gulp.task('update', ['update-config', 'update-code']);
  *  @order {5}
  */
 gulp.task('update-code', (next) => {
+  gulp.src()
+
   zipdir(path.join(__dirname, 'lambda'), (err, buffer) => {
     if (err) return console.log(clc.red('FAILED'), '-', clc.red(err));
 
@@ -265,7 +267,6 @@ gulp.task('start-scenario', (next) => {
 });
 
 /**
- *
  * @task {start-test}
  * @order {12}
  */
