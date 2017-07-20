@@ -1,8 +1,8 @@
 {
+  "scenario": "test1",
   "url" : "http://localhost:8080",
   "headers": {
-    "test" : "test",
-    "testFormat" : "html"
+    "test" : "test"
   },
-  "method" : "GET"
+  "method" : "get"
 }

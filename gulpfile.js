@@ -12,7 +12,7 @@ const inquirer = require('inquirer');
 const AWS = require('aws-sdk');
 const CwLogs = require('aws-cwlogs');
 const argv = require('yargs').argv;
-const tester = require('./tester/tester');
+const tester = require('./tester/core/tester');
 
 let lambdaConfig;
 try {
@@ -93,7 +93,7 @@ gulp.task('install', () => {
  *  @order {3}
  */
 gulp.task('create', (next) => {
-  zipdir(path.join(__dirname,'lambda'), function (err, buffer) {
+  zipdir(path.join(__dirname, 'lambda'), function (err, buffer) {
     if (err) return console.log(clc.red('FAILED'), '-', clc.red(err));
     const params = lambdaConfig.ConfigOptions;
     params.Code = { ZipFile: buffer };
@@ -233,27 +233,26 @@ gulp.task('invoke', (next) => {
 });
 
 gulp.task('start-scenario', () => {
-  const scenarioName = argv.s || argv.scenario;
-  if (!argv.s && !argv.scenario) return console.log('You must specify a scenarioName using flag -s or --scenario');
-  let scenario;
-  try {
-    scenario = require(`./tester/scenarios/${scenarioName}`);
-  } catch(err) {
-    console.log('Scenario', scenarioName, 'not found;');
-  }
-  tester(scenario);
-  console.log('Running scenario', scenarioName);
+  tester.startScenario(argv.s || argv.scenario)
+    .then(data => {
+      console.log(data.scenario.status);
+      console.log(data.express.status);
+      console.log(data.valkyrie.status);
+    })
+    .catch(console.log);
 });
 
 gulp.task('test', (next) => {
   const testName = argv.t || argv.test;
-  const test = JSON.parse(require(`./tester/tests/${testName}`));
-  Object.assign(test.headers, { headers: { testFormat : argv.f || argv.format } });
+  const test = require(`./tester/tests/${testName}`);
+  tester.startScenario(test.scenario || argv.s || argv.scenario);
+
   request(test, (error, results) => {
     if(error) console.log(error);
 
   });
 });
+
 
 /**
  * Invokes the Lambda function LOCALLY passing tests-payload.js
@@ -261,6 +260,7 @@ gulp.task('test', (next) => {
  * @task {invoke-local}
  * @order {10}
  */
+
 gulp.task('invoke-local', (next) => {
-  require(path.join(__dirname, 'tests-local.js'))(next);
+  require('./test-local')(next);
 });

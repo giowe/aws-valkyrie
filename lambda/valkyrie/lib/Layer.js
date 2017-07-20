@@ -16,16 +16,21 @@ class Layer {
   }
 
   handleRequest(req, res, paths) {
-    if (!_matchMethod(this, req)) return this.route.handleRequest(req, res, paths, this.layerIndex + 1);
+    const { route, router } = this;
+    if (!_matchMethod(this, req)) return route.handleRequest(req, res, paths, this.layerIndex + 1);
     const { _fn } = this;
     if (this.containsRouter) return _fn.handleRequest(req, res, paths);
     try {
       _fn(req, res, (err) => {
         if (err && err !== 'route') throw err;
-        else if (err === 'route' || !this.route.handleRequest(req, res, paths, this.layerIndex + 1)) {
-          if (!this.router.handleRequest(req, res, paths, this.route.routeIndex + 1)) {
-            throw new Error();
-           // if (!this.router.containerLayer.router.handleRequest(req, res, paths, this.router.containerLayer.route.routeIndex +1)) throw new Error('No next layer found!');
+        else if (err === 'route' || !route.handleRequest(req, res, paths, this.layerIndex + 1)) {
+          if (!router.handleRequest(req, res, paths, route.routeIndex + 1)) {
+            const { containerLayer } = router;
+            if (!containerLayer.route.handleRequest(req, res, paths, containerLayer.layerIndex +1)) {
+              //if (!containerLayer.router.handleRequest(req, res, paths, containerLayer.route.routeIndex +1)) {
+                throw new Error('No next layer found!');
+              //}
+            }
           }
         }
       });

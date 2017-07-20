@@ -194,7 +194,6 @@ module.exports = class Response {
 
     if (typeof body !== 'string') body = Utils.stringify(body);
 
-    console.log(body);
     const response = {
       statusCode: this.statusCode,
       headers: JSON.stringify(this.headers),
