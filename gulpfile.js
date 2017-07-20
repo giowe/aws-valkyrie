@@ -249,7 +249,6 @@ gulp.task('test', (next) => {
 
   request(test, (error, results) => {
     if(error) console.log(error);
-
   });
 });
 
