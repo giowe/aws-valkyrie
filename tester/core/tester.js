@@ -30,13 +30,7 @@ module.exports.startScenario = (scenarioName) => new Promise((resolve, reject) =
               });
             });
           }),
-          scenario.valkyrie.call({
-            headers,
-            httpMethod: method,
-            body,
-            queryStringParams: query,
-            path: params[0]
-          })
+
         ])
           .then(data => {
             //todo salvare files
