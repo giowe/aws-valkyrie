@@ -110,6 +110,8 @@ module.exports = class Response {
         if (charset) value += ';charset=' + charset.toLowerCase();
 
         this.set(field, value);
+      } else {
+        this.set(field, value);
       }
     } else {
       const keys = Object.keys(field);
@@ -196,7 +198,7 @@ module.exports = class Response {
 
     const response = {
       statusCode: this.statusCode,
-      headers: JSON.stringify(this.headers),
+      headers: this.headers,
       body
     };
 
