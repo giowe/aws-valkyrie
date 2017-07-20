@@ -23,7 +23,7 @@ module.exports.startScenario = (scenarioName) => new Promise((resolve, reject) =
           express: {
             ...
           },
-          valkyrie: {
+          Valkyrie: {
             ...
           }
         }

@@ -1,11 +1,10 @@
 /* eslint-disable no-console */
 'use strict';
 
-const Valkyrie = require('./valkyrie/valkyrie');
+const Valkyrie = require(process.env.NODE_ENV === 'local' ? '../Valkyrie/Valkyrie' : './Valkyrie/Valkyrie');
 const app = new Valkyrie();
 const router = Valkyrie.Router();
 const router2 = Valkyrie.Router();
-
 
 app.use('/', (req, res, next) => {
   console.log('A middleware');
