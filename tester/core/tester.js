@@ -8,7 +8,7 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
       const bodyParser = require('body-parser');
       const express = require('express');
       const request = require('request');
-      const { htmlFormatter, jsonFormatter } = require('./formatter');
+      const { htmlFormatter } = require('./formatter');
       const app = new express();
 
       app.use(bodyParser.json(), bodyParser.raw(), bodyParser.text(), bodyParser.urlencoded({ extended: false }));
@@ -46,7 +46,7 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
           })
         ])
           .then(data => {
-            res.send(Object.assign({}, { request: data[0].request, response: { express: data[0].response, valkyrie: data[1] } }));
+            res.send(htmlFormatter(Object.assign({}, { request: data[0].request, response: { express: data[0].response, valkyrie: data[1] } })));
           })
           //todo gestire i fallimenti in modo chiaro
           .catch(res.send);
