@@ -11,24 +11,6 @@ module.exports.startScenario = (scenarioName) => new Promise((resolve, reject) =
       const { htmlFormatter, jsonFormatter } = require('./formatter');
       const app = new express();
 
-      /*
-      {
-        request: {
-          method,
-          url, contiene le query string? se si bene se no niente
-          headers,
-          body
-        },
-        response: {
-          express: {
-            ...
-          },
-          valkyrie: {
-            ...
-          }
-        }
-       */
-
       app.use(bodyParser.json(), bodyParser.raw(), bodyParser.text(), bodyParser.urlencoded({ extended: false }));
       app.all('*', (req, res) => {
         const { headers, method, body, query, params, originalUrl } = req;
@@ -41,9 +23,16 @@ module.exports.startScenario = (scenarioName) => new Promise((resolve, reject) =
             }, (error, response, body) => {
               if (error) return reject(error);
               resolve({
-                statusCode: response.statusCode,
-                headers: response.headers,
-                body
+                request:{
+                  method : response.request.method,
+                  url : response.request.uri.href,
+                  headers : response.request.headers
+                },
+                response:{
+                  statusCode: response.statusCode,
+                  headers:response.headers,
+                  body
+                }
               });
             });
           }),
@@ -56,8 +45,7 @@ module.exports.startScenario = (scenarioName) => new Promise((resolve, reject) =
           })
         ])
           .then(data => {
-            //todo salvare files
-            res.send(htmlFormatter(data));
+            res.send(Object.assign({}, { request: data[0].request, response: { express: data[0].response, valkyrie: data[1] } }));
           })
           //todo gestire i fallimenti in modo chiaro
           .catch(res.send);
