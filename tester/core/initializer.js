@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const valkyrie = require('../../lambda/valkyrie/valkyrie');
+const valkyrie = require('../../Valkyrie/Valkyrie');
 
 module.exports = (scenarioName) => new Promise((resolve, reject) => {
   let scenario;
