@@ -244,6 +244,11 @@ gulp.task('invoke-local', (next) => {
   require('./test-local')(next);
 });
 
+/**
+ *
+ * @task {start-scenario}
+ * @order {11}
+ */
 gulp.task('start-scenario', (next) => {
   tester.startScenario(argv.s || argv.scenario)
     .then(data => {
@@ -259,6 +264,10 @@ gulp.task('start-scenario', (next) => {
     });
 });
 
+/**
+ * @task {start-test}
+ * @order {12}
+ */
 gulp.task('start-test', (next) => {
   tester.startTest(argv.t || argv.test, argv.s || argv.scenario)
     .then(data => console.log(data))

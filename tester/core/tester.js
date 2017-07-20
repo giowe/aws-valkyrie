@@ -10,6 +10,9 @@ const pretty = require('js-object-pretty-print').pretty;
 
 const { htmlFormatter } = require('./formatter');
 
+/**
+ * @param scenarioName
+ */
 const startScenario = (scenarioName) => new Promise((resolve, reject) => {
   if (!scenarioName) return reject(new Error('Missing scenario name'));
   require('./initializer')(scenarioName)
@@ -59,7 +62,6 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
             reject(err);
           });
       });
-
 
       app.listen(8080, () => resolve({
         express: scenario.express,
