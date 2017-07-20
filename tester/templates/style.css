@@ -13,6 +13,10 @@ body {
   display: block;
 }
 
+table {
+  width:100%;
+}
+
 h1 {
   text-align: center;
 }
@@ -53,14 +57,12 @@ table tbody tr{
   cursor: pointer;
 }
 
-table {
-  table-layout: auto;
+td {
+  white-space: pre;
 }
 
 table {
-  margin-bottom: 20px;
-  margin-right: 20vw;
-  margin-left: 20vw;
+  table-layout: auto;
 }
 
 table, th, td {
@@ -71,15 +73,6 @@ table, th, td {
 
 th {
   white-space: nowrap;
-}
-
-@media (min-width: 700px){
-  table {
-    width: 60vw;
-    margin-left: 20vw;
-    margin-right: 20vw;
-    max-width: 60vw;
-  }
 }
 
 .uriViewer {
@@ -119,8 +112,9 @@ div.full {
 }
 
 .container {
-  padding-top: 50px;
   padding-bottom: 50px;
+  margin-left: 10vw;
+  margin-right: 10vw;
 }
 
 .jsonViewer { }
