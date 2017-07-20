@@ -1,13 +1,19 @@
 'use strict';
 
 const express = require('express');
-const valkyrie = require('../lambda/valkyrie');
+const valkyrie = require('../../lambda/valkyrie/valkyrie');
 
-module.exports = (scenario) => {
+module.exports = (scenarioName) => {
+  let scenario;
+  try {
+    scenario = require(`../scenarios/${scenarioName}`);
+  } catch (err) {
+    throw new Error('Scenario', scenarioName, 'not found;');
+  }
   const expressTest = scenario(express);
   const valkyrieTest = scenario(valkyrie);
 
-  expressTest.listen(6000, () => console.log('scenario listening on port 6000'));
+  expressTest.listen(6000, () => console.log('Express listening on port 6000'));
 
   return module.exports = (event) => new Promise((resolve, reject) => {
     const _fail = (err) => reject(err);

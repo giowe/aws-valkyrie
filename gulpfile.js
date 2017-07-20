@@ -12,7 +12,7 @@ const inquirer = require('inquirer');
 const AWS = require('aws-sdk');
 const CwLogs = require('aws-cwlogs');
 const argv = require('yargs').argv;
-const tester = require('./tester/tester');
+const tester = require('./tester/core/tester');
 
 let lambdaConfig;
 try {
@@ -232,23 +232,20 @@ gulp.task('invoke', (next) => {
   });
 });
 
+const startScenario = (scenarioName) => {
+
+  tester.startScenario(scenarioName);
+};
+
 gulp.task('start-scenario', () => {
-  const scenarioName = argv.s || argv.scenario;
-  if (!argv.s && !argv.scenario) return console.log('You must specify a scenarioName using flag -s or --scenario');
-  let scenario;
-  try {
-    scenario = require(`./tester/scenarios/${scenarioName}`);
-  } catch(err) {
-    console.log('Scenario', scenarioName, 'not found;');
-  }
-  tester(scenario);
-  console.log('Running scenario', scenarioName);
+  startScenario(argv.s || argv.scenario);
 });
 
 gulp.task('test', (next) => {
   const testName = argv.t || argv.test;
-  const test = JSON.parse(require(`./tester/tests/${testName}`));
-  Object.assign(test.headers, { headers: { testFormat : argv.f || argv.format } });
+  const test = require(`./tester/tests/${testName}`);
+  startScenario(test.scenario || argv.s || argv.scenario);
+
   request(test, (error, results) => {
     if(error) console.log(error);
 
