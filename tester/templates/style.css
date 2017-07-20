@@ -1,16 +1,31 @@
 html, body {
   padding: 0;
-  margin: 0;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 50px;
 }
-
 body {
+  color: #333;
   font-family: monospace;
   padding: 0;
   border: 0;
   outline: 0;
   display: block;
+}
+
+h1 {
   text-align: center;
 }
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  margin: 0;
+  display: block;
+}
+
 
 table {
   border-collapse: collapse;
@@ -23,7 +38,6 @@ table {
   border-color: #ebccd1;
 }
 table tbody tr{
-  color: #333;
   background-color: #f7f7f9;
 }
 
@@ -43,7 +57,7 @@ table {
   table-layout: auto;
 }
 
-.parent-table {
+table {
   margin-bottom: 20px;
   margin-right: 20vw;
   margin-left: 20vw;
@@ -55,19 +69,8 @@ table, th, td {
   border-bottom-right-radius: 3px;
 }
 
-td {
-  white-space:pre;
-  max-heigh
-  t: 200px;
-  max-width:200px;
-}
-
 th {
   white-space: nowrap;
-}
-
-tr {
-  max-height: 20px;
 }
 
 @media (min-width: 700px){

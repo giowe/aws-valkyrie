@@ -1,25 +1,57 @@
 'use strict';
 
 const fs = require('fs');
-const path = require('path')
-const style = fs.readFileSync(path.join(__dirname, '/templates/style.css'));
+const path = require('path');
+const style = fs.readFileSync(path.join(__dirname, '/../templates/style.css'));
+const pretty = require('js-object-pretty-print').pretty;
 
 module.exports.htmlFormatter = (data) => {
-  return `
-    <div style="width: 50%">
-    <table class="nested-table">
+  const { request, response } = data;
+  const formattedRequest = `
+    <h1>Request</h1>
+    <table>
+      <tr>
+        <th>Method</th>
+        <td>${request.method}</td>
+      </tr>
+      <tr>
+        <th>URL</th>
+        <td>${request.url}</td>
+      </tr>
+      <tr>
+        <th>Headers</th>
+        <td>${pretty(request.headers, 2)}</td>
+      </tr>
+      <tr>
+        <th>Body</th>
+        <td>${pretty(request.body, 2)}</td>
+      </tr>
+    </table>
+  `;
+
+  const formattedResponse = `
+    <h1>Response</h1>
+    <table class="parent-table" style="text-align: left;">
       <tr>
         <th>Key</th>
         <th>Express</th>
         <th>Valkyrie</th>
       </tr>
-        ${ Object.keys(data[0]).map(key => `<tr><td>${key}</td><td>${parseValue(data[0][key])}</td><td>${parseValue(data[1][key])}</td></tr>`).join('') }
-    </table>
-    </div>`;
-};
+      <tr>
+        <th>Status</th>
+        <td>${response.express.status}</td>
+        <td>${response.valkyrie.status}</td>
+      </tr>
+      <tr>
+        <th>Headers</th>
+        <td>${pretty(response.express.headers, 2)}</td>
+        <td>${pretty(response.valkyrie.headers, 2)}</td>
+      </tr>
+      <tr>
+        <th>Body</th>
+        <td>${response.express.headers['content-type'] === 'application/json' ? pretty(response.express.body, 2) : response.express.body}</td>
+        <td>${response.valkyrie.headers['content-type'] === 'application/json' ? pretty(response.valkyrie.body, 2) : response.valkyrie.body}</td>
+      </tr>`
 
-function parseValue(value) {
-  if (typeof value !== 'object') return value;
-  return `<style>${style}</style><table class="parent-table"> ${ Object.entries(value).map(([key, value]) => `<tr><td>${key}</td><td>${value}</td></tr>`).join('')} </table>`;
+  return `<style>${style}</style>\n${formattedRequest}\n${formattedResponse}`;
 }
-
