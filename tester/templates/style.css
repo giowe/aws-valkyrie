@@ -14,6 +14,7 @@ body {
 }
 
 table {
+  max-width: 100%;
   width:100%;
 }
 
@@ -43,6 +44,8 @@ table {
 }
 table tbody tr{
   background-color: #f7f7f9;
+  width: 100%;
+  max-width: 100%;
 }
 
 .success{
@@ -59,6 +62,8 @@ table tbody tr{
 
 td {
   white-space: pre;
+  max-width: 100%;
+  width: 100%;
 }
 
 table {
@@ -86,21 +91,6 @@ th {
   }
 }
 
-div.fail, div.success {
-  column-width: 60vm;
-}
-
-div.partial {
-  overflow-x: visible;
-  overflow-y: hidden;
-  max-height: 20vw
-}
-
-div.full {
-  overflow-x: visible;
-  overflow-y: hidden;
-}
-
 .viewMore a{
   cursor: pointer;
   text-decoration: none;
@@ -117,15 +107,12 @@ div.full {
   margin-right: 10vw;
 }
 
-.jsonViewer { }
+.jsonViewerReq {
+  overflow-x: scroll;
+  max-width: 50vw;
+}
 
-.footer{
-  position:fixed;
-  bottom:0px;
-  left:0px;
-  right:0px;
-  margin-bottom:0px;
-  background-color: #fff;
-  text-transform: uppercase;
-  color: #666;
+.jsonViewerRes {
+  overflow-x: scroll;
+  max-width: 25vw;
 }
