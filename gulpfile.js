@@ -2,9 +2,11 @@
 'use strict';
 
 const clc = require('cli-color');
-const zipdir = require('zip-dir');
-const zip = require('gulp-zip');
 const gulp = require('gulp');
+const data = require('gulp-data');
+const filter = require('gulp-filter');
+const rename = require('gulp-rename');
+const zip = require('gulp-zip');
 const usage = require('gulp-help-doc');
 const install = require('gulp-install');
 const fs = require('fs');
@@ -126,26 +128,27 @@ gulp.task('update', ['update-config', 'update-code']);
  *  @order {5}
  */
 gulp.task('update-code', (next) => {
-  gulp.src()
-
-  zipdir(path.join(__dirname, 'lambda'), (err, buffer) => {
-    if (err) return console.log(clc.red('FAILED'), '-', clc.red(err));
-
-    new AWS.Lambda({ region: lambdaConfig.Region }).updateFunctionCode({
-      FunctionName: lambdaConfig.ConfigOptions.FunctionName,
-      ZipFile: buffer
-    }, (err, data) => {
-      if (err){
-        console.log(clc.red('FAILED'), '-', clc.red(err.message));
-        console.log(err);
-      }
-      else {
-        console.log(clc.green('SUCCESS'), '- lambda', clc.cyan(data.FunctionName), 'code updated');
-        console.log(data);
-      }
-      next();
-    });
-  });
+  const f = filter('lambda/**', { restore: true });
+  gulp.src(['./lambda/*', './Valkyrie/**' ], { dot: true, base: './' })
+    .pipe(f)
+    .pipe(rename(path => path.dirname = ''))
+    .pipe(f.restore)
+    .pipe(zip('lambda.zip'))
+    .pipe(data(file => {
+      new AWS.Lambda({ region: lambdaConfig.Region }).updateFunctionCode({
+        FunctionName: lambdaConfig.ConfigOptions.FunctionName,
+        ZipFile: new Buffer(file.contents)
+      }, (err, data) => {
+        if (err){
+          console.log(clc.red('FAILED'), '-', clc.red(err.message));
+          console.log(err);
+        } else {
+          console.log(clc.green('SUCCESS'), '- lambda', clc.cyan(data.FunctionName), 'code updated');
+          console.log(data);
+        }
+        next();
+      });
+    }));
 });
 
 /**

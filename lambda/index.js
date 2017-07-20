@@ -5,6 +5,11 @@ const Valkyrie = require(process.env.NODE_ENV === 'local' ? '../Valkyrie/Valkyri
 const app = new Valkyrie();
 const router = Valkyrie.Router();
 const router2 = Valkyrie.Router();
+const pkg = require('./package.json');
+
+app.get('/info', (req, res) => {
+  res.json(pkg);
+});
 
 app.use('/', (req, res, next) => {
   console.log('A middleware');
