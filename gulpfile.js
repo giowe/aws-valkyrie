@@ -76,12 +76,12 @@ gulp.task('configure', function(next){
 });
 
 /**
- *  Installs npm packages inside the valkyrie folder
+ *  Installs npm packages inside the Valkyrie folder
  *  @task {install}
  *  @order {2}
  */
 gulp.task('install', () => {
-  return gulp.src(path.join(__dirname, 'lambda/valkyrie/package.json'))
+  return gulp.src(path.join(__dirname, 'lambda/Valkyrie/package.json'))
     .pipe(install());
 });
 
@@ -249,7 +249,6 @@ gulp.task('test', (next) => {
 
   request(test, (error, results) => {
     if(error) console.log(error);
-
   });
 });
 
@@ -262,5 +261,6 @@ gulp.task('test', (next) => {
  */
 
 gulp.task('invoke-local', (next) => {
+  process.env.NODE_ENV = 'local';
   require('./test-local')(next);
 });
