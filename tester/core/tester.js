@@ -12,7 +12,6 @@ module.exports.startScenario = (scenarioName) => new Promise((resolve, reject) =
       const app = new express();
 
       app.use(bodyParser.json(), bodyParser.raw(), bodyParser.text(), bodyParser.urlencoded({ extended: false }));
-
       app.all('*', (req, res) => {
         const { headers, method, body, query, params, originalUrl } = req;
         Promise.all([
