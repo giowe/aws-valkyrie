@@ -54,5 +54,6 @@ module.exports.startScenario = (scenarioName) => new Promise((resolve, reject) =
           status: `${scenarioName} is listening on port 8080`
         }
       }));
-    });
+    })
+    .catch(reject);
 });

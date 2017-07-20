@@ -8,7 +8,7 @@ module.exports = (engine) => {
   app.use('*', (req, res, next) => {
     res.header('test', 'value');
     res.status(404).send('not found!');
-    next();
+    //next();
   });
 
   return app;

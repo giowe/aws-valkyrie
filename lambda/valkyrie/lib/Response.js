@@ -194,7 +194,8 @@ module.exports = class Response {
 
     if (typeof body !== 'string') body = Utils.stringify(body);
 
-    console.log(body);
+    console.log(body, counter);
+    counter ++;
     const response = {
       statusCode: this.statusCode,
       headers: JSON.stringify(this.headers),
@@ -244,3 +245,4 @@ module.exports = class Response {
     return this.set('Location', encodeUrl(loc));
   }
 };
+let counter = 0;
