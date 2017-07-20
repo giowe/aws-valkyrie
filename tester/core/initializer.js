@@ -10,8 +10,8 @@ module.exports = (scenarioName) => new Promise((resolve, reject) => {
   } catch (err) {
     return reject('Scenario', scenarioName, 'not found;');
   }
-  const expressApp = scenario(express);
-  const valkyrieApp = scenario(valkyrie);
+  const expressApp = scenario(express, 'express');
+  const valkyrieApp = scenario(valkyrie, 'valkyrie');
 
   expressApp.listen(6000, () => {
     resolve({
@@ -39,7 +39,7 @@ module.exports = (scenarioName) => new Promise((resolve, reject) => {
             else _succeed(data);
           };
 
-          return valkyrieApp.listen(event, context, callback);
+          valkyrieApp.listen(event, context, callback);
         })
       }
     });

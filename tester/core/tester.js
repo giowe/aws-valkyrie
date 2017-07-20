@@ -3,17 +3,17 @@
 
 module.exports.startScenario = (scenarioName) => new Promise((resolve, reject) => {
   if (!scenarioName) return reject('You must specify a scenario name using flags -s, --scenario or writing it in the test file at "scenario" key;');
-  Promise.resolve(require('./initializer')(scenarioName))
+  require('./initializer')(scenarioName)
     .then(scenario => {
       const bodyParser = require('body-parser');
       const express = require('express');
       const request = require('request');
       const { htmlFormatter, jsonFormatter } = require('./formatter');
-      const app = express();
+      const app = new express();
 
       app.use(bodyParser.json(), bodyParser.raw(), bodyParser.text(), bodyParser.urlencoded({ extended: false }));
 
-      app.use('*', (req, res) => {
+      app.all('*', (req, res) => {
         const { headers, method, body, query, params, originalUrl } = req;
         Promise.all([
           new Promise((resolve, reject) => {
@@ -30,7 +30,13 @@ module.exports.startScenario = (scenarioName) => new Promise((resolve, reject) =
               });
             });
           }),
-
+          scenario.valkyrie.call({
+            headers,
+            httpMethod: method,
+            body,
+            queryStringParams: query,
+            path: params[0]
+          })
         ])
           .then(data => {
             //todo salvare files
