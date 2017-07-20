@@ -22,10 +22,10 @@ module.exports.htmlFormatter = (data) => {
         <th>Headers</th>
         <td>${pretty(request.headers, 2)}</td>
       </tr>
-      <tr>
+      ${request.body ? `<tr>
         <th>Body</th>
         <td>${pretty(request.body, 2)}</td>
-      </tr>
+      </tr>` : ''}
     </table>
   `;
 
@@ -39,8 +39,8 @@ module.exports.htmlFormatter = (data) => {
       </tr>
       <tr>
         <th>Status</th>
-        <td>${response.express.status}</td>
-        <td>${response.valkyrie.status}</td>
+        <td>${response.express.statusCode}</td>
+        <td>${response.valkyrie.statusCode}</td>
       </tr>
       <tr>
         <th>Headers</th>
@@ -49,9 +49,9 @@ module.exports.htmlFormatter = (data) => {
       </tr>
       <tr>
         <th>Body</th>
-        <td>${response.express.headers['content-type'] === 'application/json' ? pretty(response.express.body, 2) : response.express.body}</td>
-        <td>${response.valkyrie.headers['content-type'] === 'application/json' ? pretty(response.valkyrie.body, 2) : response.valkyrie.body}</td>
+        <td>${response.express.headers['content-type'] === 'application/json; charset=utf-8' ? pretty(JSON.parse(response.express.body), 2) : response.express.body}</td>
+        <td>${response.valkyrie.headers['content-type'] === 'application/json; charset=utf-8' ? pretty(JSON.parse(response.valkyrie.body), 2) : response.valkyrie.body}</td>
       </tr>`
 
-  return `<style>${style}</style>\n${formattedRequest}\n${formattedResponse}`;
+  return `<style>${style}</style>\n<div class="container">${formattedRequest}\n${formattedResponse}</div>`;
 }
