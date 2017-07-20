@@ -11,11 +11,14 @@ const pretty = require('js-object-pretty-print').pretty;
 const { htmlFormatter } = require('./formatter');
 
 /**
+ * Sets up both a Valkyrie and an Express app with the same template called scenario;
+ * then another Express app proxies all the requests to them.
+ * The responses are returned for further comparisons;
  * @param scenarioName
  */
 const startScenario = (scenarioName) => new Promise((resolve, reject) => {
   if (!scenarioName) return reject(new Error('Missing scenario name'));
-  require('./initializer')(scenarioName)
+  require('./scenario-initializer')(scenarioName)
     .then(scenario => {
       const app = new express();
 
@@ -75,6 +78,14 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
     .catch(reject);
 });
 
+/**
+ * Sends a request, created following a specified template called test,
+ * to the Express app, before sending the request it assures that a
+ * scenario is active and running, if not it starts one selected by the user
+ * and saves the response in files in the outputs directory;
+ * @param testName
+ * @param scenarioName
+ */
 const startTest = (testName, scenarioName) => new Promise((resolve, reject) => {
   if (!testName) return reject(new Error('Missing test name'));
   let test;
@@ -106,6 +117,10 @@ const startTest = (testName, scenarioName) => new Promise((resolve, reject) => {
     })
     .catch(reject);
 });
+
+/**
+ * sends a request to the endpoint /scenario of an express app running on port 8080, used by startTest to make sure if a scenario is running, and if so which one scenario
+ */
 
 const getCurrentScenario = () => new Promise((resolve, reject) => {
   request('http://localhost:8080/scenario', (error, response, body) => {
