@@ -3,6 +3,11 @@
 const express = require('express');
 const valkyrie = require('../../Valkyrie/Valkyrie');
 
+/**
+ * Sets up both a Valkyrie and an Express app with the same template called scenario;
+ * @param scenarioName
+ */
+
 module.exports = (scenarioName) => new Promise((resolve, reject) => {
   let scenario;
   try {
