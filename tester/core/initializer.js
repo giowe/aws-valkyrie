@@ -8,7 +8,7 @@ module.exports = (scenarioName) => new Promise((resolve, reject) => {
   try {
     scenario = require(`../scenarios/${scenarioName}`);
   } catch (err) {
-    return reject('Scenario', scenarioName, 'not found;');
+    return reject(`Scenario "${scenarioName}" not found;`);
   }
   const expressApp = scenario(express, 'express');
   const valkyrieApp = scenario(valkyrie, 'valkyrie');

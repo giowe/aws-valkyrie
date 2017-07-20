@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 'use strict';
 
-module.exports.startScenario = (scenarioName) => new Promise((resolve, reject) => {
-  if (!scenarioName) return reject('You must specify a scenario name using flags -s, --scenario or writing it in the test file at "scenario" key;');
+const startScenario = (scenarioName) => new Promise((resolve, reject) => {
+  if (!scenarioName) return reject(new Error('Missing scenario name'));
   require('./initializer')(scenarioName)
     .then(scenario => {
       const bodyParser = require('body-parser');
@@ -12,6 +12,7 @@ module.exports.startScenario = (scenarioName) => new Promise((resolve, reject) =
       const app = new express();
 
       app.use(bodyParser.json(), bodyParser.raw(), bodyParser.text(), bodyParser.urlencoded({ extended: false }));
+      app.get('/scenario', (req, res) => res.json({ scenarioName }));
       app.all('*', (req, res) => {
         const { headers, method, body, query, params, originalUrl } = req;
         Promise.all([
@@ -62,3 +63,19 @@ module.exports.startScenario = (scenarioName) => new Promise((resolve, reject) =
     })
     .catch(reject);
 });
+
+const startTest = (testName, scenarioName) => new Promise((resolve, reject) => {
+  if (!testName) return reject(new Error('Missing test name'));
+  let test;
+  try {
+    test = require(`../test/${testName}`);
+  } catch (err) {
+    return reject(`Test "${testName}" not found;`);
+  }
+
+  //controllare che ci sia uno scenario che va con una request a 8080/scenario
+
+  //se non c'è far partire uno scenario
+});
+
+module.exports = { startScenario, startTest };

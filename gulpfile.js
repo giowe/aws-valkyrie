@@ -233,35 +233,39 @@ gulp.task('invoke', (next) => {
   });
 });
 
-gulp.task('start-scenario', () => {
-  tester.startScenario(argv.s || argv.scenario)
-    .then(data => {
-      console.log(data.scenario.status);
-      console.log(data.express.status);
-      console.log(data.valkyrie.status);
-    })
-    .catch(console.log);
-});
-
-gulp.task('test', (next) => {
-  const testName = argv.t || argv.test;
-  const test = require(`./tester/tests/${testName}`);
-  tester.startScenario(test.scenario || argv.s || argv.scenario);
-
-  request(test, (error, results) => {
-    if(error) console.log(error);
-  });
-});
-
-
 /**
  * Invokes the Lambda function LOCALLY passing tests-payload.js
  * as payload and printing the response to the console;
  * @task {invoke-local}
  * @order {10}
  */
-
 gulp.task('invoke-local', (next) => {
   process.env.NODE_ENV = 'local';
   require('./test-local')(next);
+});
+
+gulp.task('start-scenario', (next) => {
+  tester.startScenario(argv.s || argv.scenario)
+    .then(data => {
+      console.log(data.scenario.status);
+      console.log(data.express.status);
+      console.log(data.valkyrie.status);
+      next();
+    })
+    .catch((err) => {
+      if (err.message === 'Missing scenario name') console.log('You must specify a scenario name using flag -s or --scenario');
+      else console.log(err);
+      next();
+    });
+});
+
+gulp.task('start-test', (next) => {
+  tester.startTest(argv.t || argv.test)
+    .then()
+    .catch((err) => {
+      if (err.message === 'Missing scenario name') console.log('You must specify a scenario name using flag -s or --scenario or you can set it in test file at key "scenario"');
+      else if (err.message === 'Missing test name') console.log('You must specify a test name using flag -t or --test');
+      else console.log(err);
+      next();
+    });
 });
