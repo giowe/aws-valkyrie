@@ -46,11 +46,15 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
           })
         ])
           .then(data => {
+            //throw new Error('cazzi');
             res.send(htmlFormatter(Object.assign({}, { request: data[0].request, response: { express: data[0].response, valkyrie: data[1] } })));
           })
-          //todo gestire i fallimenti in modo chiaro
-          .catch(res.send);
+          .catch(err => {
+            res.send(err);
+            reject(err);
+          });
       });
+
 
       app.listen(8080, () => resolve({
         express: scenario.express,
