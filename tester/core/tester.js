@@ -36,9 +36,11 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
               if (error) return reject(error);
               resolve({
                 request:{
-                  method : req.method,
+                  method,
                   url : req.originalUrl,
-                  headers : req.headers
+                  queryStringParams : req.query,
+                  headers,
+                  body : req.body
                 },
                 response:{
                   statusCode: response.statusCode,
