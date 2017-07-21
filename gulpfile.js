@@ -263,18 +263,35 @@ gulp.task('invoke-local', (next) => {
  * @order {11}
  */
 gulp.task('start-scenario', (next) => {
-  tester.startScenario(argv.s || argv.scenario)
-    .then(data => {
-      console.log(data.scenario.status);
-      console.log(data.express.status);
-      console.log(data.valkyrie.status);
-      next();
-    })
-    .catch((err) => {
-      if (err.message === 'Missing scenario name') console.log('You must specify a scenario name using flag -s or --scenario');
-      else console.log(err);
-      next();
+  checkScenario(argv.s || argv.scenario)
+    .then(scenarioName => {
+      tester.startScenario(scenarioName)
+        .then(data => {
+          console.log(data.scenario.status);
+          console.log(data.express.status);
+          console.log(data.valkyrie.status);
+          next();
+        })
+        .catch((err) => {
+          console.log(err);
+          next();
+        });
     });
+});
+
+const checkScenario = (scenarioName) => new Promise((resolve, reject) => {
+  const scenarios = fs.readdirSync('./tester/scenarios/').map(file => path.basename(file, '.js'));
+  if (!scenarioName) {
+    inquirer.prompt({ type: 'list', name: 'scenario', message: 'Please specify one of the following scenarios to be initialized:', choices: scenarios })
+      .then(answer => resolve(answer.scenario))
+      .catch(reject);
+  } else if(scenarios.indexOf(scenarioName === -1)){
+    console.log(`Scenario "${scenarioName}" doesn't exist!`);
+    checkScenario()
+      .then(resolve)
+      .catch(reject);
+  }
+  else resolve(scenarioName);
 });
 
 /**
@@ -284,12 +301,28 @@ gulp.task('start-scenario', (next) => {
  * and saves the response in files in the outputs directory;
  */
 gulp.task('start-test', (next) => {
-  tester.startTest(argv.t || argv.test, argv.s || argv.scenario)
-    .then(data => console.log(data))
-    .catch((err) => {
-      if (err.message === 'Missing scenario name') console.log('You must specify a scenario name using flag -s or --scenario or you can set it in test file at key "scenario"');
-      else if (err.message === 'Missing test name') console.log('You must specify a test name using flag -t or --test');
-      else console.log(err);
-      next();
+  checkTest(argv.t || argv.test)
+    .then(testName => {
+      tester.startTest(testName, argv.s || argv.scenario)
+        .then(data => console.log(data))
+        .catch((err) => {
+          err.message === 'Missing scenario name' ? checkScenario() : console.log(err);
+          next();
+        });
     });
+});
+
+const checkTest = (testName) => new Promise((resolve, reject) => {
+  const tests = fs.readdirSync('./tester/tests/').map(file => path.basename(file, '.json'));
+  if (!testName) {
+    inquirer.prompt({ type: 'list', name: 'test', message: 'Please specify one of the following tests to be initialized:', choices: tests })
+      .then(answer => resolve(answer.test))
+      .catch(reject);
+  } else if(tests.indexOf(testName === -1)){
+    console.log(`Test "${testName}" doesn't exist!`);
+    checkTest()
+      .then(resolve)
+      .catch(reject);
+  }
+  else resolve(testName);
 });
