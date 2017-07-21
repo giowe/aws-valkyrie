@@ -7,18 +7,35 @@ const pretty = require('js-object-pretty-print').pretty;
 
 const getContentType = (headers) => (headers['content-type'] || headers['Content-Type']);
 
+const statusColor = (statusCode) => {
+  switch (statusCode.toString()[0]) {
+    case '2':
+      return 'green';
+    case '3':
+      return 'blue';
+    case '4':
+      return 'yellow';
+    case '5':
+      return 'red';
+    default:
+      return 'black';
+  }
+};
+
 module.exports.htmlFormatter = (data) => {
   const { request, response } = data;
   const formattedRequest = `
     <h1>Request</h1>
     <table>
+      <col style="width: 10vw" />
+      <col style="width: 50vw" />
       <tr>
         <th>Method</th>
-        <td>${request.method}</td>
+        <td style="font-weight: bold;">${request.method}</td>
       </tr>
       <tr>
         <th>URL</th>
-        <td>${request.url}</td>
+        <td><a href="${request.url}" target="_blank">${request.url}</a></td>
       </tr>
       <tr>
         <th>Headers</th>
@@ -34,6 +51,9 @@ module.exports.htmlFormatter = (data) => {
   const formattedResponse = `
     <h1>Response</h1>
     <table class="parent-table" style="text-align: left;">
+    <col style="width: 10vw" />
+    <col style="width: 25vw" />
+    <col style="width: 25vw" />
       <tr>
         <th>Key</th>
         <th>Express</th>
@@ -41,8 +61,8 @@ module.exports.htmlFormatter = (data) => {
       </tr>
       <tr>
         <th>Status</th>
-        <td>${response.express.statusCode}</td>
-        <td>${response.valkyrie.statusCode}</td>
+        <td style="color: ${statusColor(response.express.statusCode)}; font-weight: bold;">${response.express.statusCode}</td>
+        <td style="color: ${statusColor(response.express.statusCode)}; font-weight: bold;">${response.valkyrie.statusCode}</td>
       </tr>
       <tr>
         <th>Headers</th>
