@@ -260,9 +260,14 @@ gulp.task('start-scenario', (next) => {
       next();
     })
     .catch((err) => {
-      if (err.message === 'Missing scenario name') console.log('You must specify a scenario name using flag -s or --scenario');
+      if (err.message === 'Missing scenario name'){
+        console.log('You must specify a scenario name using flag -s or --scenario');
+        console.log('Choose between the following');
+        inquirer.prompt([{ type: 'input', name: 'scenarios', message: 'Scenario: ' }])
+          .then(answer => console.log(answer))
+          .catch(err => console.log(err));
+      }
       else console.log(err);
-      next();
     });
 });
 
