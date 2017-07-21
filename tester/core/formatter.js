@@ -24,57 +24,67 @@ const statusColor = (statusCode) => {
 
 module.exports.htmlFormatter = (data) => {
   const { request, response } = data;
-  const formattedRequest = `
+  const html = [`
+    <script>console.log(\`${pretty(data)}\`);</script>
+    <style>${style}</style>
+    <div class="container">
     <h1>Request</h1>
     <table>
       <col style="width: 10vw" />
       <col style="width: 50vw" />
-      <tr>
-        <th>Method</th>
-        <td style="font-weight: bold;">${request.method}</td>
-      </tr>
-      <tr>
-        <th>URL</th>
-        <td><a href="${request.url}" target="_blank">${request.url}</a></td>
-      </tr>
-      <tr>
-        <th>Headers</th>
-        <td class="jsonViewerReq">${pretty(request.headers, 2)}</td>
-      </tr>
-      ${request.body ? `<tr>
-        <th>Body</th>
-        <td class="jsonViewerReq">${pretty(request.body, 2)}</td>
-      </tr>` : ''}
-    </table>
-  `;
+    `];
 
-  const formattedResponse = `
+  Object.entries(request).forEach(([key, value]) => {
+    if (value) html.push(`<tr>
+      <th>${key}</th>
+      <td ${typeof value === 'object' ? 'class="jsonViewerReq"' : ''}>${typeof value === 'object' ? pretty(value, 2) : value}</td>
+    </tr>`);
+  });
+
+  html.push(`</table>
     <h1>Response</h1>
     <table class="parent-table" style="text-align: left;">
     <col style="width: 10vw" />
     <col style="width: 25vw" />
     <col style="width: 25vw" />
-      <tr>
-        <th>Key</th>
-        <th>Express</th>
-        <th>Valkyrie</th>
-      </tr>
-      <tr>
-        <th>Status</th>
-        <td style="color: ${statusColor(response.express.statusCode)}; font-weight: bold;">${response.express.statusCode}</td>
-        <td style="color: ${statusColor(response.express.statusCode)}; font-weight: bold;">${response.valkyrie.statusCode}</td>
-      </tr>
-      <tr>
-        <th>Headers</th>
-        <td class="jsonViewerRes">${pretty(response.express.headers, 2)}</td>
-        <td class="jsonViewerRes">${pretty(response.valkyrie.headers, 2)}</td>
-      </tr>
-      ${response.express.body && response.valkyrie.body ? `<tr>
-        <th>Body</th>
-        <td class="jsonViewerRes">${getContentType(response.express.headers) && getContentType(response.express.headers).includes('application/json') ? pretty(JSON.parse(response.express.body), 2) : response.express.body}</td>
-        <td class="jsonViewerRes">${getContentType(response.express.headers) && getContentType(response.express.headers).includes('application/json') ? pretty(JSON.parse(response.express.body), 2) : response.express.body}</td>
-      </tr>` : ''}
-      `;
+    <tr><th>Key</th><th>Express</th><th>Valkyrie</th></tr>`);
 
-  return `<script>console.log(\`${pretty(data)}\`);</script><style>${style}</style>\n<div class="container">${formattedRequest}\n${formattedResponse}</div>`;
+  Object.entries(response.express).forEach(([key, value]) => {
+    const valueValkyrie = response.valkyrie[key];
+    if(value || valueValkyrie) {
+      html.push(`<tr><th>${key}</th>`);
+    }
+    if (value) {
+      html.push(`
+        <td ${typeof value === 'object' ? 'class="jsonViewerRes"' : ''}`);
+      if (key === 'statusCode') html.push (` style="color: ${statusColor(value)}"`);
+      if (key === 'headers' || (key === 'body' &&
+        getContentType(response.express.headers) && getContentType(response.express.headers).includes('application/json'))) {
+        html.push(`>${typeof value === 'object' ? pretty(value, 2) : pretty(JSON.parse(value), 2)}`);
+      } else {
+        html.push(`>${value}`);
+      }
+      html.push('</td>');
+    }
+    if (valueValkyrie) {
+      html.push(`
+        <td ${typeof valueValkyrie === 'object' ? 'class="jsonViewerRes"' : ''}`);
+      if (key === 'statusCode') html.push(` style="color: ${statusColor(valueValkyrie)}"`);
+      if (key === 'headers' || (key === 'body' &&
+        getContentType(response.valkyrie.headers) && getContentType(response.valkyrie.headers).includes('application/json'))) {
+        html.push(`>${typeof valueValkyrie === 'object' ? pretty(valueValkyrie, 2) : pretty(JSON.parse(valueValkyrie), 2)}`);
+      } else {
+        html.push(`>${valueValkyrie}`);
+      }
+      html.push('</td>');
+    }
+    if(value || valueValkyrie) {
+      html.push('</tr>');
+    }
+  });
+
+
+  html.push('</table></div>');
+
+  return html.join('');
 };
