@@ -116,6 +116,22 @@ gulp.task('create', (next) => {
         next();
       });
     }));
+
+
+  /*zipdir(path.join(__dirname, 'lambda'), function (err, buffer) {
+   if (err) return console.log(clc.red('FAILED'), '-', clc.red(err));
+   const params = lambdaConfig.ConfigOptions;
+   params.Code = { ZipFile: buffer };
+
+   new AWS.Lambda({ region: lambdaConfig.Region }).createFunction(params, (err, data) => {
+   if (err){
+   console.log(clc.red('FAILED'), '-', clc.red(err.message));
+   console.log(err);
+   }
+   else console.log(clc.green('SUCCESS'), '- lambda', clc.cyan(data.FunctionName), 'created');
+   next();
+   });
+   });*/
 });
 
 /**

@@ -42,7 +42,8 @@ class Application extends Router{
       app: this,
       params: {},
       httpMethod: method,
-      method
+      method,
+      query: event.queryStringParameters
     });
 
     this.context = context;
