@@ -22,10 +22,10 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
   require('./scenario-initializer')(scenarioName)
     .then(scenario => {
       const app = new express();
-      const apigatewayreq = aGFormatter(req);
       app.use(bodyParser.json(), bodyParser.raw(), bodyParser.text(), bodyParser.urlencoded({ extended: false }));
       app.get('/scenario', (req, res) => res.json({ scenarioName }));
       app.all('*', (req, res) => {
+        const apigatewayreq = aGFormatter(req);
         const { headers, method, originalUrl } = req;
         Promise.all([
           new Promise((resolve, reject) => {
