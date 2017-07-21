@@ -22,7 +22,7 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
   require('./scenario-initializer')(scenarioName)
     .then(scenario => {
       const app = new express();
-
+      const apigatewayreq = aGFormatter(req);
       app.use(bodyParser.json(), bodyParser.raw(), bodyParser.text(), bodyParser.urlencoded({ extended: false }));
       app.get('/scenario', (req, res) => res.json({ scenarioName }));
       app.all('*', (req, res) => {
@@ -34,12 +34,9 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
               method,
               headers
             }, (error, response, body) => {
-              const valkreq = aGFormatter(req);
               if (error) return reject(error);
               resolve({
-                request:{
-                  valkreq
-                },
+                request: apigatewayreq,
                 response:{
                   statusCode: response.statusCode,
                   headers:response.headers,
@@ -48,7 +45,7 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
               });
             });
           }),
-          scenario.valkyrie.call(aGFormatter(req))
+          scenario.valkyrie.call(apigatewayreq)
         ])
           .then(data => {
             res.header('json-format-response', JSON.stringify(Object.assign({}, { request: data[0].request, response: { express: data[0].response, valkyrie: data[1] } })));
