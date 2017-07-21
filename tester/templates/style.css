@@ -2,7 +2,7 @@ html, body {
   padding: 0;
   margin-left: 0;
   margin-right: 0;
-  margin-top: 50px;
+  margin-top: 10px;
 }
 body {
   color: #333;
@@ -20,6 +20,7 @@ table {
 
 h1 {
   text-align: center;
+  color: #000;
 }
 
 ul {
@@ -43,7 +44,7 @@ table {
   border-color: #ebccd1;
 }
 table tbody tr{
-  background-color: #f7f7f9;
+  background-color: #fff;
   width: 100%;
   max-width: 100%;
 }
@@ -64,10 +65,11 @@ td {
   white-space: pre;
   max-width: 100%;
   width: 100%;
+  padding: 5px 10px;
 }
 
 table {
-  table-layout: auto;
+  table-layout: fixed;
 }
 
 table, th, td {
@@ -78,6 +80,9 @@ table, th, td {
 
 th {
   white-space: nowrap;
+  background: #f9d76a;
+  color: #000;
+  text-align: center;
 }
 
 .uriViewer {
@@ -114,5 +119,4 @@ th {
 
 .jsonViewerRes {
   overflow-x: scroll;
-  max-width: 25vw;
 }
