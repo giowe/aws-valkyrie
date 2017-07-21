@@ -96,20 +96,26 @@ gulp.task('install', () => {
  *  @order {3}
  */
 gulp.task('create', (next) => {
-  zipdir(path.join(__dirname, 'lambda'), function (err, buffer) {
-    if (err) return console.log(clc.red('FAILED'), '-', clc.red(err));
-    const params = lambdaConfig.ConfigOptions;
-    params.Code = { ZipFile: buffer };
-
-    new AWS.Lambda({ region: lambdaConfig.Region }).createFunction(params, (err, data) => {
-      if (err){
-        console.log(clc.red('FAILED'), '-', clc.red(err.message));
-        console.log(err);
-      }
-      else console.log(clc.green('SUCCESS'), '- lambda', clc.cyan(data.FunctionName), 'created');
-      next();
-    });
-  });
+  const f = filter('lambda/**', { restore: true });
+  gulp.src(['./lambda/*', './Valkyrie/**' ], { dot: true, base: './' })
+    .pipe(f)
+    .pipe(rename(path => path.dirname = ''))
+    .pipe(f.restore)
+    .pipe(zip('lambda.zip'))
+    .pipe(data(file => {
+      const params = lambdaConfig.ConfigOptions;
+      params.Code = { ZipFile: new Buffer(file.contents) };
+      new AWS.Lambda({ region: lambdaConfig.Region }).createFunction(params, (err, data) => {
+        if (err){
+          console.log(clc.red('FAILED'), '-', clc.red(err.message));
+          console.log(err);
+        } else {
+          console.log(clc.green('SUCCESS'), '- lambda', clc.cyan(data.FunctionName), 'created');
+          console.log(data);
+        }
+        next();
+      });
+    }));
 });
 
 /**
