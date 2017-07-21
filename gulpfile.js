@@ -285,7 +285,7 @@ const checkScenario = (scenarioName) => new Promise((resolve, reject) => {
     inquirer.prompt({ type: 'list', name: 'scenario', message: 'Please specify one of the following scenarios to be initialized:', choices: scenarios })
       .then(answer => resolve(answer.scenario))
       .catch(reject);
-  } else if(scenarios.indexOf(scenarioName === -1)){
+  } else if(scenarios.indexOf(scenarioName) === -1){
     console.log(`Scenario "${scenarioName}" doesn't exist!`);
     checkScenario()
       .then(resolve)
