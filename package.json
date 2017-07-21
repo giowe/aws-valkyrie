@@ -25,7 +25,7 @@
     "cli-color": "^1.2.0",
     "eslint": "^4.3.0",
     "express": "^4.15.3",
-    "express2apigateway": "0.0.5",
+    "express2apigateway": "1.0.0",
     "gulp": "^3.9.1",
     "gulp-data": "^1.2.1",
     "gulp-filter": "^5.0.0",

@@ -6,13 +6,13 @@ module.exports = (engine, engineName) => {
 
   const r1 = engine.Router();
   r1.get('/', (req, res, next) => {
-    console.log(engineName, 'r1');
+    res.header('r1', true);
     next();
   });
 
   const r2 = engine.Router();
   r2.get('/', (req, res, next) => {
-    console.log(engineName, 'r2');
+    res.header('r2', true);
     next();
   });
 
