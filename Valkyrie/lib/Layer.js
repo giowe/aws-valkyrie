@@ -27,9 +27,9 @@ class Layer {
           if (!router.handleRequest(req, res, paths, route.routeIndex + 1)) {
             const { containerLayer } = router;
             if (!containerLayer.route.handleRequest(req, res, paths, containerLayer.layerIndex +1)) {
-              //if (!containerLayer.router.handleRequest(req, res, paths, containerLayer.route.routeIndex +1)) {
+              if (!containerLayer.router.handleRequest(req, res, paths, containerLayer.route.routeIndex +1)) {
                 throw new Error('No next layer found!');
-              //}
+              }
             }
           }
         }
