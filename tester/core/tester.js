@@ -36,9 +36,9 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
               if (error) return reject(error);
               resolve({
                 request:{
-                  method : response.request.method,
-                  url : response.request.uri.href,
-                  headers : response.request.headers
+                  method : req.method,
+                  url : req.originalUrl,
+                  headers : req.headers
                 },
                 response:{
                   statusCode: response.statusCode,
