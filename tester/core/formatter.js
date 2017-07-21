@@ -10,11 +10,11 @@ const getContentType = (headers) => (headers['content-type'] || headers['Content
 const statusColor = (statusCode) => {
   switch (statusCode.toString()[0]) {
     case '2':
-      return 'green';
+      return 'limegreen';
     case '3':
       return 'blue';
     case '4':
-      return 'yellow';
+      return 'orange';
     case '5':
       return 'red';
     default:
