@@ -42,15 +42,6 @@ class Router {
       //console.log('ROUTE', routeIndex, routes[routeIndex].paths);
       if (routes[routeIndex].handleRequest(req, res, mountPath)) return true;
     }
-
-    // console.log(res.headersSent)
-    // if (!containerLayer && res.headersSent) {
-    //   console.log('sono nel layer finale anche se deve aver risposto il catchall');
-    //   res.header('content-type', 'text/html');
-    //   res.status(404).send(`<meta charset="utf-8"><title>Error</title><pre>Cannot ${req.method.toUpperCase()} ${req.path}</pre>`);
-    //   return true;
-    // }
-
     return false;
   }
 

@@ -40,7 +40,6 @@ class Application extends Router{
     if (super.handleRequest(req, res, mountPath, routeStartIndex)) return true;
 
     if (!res.headersSent) {
-      console.log('sono nel layer finale anche se deve aver risposto il catchall');
       res.header('content-type', 'text/html');
       res.status(404).send(`<meta charset="utf-8"><title>Error</title><pre>Cannot ${req.method.toUpperCase()} ${req.path}</pre>`);
     }
