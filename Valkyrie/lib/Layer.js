@@ -35,7 +35,7 @@ class Layer {
     } catch (err) {
       // eslint-disable-next-line no-console
       console.log(err);
-      if (!res.headersSent) res.status(500).send(`${err.toString()}`);
+      if (!res.headersSent) res.status(500).send(`<meta charset="utf-8"><title>Error</title><pre>${err.stack}</pre>`);
     }
     return true;
   }
