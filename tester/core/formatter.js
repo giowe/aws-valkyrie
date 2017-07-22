@@ -20,6 +20,7 @@ const statusColor = (statusCode) => {
 module.exports.htmlFormatter = (data) => {
   const { request, response } = data;
   const html = [
+    '<!DOCTYPE html><html><head><title>Valkyrie Tester</title><meta charset="UTF-8"></head><body>',
     `<script>console.log(\`${pretty(data)}\`);</script>`,
     `<style>${style}</style>`,
     '<div class="container">',
@@ -74,7 +75,7 @@ module.exports.htmlFormatter = (data) => {
     '<table>',
     '<col style="width: 10vw" /><col style="width: 50vw" />',
     ...Object.entries(request).map(([key, value]) => !value ? '' : `<tr><th>${key}</th><td ${typeof value === 'object' ? 'class="jsonViewerReq"' : ''}>${typeof value === 'object' ? pretty(value, 2) : value}</td></tr>`),
-    '</table></div>'
+    '</table></div></html></body>'
   );
 
   return html.join('');

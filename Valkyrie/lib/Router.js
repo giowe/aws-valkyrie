@@ -44,7 +44,7 @@ class Router {
 
     if (!containerLayer) {
       res.header('content-type', 'text/html');
-      res.status(404).send(`Cannot ${req.method.toUpperCase()} ${req.path}`);
+      res.status(404).send(`<meta charset="utf-8"><title>Error</title><pre>Cannot ${req.method.toUpperCase()} ${req.path}</pre>`);
     }
 
     return false;
