@@ -72,9 +72,8 @@ class Application extends Router{
     this.res = res;
     res.req = req;
     req.res = res;
-    throw new Error ('test');
-    if (this.enabled('x-powered-by')) res.header('x-powered-by', 'Valkyrie');
 
+    if (this.enabled('x-powered-by')) res.header('x-powered-by', 'Valkyrie');
     this.handleRequest(req, res);
   }
 
