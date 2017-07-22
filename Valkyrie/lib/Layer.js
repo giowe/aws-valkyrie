@@ -27,10 +27,7 @@ class Layer {
           if (!router.handleRequest(req, res, paths, route.routeIndex + 1)) {
             const { containerLayer } = router;
             if (!containerLayer.route.handleRequest(req, res, paths, containerLayer.layerIndex +1)) {
-              if (!containerLayer.router.handleRequest(req, res, paths, containerLayer.route.routeIndex +1)) {
-                res.header('content-type', 'text/html');
-                res.status(404).send(`Cannot ${req.method.toUpperCase()} ${req.path}`);
-              }
+              containerLayer.router.handleRequest(req, res, paths, containerLayer.route.routeIndex +1);
             }
           }
         }
