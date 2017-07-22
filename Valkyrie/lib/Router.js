@@ -42,9 +42,10 @@ class Router {
       if (routes[routeIndex].handleRequest(req, res, mountPath)) return true;
     }
 
-    /*if (containerLayer) {
-      containerLayer.router.handleRequest(req, res, mountPath, containerLayer.route.routeIndex +1);
-    }*/
+    if (!containerLayer) {
+      res.header('content-type', 'text/html');
+      res.status(404).send(`Cannot ${req.method.toUpperCase()} ${req.path}`);
+    }
 
     return false;
   }

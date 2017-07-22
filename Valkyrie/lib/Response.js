@@ -1,5 +1,5 @@
 'use strict';
-
+//todo this is a big work in progress
 const mime = require('send').mime;
 const Utils = require('./Utils');
 const signCookie = require('cookie-signature').sign;
@@ -107,7 +107,7 @@ module.exports = class Response {
 
       if (field.toLowerCase() === 'content-type' && !charsetRegExp.test(value)) {
         const charset = mime.lookup(value.split(';')[0]);
-        if (charset) value += ';charset=' + charset.toLowerCase();
+        if (charset) value += '; charset=' + charset.toLowerCase();
 
         this.set(field, value);
       } else {

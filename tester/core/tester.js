@@ -30,7 +30,7 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
         Promise.all([
           new Promise((resolve, reject) => {
             request({
-              url: `http://localhost:6000${originalUrl}`,
+              url: `http://localhost:8888${originalUrl}`,
               method,
               headers
             }, (error, response, body) => {

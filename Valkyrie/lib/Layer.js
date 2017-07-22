@@ -28,7 +28,8 @@ class Layer {
             const { containerLayer } = router;
             if (!containerLayer.route.handleRequest(req, res, paths, containerLayer.layerIndex +1)) {
               if (!containerLayer.router.handleRequest(req, res, paths, containerLayer.route.routeIndex +1)) {
-                throw new Error('No next layer found!');
+                res.header('content-type', 'text/html');
+                res.status(404).send(`Cannot ${req.method.toUpperCase()} ${req.path}`);
               }
             }
           }

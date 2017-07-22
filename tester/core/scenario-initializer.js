@@ -18,11 +18,11 @@ module.exports = (scenarioName) => new Promise((resolve, reject) => {
   const expressApp = scenario(express, 'express');
   const valkyrieApp = scenario(valkyrie, 'valkyrie');
 
-  expressApp.listen(6000, () => {
+  expressApp.listen(8888, () => {
     resolve({
       express: {
         app: expressApp,
-        status: 'Express listening on port 6000'
+        status: 'Express listening on port 8888'
       },
       valkyrie: {
         app: valkyrieApp,

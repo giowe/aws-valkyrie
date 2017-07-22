@@ -18,8 +18,5 @@ module.exports = (engine, engineName) => {
 
   app.use(r1, r2);
 
-  app.get('/', (req, res) => {
-    res.send('catch');
-  });
   return app;
 };
