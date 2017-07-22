@@ -122,12 +122,17 @@ router.get('/say/:text', (req, res) => {
 
 //router.use('/router2', router2);
 
-app.describe();
-
-app.use('*', (req, res, next) => {
+app.all('*', (req, res, next) => {
   console.log('sono nel catchall');
   res.status(404).send('not found!');
   next();
 });
+
+app.all('*', (req, res) => {
+  console.log('sono nel posto finale');
+  res.send('sss');
+});
+
+app.describe();
 
 exports.handler = (...args) => app.listen(...args);

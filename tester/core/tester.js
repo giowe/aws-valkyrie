@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const request = require('request');
 const fs = require('fs');
-const aGFormatter = require('express2apigateway');
+const formatter = require('express2apigateway');
 const path = require('path');
 const pretty = require('js-object-pretty-print').pretty;
 
@@ -25,7 +25,7 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
       app.use(bodyParser.json(), bodyParser.raw(), bodyParser.text(), bodyParser.urlencoded({ extended: false }));
       app.get('/scenario', (req, res) => res.json({ scenarioName }));
       app.all('*', (req, res) => {
-        const apigatewayreq = aGFormatter(req);
+        const formattedReq = formatter(req);
         const { headers, method, originalUrl } = req;
         Promise.all([
           new Promise((resolve, reject) => {
@@ -36,16 +36,16 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
             }, (error, response, body) => {
               if (error) return reject(error);
               resolve({
-                request: apigatewayreq,
                 response:{
                   statusCode: response.statusCode,
                   headers:response.headers,
                   body
-                }
+                },
+                request: formattedReq
               });
             });
           }),
-          scenario.valkyrie.call(apigatewayreq)
+          scenario.valkyrie.call(formattedReq)
         ])
           .then(data => {
             res.header('json-format-response', JSON.stringify(Object.assign({}, { request: data[0].request, response: { express: data[0].response, valkyrie: data[1] } })));

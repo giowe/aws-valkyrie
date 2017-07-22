@@ -12,6 +12,7 @@ const charsetRegExp = new RegExp('\;\s*charset\s*=');
 
 module.exports = class Response {
   constructor(app) {
+    this.headersSent = false;
     this.app = app;
     this.context = app.context;
     this.callback = app.callback;
@@ -192,8 +193,8 @@ module.exports = class Response {
   }
 
   send(body) {
+    if (this.headersSent) throw new Error('Response already sent;');
     if (typeof body !== 'undefined') this.body = body;
-
     if (typeof body !== 'string') body = Utils.stringify(body);
 
     const response = {
@@ -202,19 +203,20 @@ module.exports = class Response {
       body
     };
 
-    if (this.app.settings.useContextSucceed) this.context.succeed(response);
+    this.headersSent = true;
+    if (this.app.settings.useContext) this.context.succeed(response);
     else this.callback(null, response);
   }
 
-    sendFile(s3Url){
-      const next = this.app.req.next;
-      if (arguments.length === 2) {
-        //TODO: must be an s3url???
-        this.redirect(s3Url)
-      } else {
-        const err = new Error('sendFile needs an arguments');
-        next(err);
-      }
+  sendFile(s3Url){
+    const next = this.app.req.next;
+    if (arguments.length === 2) {
+      //TODO: must be an s3url???
+      this.redirect(s3Url);
+    } else {
+      const err = new Error('sendFile needs an arguments');
+      next(err);
+    }
   }
 
   sendStatus(statusCode) {

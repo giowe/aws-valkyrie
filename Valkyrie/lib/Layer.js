@@ -15,26 +15,31 @@ class Layer {
     return this._fn.isRouter === true;
   }
 
+  get isLastLayer() {
+    return this.layerIndex === this.route.layersCount - 1;
+  }
+
   handleRequest(req, res, paths) {
-    const { route, router } = this;
-    if (!_matchMethod(this, req)) return route.handleRequest(req, res, paths, this.layerIndex + 1);
+    const { route, router, layerIndex } = this;
+    if (!_matchMethod(this, req)) return route.handleRequest(req, res, paths, layerIndex + 1);
     const { _fn } = this;
     if (this.containsRouter) return _fn.handleRequest(req, res, paths);
     try {
       _fn(req, res, (err) => {
         if (err && err !== 'route') throw err;
-        else if (err === 'route' || !route.handleRequest(req, res, paths, this.layerIndex + 1)) {
+        else if (err === 'route' || !route.handleRequest(req, res, paths, layerIndex + 1)) {
           if (!router.handleRequest(req, res, paths, route.routeIndex + 1)) {
             const { containerLayer } = router;
-            if (!containerLayer.route.handleRequest(req, res, paths, containerLayer.layerIndex +1)) {
+            if (containerLayer && !containerLayer.route.handleRequest(req, res, paths, containerLayer.layerIndex +1)) {
               containerLayer.router.handleRequest(req, res, paths, containerLayer.route.routeIndex +1);
             }
           }
         }
       });
     } catch (err) {
-      //todo get error handling middleware.
-      res.status(500).send(`${err.toString()}`);
+      // eslint-disable-next-line no-console
+      console.log(err);
+      if (!res.headersSent) res.status(500).send(`${err.toString()}`);
     }
     return true;
   }

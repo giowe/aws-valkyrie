@@ -18,5 +18,10 @@ module.exports = (engine, engineName) => {
 
   app.use(r1, r2);
 
+  app.all('*', (req, res, next) => {
+    //res.send('catchall');
+    //next();
+  });
+
   return app;
 };

@@ -7,6 +7,7 @@ const { flatten } = require('./Utils');
 class Router {
   constructor(settings) {
     this.settings = Object.assign({
+      useContext: true,
       sensitive: false, //When true the path will be case sensitive
       strict: false,    //When false the trailing slash is optional
       end: true,        //When false the path will match at the beginning
@@ -42,11 +43,13 @@ class Router {
       if (routes[routeIndex].handleRequest(req, res, mountPath)) return true;
     }
 
-    if (!containerLayer) {
-      console.log('sono nel layer finale anche se deve aver risposto il catchall');
-      res.header('content-type', 'text/html');
-      res.status(404).send(`<meta charset="utf-8"><title>Error</title><pre>Cannot ${req.method.toUpperCase()} ${req.path}</pre>`);
-    }
+    // console.log(res.headersSent)
+    // if (!containerLayer && res.headersSent) {
+    //   console.log('sono nel layer finale anche se deve aver risposto il catchall');
+    //   res.header('content-type', 'text/html');
+    //   res.status(404).send(`<meta charset="utf-8"><title>Error</title><pre>Cannot ${req.method.toUpperCase()} ${req.path}</pre>`);
+    //   return true;
+    // }
 
     return false;
   }
