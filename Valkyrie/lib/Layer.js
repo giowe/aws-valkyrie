@@ -15,10 +15,6 @@ class Layer {
     return this._fn.isRouter === true;
   }
 
-  get isLastLayer() {
-    return this.layerIndex === this.route.layersCount - 1;
-  }
-
   handleRequest(req, res, paths) {
     const { route, router, layerIndex } = this;
     if (!_matchMethod(this, req)) return route.handleRequest(req, res, paths, layerIndex + 1);

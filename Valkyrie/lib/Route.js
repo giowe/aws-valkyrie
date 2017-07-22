@@ -23,10 +23,6 @@ class Route {
     });
   }
 
-  get isLastRoute() {
-    return this.routeIndex === this.router.routesCount - 1;
-  }
-
   handleRequest(req, res, mountPath, layerStartIndex = 0) {
     const { layers, layersCount, paths } = this;
     if (layerStartIndex >= layers.length) return false;

@@ -15,20 +15,30 @@ class Application extends Router{
       if (args.length === 1 && typeof args[0] === 'string') return this.settings[args[0]];
       return get(...args);
     };
+
+    this.enable('x-powered-by');
   }
 
   static Router(settings) {
     return new Router(settings);
   }
 
-  disable(prop) {
-    this.settings[prop] = false;
+  disable(name) {
+    this.settings[name] = false;
     return this;
   }
 
-  enable(prop) {
-    this.settings[prop] = true;
+  disabled(name) {
+    return this.settings[name] === false;
+  }
+
+  enable(name) {
+    this.settings[name] = true;
     return this;
+  }
+
+  enabled(name) {
+    return this.settings[name] === true;
   }
 
   set(prop, value) {
@@ -62,6 +72,8 @@ class Application extends Router{
     this.res = res;
     res.req = req;
     req.res = res;
+
+    if (this.enabled('x-powered-by')) res.header('x-powered-by', 'Valkyrie');
 
     this.handleRequest(req, res);
   }

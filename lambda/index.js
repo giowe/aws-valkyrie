@@ -125,12 +125,6 @@ router.get('/say/:text', (req, res) => {
 app.all('*', (req, res, next) => {
   console.log('sono nel catchall');
   res.status(404).send('not found!');
-  next();
-});
-
-app.all('*', (req, res) => {
-  console.log('sono nel posto finale');
-  res.send('sss');
 });
 
 app.describe();
