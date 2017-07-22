@@ -125,6 +125,7 @@ router.get('/say/:text', (req, res) => {
 app.describe();
 
 app.use('*', (req, res, next) => {
+  console.log('sono nel catchall');
   res.status(404).send('not found!');
   next();
 });
