@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const style = fs.readFileSync(path.join(__dirname, './style.css'));
 const pretty = require('js-object-pretty-print').pretty;
-const htmlPretty = require('pretty');
 
 const getContentType = (headers) => (headers['content-type'] || headers['Content-Type']);
 
@@ -49,7 +48,7 @@ module.exports.htmlFormatter = (data) => {
         getContentType(response.express.headers) && getContentType(response.express.headers).includes('application/json'))) {
         html.push(`>${typeof value === 'object' ? pretty(value, 2) : pretty(JSON.parse(value), 2)}`);
       } else {
-        html.push(`>${htmlPretty(value.toString()).replace(/[\u00A0-\u9999<>\&]/gim, (i) => {
+        html.push(`>${value.toString().replace(/[\u00A0-\u9999<>\&]/gim, (i) => {
           return '&#' + i.charCodeAt(0) + ';';
         })}`);
       }
@@ -64,7 +63,7 @@ module.exports.htmlFormatter = (data) => {
         getContentType(response.valkyrie.headers) && getContentType(response.valkyrie.headers).includes('application/json'))) {
         html.push(`>${typeof valueValkyrie === 'object' ? pretty(valueValkyrie, 2) : pretty(JSON.parse(valueValkyrie), 2)}`);
       } else {
-        html.push(`>${htmlPretty(valueValkyrie.toString()).replace(/[\u00A0-\u9999<>\&]/gim, (i) => {
+        html.push(`>${valueValkyrie.toString().replace(/[\u00A0-\u9999<>\&]/gim, (i) => {
           return `&#${i.charCodeAt(0)};`;
         })}`);
       }
