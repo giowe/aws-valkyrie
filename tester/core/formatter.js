@@ -43,11 +43,14 @@ module.exports.htmlFormatter = (data) => {
       html.push(`
         <td ${typeof value === 'object' ? 'class="jsonViewerRes"' : ''}`);
       if (key === 'statusCode') html.push (` style="color: ${statusColor(value)}"`);
+      if (key === 'body') html.push(` style="overflow-x: scroll"`);
       if (key === 'headers' || (key === 'body' &&
         getContentType(response.express.headers) && getContentType(response.express.headers).includes('application/json'))) {
         html.push(`>${typeof value === 'object' ? pretty(value, 2) : pretty(JSON.parse(value), 2)}`);
       } else {
-        html.push(`>${value}`);
+        html.push(`>${value.toString().replace(/[\u00A0-\u9999<>\&]/gim, (i) => {
+          return '&#' + i.charCodeAt(0) + ';';
+        })}`);
       }
       html.push('</td>');
     }
@@ -55,11 +58,14 @@ module.exports.htmlFormatter = (data) => {
       html.push(`
         <td ${typeof valueValkyrie === 'object' ? 'class="jsonViewerRes"' : ''}`);
       if (key === 'statusCode') html.push(` style="color: ${statusColor(valueValkyrie)}"`);
+      if (key === 'body') html.push(` style="overflow-x: scroll"`);
       if (key === 'headers' || (key === 'body' &&
         getContentType(response.valkyrie.headers) && getContentType(response.valkyrie.headers).includes('application/json'))) {
         html.push(`>${typeof valueValkyrie === 'object' ? pretty(valueValkyrie, 2) : pretty(JSON.parse(valueValkyrie), 2)}`);
       } else {
-        html.push(`>${valueValkyrie}`);
+        html.push(`>${valueValkyrie.toString().replace(/[\u00A0-\u9999<>\&]/gim, (i) => {
+          return `&#${i.charCodeAt(0)};`;
+        })}`);
       }
       html.push('</td>');
     }

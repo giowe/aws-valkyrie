@@ -85,27 +85,6 @@ th {
   text-align: center;
 }
 
-.uriViewer {
-  white-space: normal;
-  overflow-x: scroll;
-}
-
-@media (min-width: 1000px) {
-  .uriViewer {
-    overflow-x: hidden;
-  }
-}
-
-.viewMore a{
-  cursor: pointer;
-  text-decoration: none;
-  font-size: large;
-  color: #666;
-}
-.viewMore {
-  text-align: center;
-}
-
 .container {
   padding-bottom: 50px;
   margin-left: 10vw;
