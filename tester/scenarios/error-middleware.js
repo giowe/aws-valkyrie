@@ -5,7 +5,7 @@ module.exports = (engine, engineName) => {
   const app = new engine();
 
   app.get('/', (req, res, next) => {
-    throw new Error('Test error');
+    next();
   });
 
   app.use((err, req, res, next) => {
