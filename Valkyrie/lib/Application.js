@@ -50,7 +50,17 @@ class Application extends Router{
     if (super.handleRequest(req, res, mountPath, routeStartIndex)) return true;
     if (!res.headersSent) {
       res.header('content-type', 'text/html');
-      res.status(404).send(`<meta charset="utf-8"><title>Error</title><pre>Cannot ${req.method.toUpperCase()} ${req.path}</pre>`);
+      res.status(404).send(_htmlTemplate('Error', `<pre>Cannot ${req.method.toUpperCase()} ${req.path}</pre>`));
+    }
+  }
+
+  handleError(err, req, res, mountPath = '', routeStartIndex = 0) {
+    if (super.handleError(err, req, res, mountPath, routeStartIndex)) return true;
+    if (!res.headersSent) {
+      // eslint-disable-next-line no-console
+      console.log(err);
+      res.header('content-type', 'text/html');
+      res.status(500).send(_htmlTemplate('Error', `<pre>${err.stack}</pre>`));
     }
   }
 
@@ -100,6 +110,10 @@ class Application extends Router{
         throw new Error(`${format} is not a supported format; chose between "console", "string", "html" and "json"`);
     }
   }
+}
+
+function _htmlTemplate(title, body){
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>${title}</title></head><body>${body}</body></html>`;
 }
 
 module.exports = Application;

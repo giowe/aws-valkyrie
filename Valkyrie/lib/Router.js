@@ -37,10 +37,18 @@ class Router {
   }
 
   handleRequest(req, res, mountPath = '', routeStartIndex = 0) {
-    const { routes, routesCount, containerLayer } = this;
+    const { routes, routesCount } = this;
     for (let routeIndex = routeStartIndex; routeIndex < routesCount; routeIndex++) {
       //console.log('ROUTE', routeIndex, routes[routeIndex].paths);
       if (routes[routeIndex].handleRequest(req, res, mountPath)) return true;
+    }
+    return false;
+  }
+
+  handleError(err, req, res, mountPath = '', routeStartIndex = 0) {
+    const { routes, routesCount } = this;
+    for (let routeIndex = routeStartIndex; routeIndex < routesCount; routeIndex++) {
+      if (routes[routeIndex].handleError(err, req, res, mountPath)) return true;
     }
     return false;
   }

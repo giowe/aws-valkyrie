@@ -25,22 +25,31 @@ class Route {
 
   handleRequest(req, res, mountPath, layerStartIndex = 0) {
     const { layers, layersCount, paths } = this;
-    if (layerStartIndex >= layers.length) return false;
+    if (layerStartIndex >= layersCount) return false;
     if (!_matchMethod(this, req)) return false;
 
-    const l = paths.length;
-    let fullPath, matchPath;
-    for (let i = 0; i < l; i ++) {
-      fullPath = _urlJoin(mountPath, paths[i]);
-      matchPath = _matchPath(this, req, fullPath);
-      if (matchPath) break;
-    }
+    const { fullPath, matchPath } = _getFullMatchingPath(this, req, mountPath, paths);
 
     for (let layerIndex = layerStartIndex; layerIndex < layersCount; layerIndex++) {
       const layer = layers[layerIndex];
       //console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH', 'containsRouter?', layer.containsRouter);
       if (layer.containsRouter && layer.handleRequest(req, res, fullPath)) return true;
       else if (matchPath) return layer.handleRequest(req, res, mountPath);
+    }
+    return false;
+  }
+
+  handleError(err, req, res, mountPath, layerStartIndex = 0) {
+    const { layers, layersCount, paths } = this;
+    if (layerStartIndex >= layersCount) return false;
+    if (!_matchMethod(this, req)) return false;
+
+    const { fullPath, matchPath } = _getFullMatchingPath(this, req, mountPath, paths);
+
+    for (let layerIndex = layerStartIndex; layerIndex < layersCount; layerIndex++) {
+      const layer = layers[layerIndex];
+      if (layer.containsRouter && layer.handleError(err, req, res, fullPath)) return true;
+      else if (matchPath) return layer.handleError(err, req, res, mountPath);
     }
     return false;
   }
@@ -91,7 +100,16 @@ function _matchMethod(self, req) {
   return methods[method];
 }
 
-//todo tests if it works properly
+function _getFullMatchingPath(self, req, mountPath, paths) {
+  const l = paths.length;
+  for (let i = 0; i < l; i ++) {
+    const fullPath = _urlJoin(mountPath, paths[i]);
+    const matchPath = _matchPath(self, req, fullPath);
+    if (matchPath) return { fullPath, matchPath };
+  }
+  return { fullPath: null, matchPath: false };
+}
+
 const _regexCache = {};
 function _getPathRegex(path, settings) {
   const key = `${JSON.stringify(settings)}${path}`;

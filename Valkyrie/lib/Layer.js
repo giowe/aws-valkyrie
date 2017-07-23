@@ -15,6 +15,10 @@ class Layer {
     return this._fn.isRouter === true;
   }
 
+  get isErrorHandlingMiddleware() {
+    return !this.containsRouter && this._fn.length === 4;
+  }
+
   handleRequest(req, res, paths) {
     const { route, router, layerIndex } = this;
     if (!_matchMethod(this, req)) return route.handleRequest(req, res, paths, layerIndex + 1);
@@ -33,7 +37,30 @@ class Layer {
         }
       });
     } catch (err) {
-      // eslint-disable-next-line no-console
+      console.log(err);
+      if (!res.headersSent) res.status(500).send(`<meta charset="utf-8"><title>Error</title><pre>${err.stack}</pre>`);
+    }
+    return true;
+  }
+
+  handleError(err, req, res, paths) {
+    const { route, router, layerIndex } = this;
+    if (!_matchMethod(this, req)) return route.handleError(req, res, paths, layerIndex + 1);
+    const { _fn } = this;
+    if (this.containsRouter) return _fn.handleError(err, req, res, paths);
+    try {
+      _fn(err, req, res, (err) => {
+        if (err && err !== 'route') throw err;
+        else if (err === 'route' || !route.handleRequest(req, res, paths, layerIndex + 1)) {
+          if (!router.handleRequest(req, res, paths, route.routeIndex + 1)) {
+            const { containerLayer } = router;
+            if (containerLayer && !containerLayer.route.handleRequest(req, res, paths, containerLayer.layerIndex +1)) {
+              containerLayer.router.handleRequest(req, res, paths, containerLayer.route.routeIndex +1);
+            }
+          }
+        }
+      });
+    } catch (err) {
       console.log(err);
       if (!res.headersSent) res.status(500).send(`<meta charset="utf-8"><title>Error</title><pre>${err.stack}</pre>`);
     }
