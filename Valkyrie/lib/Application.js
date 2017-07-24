@@ -46,15 +46,16 @@ class Application extends Router{
     return this;
   }
 
-  handleRequest(req, res, mountPath = '', routeStartIndex = 0) {
-    if (super.handleRequest(req, res, mountPath, routeStartIndex)) return true;
+  handleRequest(req, res, mountPath = '', routeStartIndex = 0, err = null) {
+    if (super.handleRequest(req, res, mountPath, routeStartIndex, err)) return true;
     if (!res.headersSent) {
       res.header('content-type', 'text/html');
-      res.status(404).send(_htmlTemplate('Error', `<pre>Cannot ${req.method.toUpperCase()} ${req.path}</pre>`));
+      if (! err) res.status(404).send(_htmlTemplate('Error', `<pre>Cannot ${req.method.toUpperCase()} ${req.path}</pre>`));
+      else res.status(500).send(_htmlTemplate('Error', `<pre>${err.stack}</pre>`));
     }
   }
 
-  handleError(err, req, res, mountPath = '', routeStartIndex = 0) {
+  /*handleError(err, req, res, mountPath = '', routeStartIndex = 0) {
     if (super.handleError(err, req, res, mountPath, routeStartIndex)) return true;
     if (!res.headersSent) {
       // eslint-disable-next-line no-console
@@ -62,7 +63,7 @@ class Application extends Router{
       res.header('content-type', 'text/html');
       res.status(500).send(_htmlTemplate('Error', `<pre>${err.stack}</pre>`));
     }
-  }
+  }*/
 
   listen(event, context, callback){
     const method = event.httpMethod.toLowerCase();

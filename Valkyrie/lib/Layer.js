@@ -19,13 +19,15 @@ class Layer {
     return !this.containsRouter && this._fn.length === 4;
   }
 
-  handleRequest(req, res, paths) {
-    const { route, router, layerIndex } = this;
-    if (!_matchMethod(this, req)) return route.handleRequest(req, res, paths, layerIndex + 1);
-    const { _fn } = this;
-    if (this.containsRouter) return _fn.handleRequest(req, res, paths);
+  handleRequest(req, res, paths, err = null) {
+    const { route, layerIndex } = this;
+    if (!_matchMethod(this, req)) return route.handleRequest(req, res, paths, layerIndex + 1, err);
+    const { _fn, router, isErrorHandlingMiddleware } = this;
+    if (this.containsRouter) return _fn.handleRequest(req, res, paths, 0, err);
+    console.log(err, isErrorHandlingMiddleware)
+    if ((err && !isErrorHandlingMiddleware) || (!err && isErrorHandlingMiddleware)) return route.handleRequest(req, res, paths, layerIndex + 1, err);
     try {
-      _fn(req, res, (err) => {
+      const next = (err) => {
         if (err && err !== 'route') throw err;
         else if (err === 'route' || !route.handleRequest(req, res, paths, layerIndex + 1)) {
           if (!router.handleRequest(req, res, paths, route.routeIndex + 1)) {
@@ -35,23 +37,28 @@ class Layer {
             }
           }
         }
-      });
+      };
+      if (isErrorHandlingMiddleware) _fn(err, req, res, next);
+      else _fn(req, res, next);
     } catch (err) {
-      console.log(err);
-      if (!res.headersSent) res.status(500).send(`<meta charset="utf-8"><title>Error</title><pre>${err.stack}</pre>`);
+      console.log('passo error')
+      return route.handleRequest(req, res, paths, layerIndex + 1, err);
+      // console.log(err);
+      // if (!res.headersSent) res.status(500).send(`<meta charset="utf-8"><title>Error</title><pre>${err.stack}</pre>`);
     }
-    return true;
+    return true;,
   }
 
-  handleError(err, req, res, paths) {
+  /*handleError(err, req, res, paths) {
     const { route, router, layerIndex } = this;
-    if (!_matchMethod(this, req)) return route.handleError(req, res, paths, layerIndex + 1);
+    if (!_matchMethod(this, req)) return route.handleError(err, req, res, paths, layerIndex + 1);
     const { _fn } = this;
     if (this.containsRouter) return _fn.handleError(err, req, res, paths);
+    if (!this.isErrorHandlingMiddleware) route.handleError(err, req, res, paths, layerIndex + 1);
     try {
-      _fn(err, req, res, (err) => {
-        if (err && err !== 'route') throw err;
-        else if (err === 'route' || !route.handleRequest(req, res, paths, layerIndex + 1)) {
+      _fn(err, req, res, (nextErr) => {
+        if (nextErr && nextErr !== 'route') throw nextErr;
+        else if (nextErr === 'route' || !route.handleRequest(req, res, paths, layerIndex + 1)) {
           if (!router.handleRequest(req, res, paths, route.routeIndex + 1)) {
             const { containerLayer } = router;
             if (containerLayer && !containerLayer.route.handleRequest(req, res, paths, containerLayer.layerIndex +1)) {
@@ -65,7 +72,7 @@ class Layer {
       if (!res.headersSent) res.status(500).send(`<meta charset="utf-8"><title>Error</title><pre>${err.stack}</pre>`);
     }
     return true;
-  }
+  }*/
 
   describe(options, paths = this.route.paths, level = 0) {
     const { format } = Object.assign({ format: 'console' }, options);

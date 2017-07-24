@@ -23,7 +23,8 @@ class Route {
     });
   }
 
-  handleRequest(req, res, mountPath, layerStartIndex = 0) {
+  handleRequest(req, res, mountPath, layerStartIndex = 0, err = null) {
+    console.log('err', err);
     const { layers, layersCount, paths } = this;
     if (layerStartIndex >= layersCount) return false;
     if (!_matchMethod(this, req)) return false;
@@ -33,13 +34,13 @@ class Route {
     for (let layerIndex = layerStartIndex; layerIndex < layersCount; layerIndex++) {
       const layer = layers[layerIndex];
       //console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH', 'containsRouter?', layer.containsRouter);
-      if (layer.containsRouter && layer.handleRequest(req, res, fullPath)) return true;
-      else if (matchPath) return layer.handleRequest(req, res, mountPath);
+      if (layer.containsRouter && layer.handleRequest(req, res, fullPath, err)) return true;
+      else if (matchPath) return layer.handleRequest(req, res, mountPath, err);
     }
     return false;
   }
 
-  handleError(err, req, res, mountPath, layerStartIndex = 0) {
+  /*handleError(err, req, res, mountPath, layerStartIndex = 0) {
     const { layers, layersCount, paths } = this;
     if (layerStartIndex >= layersCount) return false;
     if (!_matchMethod(this, req)) return false;
@@ -52,7 +53,7 @@ class Route {
       else if (matchPath) return layer.handleError(err, req, res, mountPath);
     }
     return false;
-  }
+  }*/
 
   describe(options, mountPath = '', level = 0) {
     const { format } = Object.assign({ format: 'console' }, options);

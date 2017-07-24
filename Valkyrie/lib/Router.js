@@ -36,22 +36,22 @@ class Router {
     return _registerRoute(this, _parseArgs({}, paths));
   }
 
-  handleRequest(req, res, mountPath = '', routeStartIndex = 0) {
+  handleRequest(req, res, mountPath = '', routeStartIndex = 0, err = null) {
     const { routes, routesCount } = this;
     for (let routeIndex = routeStartIndex; routeIndex < routesCount; routeIndex++) {
       //console.log('ROUTE', routeIndex, routes[routeIndex].paths);
-      if (routes[routeIndex].handleRequest(req, res, mountPath)) return true;
+      if (routes[routeIndex].handleRequest(req, res, mountPath, 0, err)) return true;
     }
     return false;
   }
 
-  handleError(err, req, res, mountPath = '', routeStartIndex = 0) {
+  /*handleError(err, req, res, mountPath = '', routeStartIndex = 0) {
     const { routes, routesCount } = this;
     for (let routeIndex = routeStartIndex; routeIndex < routesCount; routeIndex++) {
       if (routes[routeIndex].handleError(err, req, res, mountPath)) return true;
     }
     return false;
-  }
+  }*/
 
   describe(options, mountPath = '', level = 0) {
     const { format } = Object.assign({ format: 'console' }, options);
