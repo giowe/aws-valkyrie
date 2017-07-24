@@ -23,6 +23,7 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
     .then(scenario => {
       const app = new express();
       app.use(bodyParser.json(), bodyParser.raw(), bodyParser.text(), bodyParser.urlencoded({ extended: false }));
+      app.use(express.static(__dirname));
       app.get('/scenario', (req, res) => res.json({ scenarioName }));
       app.all('*', (req, res) => {
         const formattedReq = formatter(req);

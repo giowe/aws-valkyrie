@@ -14,7 +14,6 @@
   },
   "homepage": "https://github.com/giowe/aws-valkyrie#readme",
   "dependencies": {
-    "ascii-tree": "^0.3.0",
     "cookie": "^0.3.1",
     "cookie-signature": "^1.0.6",
     "depd": "^1.1.0",
@@ -22,8 +21,5 @@
     "path-to-regexp": "^1.6.0",
     "send": "^0.14.1",
     "vary": "^1.1.0"
-  },
-  "devDependencies": {
-    "gulp-zip": "^4.0.0"
   }
 }

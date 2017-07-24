@@ -2,7 +2,6 @@
 
 const Response = require('./Response');
 const Router = require('./Router');
-const asciiTree = require('ascii-tree');
 
 class Application extends Router{
   constructor(settings) {
