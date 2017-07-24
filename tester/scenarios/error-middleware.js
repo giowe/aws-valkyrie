@@ -13,6 +13,17 @@ module.exports = (engine, engineName) => {
   app.use((err, req, res, next) => {
     console.log(engineName, 'error handled');
     res.send('error handled');
+    throw new Error('second error');
+  });
+
+  app.use((req, res, next) => {
+    res.header('no-errors-middleware', 'yea');
+    console.log(engineName, 'middleware for no errors');
+    next();
+  });
+
+  app.use((err, req, res, next) => {
+    res.send('Second error handled');
   });
 
   app.get('/no-error2', (req, res) => res.send('no errors2'));
