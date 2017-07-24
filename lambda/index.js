@@ -127,6 +127,6 @@ app.all('*', (req, res, next) => {
   res.status(404).send('not found!');
 });
 
-app.describe();
+console.log(app.describe());
 
 exports.handler = (...args) => app.listen(...args);

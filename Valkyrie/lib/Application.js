@@ -1,7 +1,8 @@
 'use strict';
 
-const Response      = require('./Response');
-const Router        = require('./Router');
+const Response = require('./Response');
+const Router = require('./Router');
+const asciiTree = require('ascii-tree');
 
 class Application extends Router{
   constructor(settings) {
@@ -46,25 +47,6 @@ class Application extends Router{
     return this;
   }
 
-  handleRequest(req, res, mountPath = '', routeStartIndex = 0, err = null) {
-    if (super.handleRequest(req, res, mountPath, routeStartIndex, err)) return true;
-    if (!res.headersSent) {
-      res.header('content-type', 'text/html');
-      if (! err) res.status(404).send(_htmlTemplate('Error', `<pre>Cannot ${req.method.toUpperCase()} ${req.path}</pre>`));
-      else res.status(500).send(_htmlTemplate('Error', `<pre>${err.stack}</pre>`));
-    }
-  }
-
-  /*handleError(err, req, res, mountPath = '', routeStartIndex = 0) {
-    if (super.handleError(err, req, res, mountPath, routeStartIndex)) return true;
-    if (!res.headersSent) {
-      // eslint-disable-next-line no-console
-      console.log(err);
-      res.header('content-type', 'text/html');
-      res.status(500).send(_htmlTemplate('Error', `<pre>${err.stack}</pre>`));
-    }
-  }*/
-
   listen(event, context, callback){
     const method = event.httpMethod.toLowerCase();
     const req = Object.assign({}, event, {
@@ -88,33 +70,9 @@ class Application extends Router{
     this.handleRequest(req, res);
   }
 
-  //todo install freetree
-  describe(options) {
-    const { format } = Object.assign({ format: 'console' }, options);
-
-    let string;
-    if (['html', 'string', 'console'].includes(format)) {
-      string = `─┬Application\n${super.describe({ format: 'string' })}`;
-    }
-
-    switch (format) {
-      case 'html':
-        return `</code>${string.replace(/\n/g, '</br>').replace(/ /g, '&nbsp;')}</code>`;
-      case 'string':
-        return string;
-      case 'console':
-        // eslint-disable-next-line no-console
-        return console.log(string);
-      case 'json':
-        return { todo: 'todo' }; //todo
-      default:
-        throw new Error(`${format} is not a supported format; chose between "console", "string", "html" and "json"`);
-    }
+  describe() {
+    return `Application\n${super.describe()}`;
   }
-}
-
-function _htmlTemplate(title, body){
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>${title}</title></head><body>${body}</body></html>`;
 }
 
 module.exports = Application;

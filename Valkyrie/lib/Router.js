@@ -36,46 +36,26 @@ class Router {
     return _registerRoute(this, _parseArgs({}, paths));
   }
 
-  handleRequest(req, res, mountPath = '', routeStartIndex = 0, err = null) {
+  handleRequest(req, res, mountPath = '', routeIndex = 0, err = null) {
     const { routes, routesCount } = this;
-    for (let routeIndex = routeStartIndex; routeIndex < routesCount; routeIndex++) {
+    if (routeIndex < routesCount) {
       //console.log('ROUTE', routeIndex, routes[routeIndex].paths);
-      if (routes[routeIndex].handleRequest(req, res, mountPath, 0, err)) return true;
+      routes[routeIndex].handleRequest(req, res, mountPath, 0, err);
+      return;
     }
-    return false;
+    const { containerLayer } = this;
+    if (containerLayer) {
+      containerLayer.router.handleRequest(req, res, mountPath, containerLayer.route.routeIndex + 1, err);
+      return;
+    }
+    res.header('content-type', 'text/html');
+    if (! err) res.status(404).send(_htmlTemplate('Error', `<pre>Cannot ${req.method.toUpperCase()} ${req.path}</pre>`));
+    else res.status(500).send(_htmlTemplate('Error', `<pre>${err.stack}</pre>`));
+
   }
 
-  /*handleError(err, req, res, mountPath = '', routeStartIndex = 0) {
-    const { routes, routesCount } = this;
-    for (let routeIndex = routeStartIndex; routeIndex < routesCount; routeIndex++) {
-      if (routes[routeIndex].handleError(err, req, res, mountPath)) return true;
-    }
-    return false;
-  }*/
-
-  describe(options, mountPath = '', level = 0) {
-    const { format } = Object.assign({ format: 'console' }, options);
-
-    let string;
-    if (['html', 'string', 'console'].includes(format)) {
-      string = this.routes.reduce((acc, route) => `${acc}${route.describe({ format: 'string' }, mountPath, level)}${route.routeIndex < route.router.routesCount - 1 ? '\n' : ''}`,
-        `${level === 0 ? ' ' : ' │'}${' '.repeat(-1 + (level + 1) + level * 2)}├Router \n`
-      );
-    }
-
-    switch (format) {
-      case 'html':
-        return `</code>${string.replace(/\n/g, '</br>').replace(/ /g, '&nbsp;')}</code>`;
-      case 'string':
-        return string;
-      case 'console':
-        // eslint-disable-next-line no-console
-        return console.log(string);
-      case 'json':
-        return { todo: 'todo' }; //todo
-      default:
-        throw new Error(`${format} is not a supported format; chose between "console", "string", "html" and "json"`);
-    }
+  describe(mountPath = '', level = 0) {
+    return this.routes.reduce((acc, route) => `${acc}${route.describe(mountPath, level)}${route.routeIndex < route.router.routesCount - 1 ? '\n' : ''}`, '');
   }
 }
 
@@ -96,6 +76,10 @@ function _registerRoute(self, { methods, paths, fns }) {
   self.routes.push(route);
   self.routesCount++;
   return route;
+}
+
+function _htmlTemplate(title, body){
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>${title}</title></head><body>${body}</body></html>`;
 }
 
 module.exports = Router;

@@ -23,63 +23,21 @@ class Route {
     });
   }
 
-  handleRequest(req, res, mountPath, layerStartIndex = 0, err = null) {
-    console.log('err', err);
-    const { layers, layersCount, paths } = this;
-    if (layerStartIndex >= layersCount) return false;
-    if (!_matchMethod(this, req)) return false;
-
-    const { fullPath, matchPath } = _getFullMatchingPath(this, req, mountPath, paths);
-
-    for (let layerIndex = layerStartIndex; layerIndex < layersCount; layerIndex++) {
+  handleRequest(req, res, mountPath, layerIndex = 0, err = null) {
+    const { layers, layersCount, paths, router, routeIndex } = this;
+    if (layerIndex < layersCount && _matchMethod(this, req)) {
+      const { fullPath, matchPath } = _getFullMatchingPath(this, req, mountPath, paths);
       const layer = layers[layerIndex];
-      //console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH', 'containsRouter?', layer.containsRouter);
-      if (layer.containsRouter && layer.handleRequest(req, res, fullPath, err)) return true;
+     // console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH', 'containsRouter?', layer.containsRouter);
+      if (layer.containsRouter) return layer.handleRequest(req, res, fullPath, err);
       else if (matchPath) return layer.handleRequest(req, res, mountPath, err);
     }
-    return false;
+    router.handleRequest(req, res, mountPath, routeIndex + 1, err);
   }
 
-  /*handleError(err, req, res, mountPath, layerStartIndex = 0) {
-    const { layers, layersCount, paths } = this;
-    if (layerStartIndex >= layersCount) return false;
-    if (!_matchMethod(this, req)) return false;
-
-    const { fullPath, matchPath } = _getFullMatchingPath(this, req, mountPath, paths);
-
-    for (let layerIndex = layerStartIndex; layerIndex < layersCount; layerIndex++) {
-      const layer = layers[layerIndex];
-      if (layer.containsRouter && layer.handleError(err, req, res, fullPath)) return true;
-      else if (matchPath) return layer.handleError(err, req, res, mountPath);
-    }
-    return false;
-  }*/
-
-  describe(options, mountPath = '', level = 0) {
-    const { format } = Object.assign({ format: 'console' }, options);
-    //console.log(this.paths)
+  describe(mountPath = '', level = 0) {
     const fullPaths = this.paths.map(path => _urlJoin(mountPath, path));
-
-    let string;
-    if (['html', 'string', 'console'].includes(format)) {
-      string = this.layers.reduce((acc, layer) => `${acc}\n${layer.describe({ format: 'string' }, fullPaths, level)}`,
-        ` ${level > 0 ? '│' : ''}${' '.repeat((level > 0? -1 : 0) + level * 4)}${this.routeIndex === this.router.routesCount - 1 ? '└' : '├'}─┬Route ${fullPaths.join(', ')}`
-      );
-    }
-
-    switch (format) {
-      case 'html':
-        return `</code>${string.replace(/\n/g, '</br>').replace(/ /g, '&nbsp;')}</code>`;
-      case 'string':
-        return string;
-      case 'console':
-        // eslint-disable-next-line no-console
-        return console.log(string);
-      case 'json':
-        return { todo: 'todo' }; //todo
-      default:
-        throw new Error(`${format} is not a supported format; chose between "console", "string", "html" and "json"`);
-    }
+    return this.layers.reduce((acc, layer) => `${acc}\n${layer.describe(fullPaths, level)}`, `${' '.repeat(1 + (level * 2))}Route ${fullPaths.join(', ')}`);
   }
 }
 
