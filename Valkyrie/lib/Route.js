@@ -24,11 +24,20 @@ class Route {
   }
 
   handleRequest(req, res, mountPath, layerIndex = 0, err = null) {
+    console.log(mountPath);
     const { layers, layersCount, paths, router, routeIndex } = this;
     if (layerIndex < layersCount && _matchMethod(this, req)) {
-      const { fullPath, matchPath } = _getFullMatchingPath(this, req, mountPath, paths);
+
+      let fullPath, matchPath;
+      const l = paths.length;
+      for (let i = 0; i < l; i ++) {
+        fullPath = _urlJoin(mountPath, paths[i]);
+        matchPath = _matchPath(this, req, fullPath);
+        if (matchPath) break;
+      }
+
       const layer = layers[layerIndex];
-     // console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH', 'containsRouter?', layer.containsRouter);
+      console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH', 'containsRouter?', layer.containsRouter);
       if (layer.containsRouter) return layer.handleRequest(req, res, fullPath, err);
       else if (matchPath) return layer.handleRequest(req, res, mountPath, err);
     }
@@ -59,7 +68,7 @@ function _matchMethod(self, req) {
   return methods[method];
 }
 
-function _getFullMatchingPath(self, req, mountPath, paths) {
+/*function _getFullMatchingPath(self, req, mountPath, paths) {
   const l = paths.length;
   for (let i = 0; i < l; i ++) {
     const fullPath = _urlJoin(mountPath, paths[i]);
@@ -67,7 +76,7 @@ function _getFullMatchingPath(self, req, mountPath, paths) {
     if (matchPath) return { fullPath, matchPath };
   }
   return { fullPath: null, matchPath: false };
-}
+}*/
 
 const _regexCache = {};
 function _getPathRegex(path, settings) {
@@ -83,6 +92,7 @@ function _getPathRegex(path, settings) {
 }
 
 function _matchPath(self, req, path) {
+  console.log('matching', !self.methods.use ? req.path : req.path.substr(0, req.path.split('/', path.replace(/\/$/).split('/').length).join('/').length));
   if (path === '*') return true;
   const [regex, keys] = _getPathRegex(path, self.router.settings);
   const m = regex.exec(!self.methods.use ? req.path : req.path.substr(0, req.path.split('/', path.replace(/\/$/).split('/').length).join('/').length));

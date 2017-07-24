@@ -39,7 +39,7 @@ class Router {
   handleRequest(req, res, mountPath = '', routeIndex = 0, err = null) {
     const { routes, routesCount } = this;
     if (routeIndex < routesCount) {
-      //console.log('ROUTE', routeIndex, routes[routeIndex].paths);
+      console.log('ROUTE', routeIndex, routes[routeIndex].paths);
       routes[routeIndex].handleRequest(req, res, mountPath, 0, err);
       return;
     }

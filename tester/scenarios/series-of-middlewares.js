@@ -18,5 +18,7 @@ module.exports = (engine, engineName) => {
 
   app.use(r1, r2);
 
+  if (engineName === 'valkyrie') console.log(app.describe());
+
   return app;
 };
