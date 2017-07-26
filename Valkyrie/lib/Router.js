@@ -36,8 +36,9 @@ class Router {
     return _registerRoute(this, _parseArgs({}, paths));
   }
 
-  handleRequest(req, res, mountPath = '', routeIndex = 0, err = null) {
+  handleRequest(req, res, mountPath = [], routeIndex = 0, err = null) {
     const { routes, routesCount } = this;
+    console.log(routeIndex, routesCount);
     if (routeIndex < routesCount) {
       console.log('ROUTE', routeIndex, routes[routeIndex].paths);
       routes[routeIndex].handleRequest(req, res, mountPath, 0, err);
@@ -45,6 +46,8 @@ class Router {
     }
     const { containerLayer } = this;
     if (containerLayer) {
+      mountPath.pop();
+      console.log(containerLayer.describe(),  containerLayer.route.routeIndex + 1);
       containerLayer.router.handleRequest(req, res, mountPath, containerLayer.route.routeIndex + 1, err);
       return;
     }

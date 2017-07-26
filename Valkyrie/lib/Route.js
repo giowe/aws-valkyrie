@@ -29,7 +29,7 @@ class Route {
       let fullPath, matchPath;
       const l = paths.length;
       for (let i = 0; i < l; i ++) {
-        fullPath = _urlJoin(mountPath, paths[i]);
+        fullPath = mountPath.concat(paths[i]);
         matchPath = _matchPath(this, req, fullPath);
         if (matchPath) break;
       }
@@ -89,7 +89,8 @@ function _getPathRegex(path, settings) {
   return _regexCache[key];
 }
 
-function _matchPath(self, req, path) {
+function _matchPath(self, req, paths) {
+  const path = _urlJoin(paths);
   console.log('matching', !self.methods.use ? req.path : req.path.substr(0, req.path.split('/', path.replace(/\/$/).split('/').length).join('/').length));
   if (path === '*') return true;
   const [regex, keys] = _getPathRegex(path, self.router.settings);
