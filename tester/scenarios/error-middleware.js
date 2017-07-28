@@ -11,13 +11,12 @@ module.exports = (engine, engineName) => {
   app.get('/no-error', (req, res) => res.send('no errors'));
 
   app.use((err, req, res, next) => {
-    console.log(engineName, 'error handled');
-    res.send('error handled');
+    res.header('error-handled', true);
     throw new Error('second error');
   });
 
   app.use((req, res, next) => {
-    res.header('no-errors-middleware', 'yea');
+    res.header('no-errors-middleware', true);
     console.log(engineName, 'middleware for no errors');
     next();
   });

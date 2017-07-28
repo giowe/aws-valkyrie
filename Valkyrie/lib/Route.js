@@ -91,7 +91,6 @@ function _getPathRegex(path, settings) {
 
 function _matchPath(self, req, paths) {
   const path = _urlJoin(paths);
-  console.log('matching', !self.methods.use ? req.path : req.path.substr(0, req.path.split('/', path.replace(/\/$/).split('/').length).join('/').length));
   if (path === '*') return true;
   const [regex, keys] = _getPathRegex(path, self.router.settings);
   const m = regex.exec(!self.methods.use ? req.path : req.path.substr(0, req.path.split('/', path.replace(/\/$/).split('/').length).join('/').length));
