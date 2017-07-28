@@ -52,7 +52,7 @@ class Router {
       return;
     }
     res.header('content-type', 'text/html');
-    if (! err) res.status(404).send(_htmlTemplate('Error', `<pre>Cannot ${req.method.toUpperCase()} ${req.path}</pre>`));
+    if (!err) res.status(404).send(_htmlTemplate('Error', `<pre>Cannot ${req.method.toUpperCase()} ${req.path}</pre>`));
     else res.status(500).send(_htmlTemplate('Error', `<pre>${err.stack}</pre>`));
   }
 
