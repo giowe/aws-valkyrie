@@ -27,7 +27,6 @@ class Layer {
     if ((err && !isErrorHandlingMiddleware) || (!err && isErrorHandlingMiddleware)) return route.handleRequest(req, res, paths, layerIndex + 1, err);
     try {
       const next = (err) => {
-        console.log('got NEXT');
         if (err && err !== 'route') route.handleRequest(req, res, paths, layerIndex + 1, err);
         else if (err === 'route') router.handleRequest(req, res, paths, route.routeIndex + 1);
         else route.handleRequest(req, res, paths, layerIndex + 1);

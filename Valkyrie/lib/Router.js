@@ -36,19 +36,16 @@ class Router {
     return _registerRoute(this, _parseArgs({}, paths));
   }
 
-  handleRequest(req, res, mountPath = [], routeIndex = 0/*routeIndexes = [0]*/, err = null) {
-    //const routeIndex = routeIndexes[routeIndexes.length - 1];
+  handleRequest(req, res, mountPath = [], routeIndex = 0, err = null) {
     const { routes, routesCount } = this;
-    console.log('route...', routeIndex, routesCount);
     if (routeIndex < routesCount) {
-      console.log('ROUTE', routeIndex, routes[routeIndex].paths);
+      //console.log('ROUTE', routeIndex, routes[routeIndex].paths);
       routes[routeIndex].handleRequest(req, res, mountPath, 0, err);
       return;
     }
     const { containerLayer } = this;
     if (containerLayer) {
       mountPath.pop();
-      //console.log(containerLayer.describe(),  containerLayer.route.routeIndex + 1);
       containerLayer.route.handleRequest(req, res, mountPath, containerLayer.layerIndex + 1, err);
       return;
     }

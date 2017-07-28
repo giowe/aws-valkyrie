@@ -25,7 +25,6 @@ class Route {
 
   handleRequest(req, res, mountPath, layerIndex = 0, err = null) {
     const { layers, layersCount, paths, router, routeIndex } = this;
-    console.log('layer.....', layerIndex, layersCount);
     if (layerIndex < layersCount && _matchMethod(this, req)) {
       let fullPath, matchPath;
       const l = paths.length;
@@ -36,7 +35,7 @@ class Route {
       }
 
       const layer = layers[layerIndex];
-      console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH', 'containsRouter?', layer.containsRouter);
+      //console.log('---LAYER', layerIndex, req.method, fullPath, matchPath ? 'MATCH!' : 'NO MATCH', 'containsRouter?', layer.containsRouter);
       if (layer.containsRouter) return layer.handleRequest(req, res, fullPath, err);
       else if (matchPath) return layer.handleRequest(req, res, mountPath, err);
     }
