@@ -25,6 +25,7 @@ class Route {
 
   handleRequest(req, res, mountPath, layerIndex = 0, err = null) {
     const { layers, layersCount, paths, router, routeIndex } = this;
+    console.log('layer.....', layerIndex, layersCount);
     if (layerIndex < layersCount && _matchMethod(this, req)) {
       let fullPath, matchPath;
       const l = paths.length;

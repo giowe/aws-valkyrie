@@ -16,9 +16,11 @@ module.exports = (engine, engineName) => {
     next();
   });
 
-  app.use(r1, r2);
+  app.use('/router', r1, r2);
 
-  if (engineName === 'valkyrie') console.log(app.describe());
+  app.get('/', (req, res) => {
+    res.send('middleware chain');
+  });
 
   return app;
 };
