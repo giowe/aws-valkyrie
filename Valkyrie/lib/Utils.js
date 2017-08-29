@@ -2,7 +2,8 @@
 
 
 //TODO: REVIEW
-const mime = require('send').mime;
+const mime = require('mime');
+const contentType = require('content-type');
 
 function _acceptParams(str, index) {
   var parts = str.split(/ *; */);
@@ -21,6 +22,21 @@ function _acceptParams(str, index) {
 }
 
 module.exports = class Utils {
+  static setCharset(type, charset) {
+    if (!type || !charset) {
+      return type;
+    }
+
+    // parse type
+    var parsed = contentType.parse(type);
+
+    // set charset
+    parsed.parameters.charset = charset;
+
+    // format type
+    return contentType.format(parsed);
+  };
+
   static forEach(arr, fn) {
     let i = 0;
     const len = arr.length;
