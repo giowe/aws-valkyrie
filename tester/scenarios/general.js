@@ -99,6 +99,9 @@ module.exports = (engine, engineName) => {
     res.send(req);
   });
 
+  app.get('/headers', (req, res) => {
+    res.send(req.get('test'));
+  });
 // router.use((req, res, next) => {
 //   res.append('custom-header-field', 'Valkyrie!');
 //   console.log('possible auth middleware');

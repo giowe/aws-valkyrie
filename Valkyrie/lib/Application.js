@@ -1,5 +1,6 @@
 'use strict';
 
+const Request = require('./Request');
 const Response = require('./Response');
 const Router = require('./Router');
 
@@ -47,20 +48,11 @@ class Application extends Router{
   }
 
   listen(event, context, callback){
-    const method = event.httpMethod.toLowerCase();
-    const req = Object.assign({}, event, {
-      app: this,
-      params: {},
-      httpMethod: method,
-      method,
-      query: event.queryStringParameters
-    });
-
     this.context = context;
     this.callback = callback;
-    this.req = req;
-
+    const req = new Request(this, event);
     const res = new Response(this);
+    this.req = req;
     this.res = res;
     res.req = req;
     req.res = res;
