@@ -133,7 +133,7 @@ module.exports = class Response {
 
   json(body){
     body = Utils.stringify(body, this.app.get('json replacer'), this.app.get('json spaces'));
-    this.set('Content-Type', 'application/json');
+    this.set('Content-Type', 'application/json; charset=utf-8');
     this.send(body);
   }
 
