@@ -11,9 +11,9 @@ class Request {
       query: event.queryStringParameters
     });
 
-    /*const headers = {};
+    const headers = {};
     Object.entries(this.headers).forEach(([key, value]) => headers[key.toLowerCase()] = value);
-    this.headers = headers;*/
+    this.headers = headers;
     return this;
   }
 
