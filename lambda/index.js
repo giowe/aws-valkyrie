@@ -4,11 +4,26 @@
 const Valkyrie = require(process.env.NODE_ENV === 'local' ? '../Valkyrie/Valkyrie' : './Valkyrie/Valkyrie');
 const app = new Valkyrie();
 const router = Valkyrie.Router();
-const router2 = Valkyrie.Router();
 const pkg = require('./package.json');
+const rp = require('request-promise');
+
+app.get('/rp', (req, res) => {
+  rp({
+    uri: 'https://slack.com/api/api.test',
+    json: true
+  })
+    .then(res.json)
+    .catch(err => res.send(err));
+});
 
 app.get('/info', (req, res) => {
+  console.log('questo è il pkg', pkg);
   res.json(pkg);
+});
+
+app.get('/html', (req, res) => {
+  res.header('content-type', 'text/html; charset=utf-8');
+  res.send('<h1>questo è valk</h1>');
 });
 
 app.use('/', (req, res, next) => {
