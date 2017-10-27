@@ -197,15 +197,20 @@ module.exports = class Response {
     if (typeof body !== 'undefined') this.body = body;
     if (typeof body !== 'string') body = Utils.stringify(body);
 
-    const response = {
+    /*const response = {
       statusCode: this.statusCode,
       headers: this.headers,
       body
-    };
+    };*/
 
     this.headersSent = true;
-    if (this.app.settings.useContext) this.context.succeed(response);
-    else this.callback(null, response);
+    this.callback(null, {
+      statusCode: this.statusCode,
+      headers: this.headers,
+      body
+    });
+    //if (this.app.settings.useContext) this.context.succeed(response);
+    //else this.callback(null, response);
   }
 
   sendFile(s3Url){
