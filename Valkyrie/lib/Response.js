@@ -129,7 +129,7 @@ module.exports = class Response {
 
   set(field, val) {
     this.headers[field] = val;
-   // this.header(field, val)
+    // this.header(field, val)
   }
 
   json(body){
