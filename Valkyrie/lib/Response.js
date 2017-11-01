@@ -4,6 +4,7 @@ const mime = require('send').mime;
 const Utils = require('./Utils');
 const signCookie = require('cookie-signature').sign;
 const deprecate = require('depd')('aws-valkyrie');
+const encodeUrl = require('encodeurl');
 const vary = require('vary');
 const cookie = require('cookie'); //TODO: add to package.json
 const STATUS_CODES = require('http').STATUS_CODES;
