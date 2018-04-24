@@ -1,6 +1,3 @@
-'use strict';
-
-
 //TODO: REVIEW
 const mime = require('mime');
 const contentType = require('content-type');

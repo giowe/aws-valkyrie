@@ -1,5 +1,3 @@
-'use strict';
-
 const availableMethods = require('methods');
 const Route = require('./Route');
 const { flatten } = require('./Utils');

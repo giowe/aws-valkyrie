@@ -1,4 +1,3 @@
-'use strict';
 //todo this is a big work in progress
 const mime = require('send').mime;
 const Utils = require('./Utils');

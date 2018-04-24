@@ -1,5 +1,3 @@
-'use strict';
-
 class Request {
   constructor(app, event) {
     const method = event.httpMethod.toLowerCase();
