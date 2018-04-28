@@ -1,5 +1,3 @@
-'use strict';
-
 const Request = require('./Request');
 const Response = require('./Response');
 const Router = require('./Router');
@@ -9,7 +7,6 @@ class Application extends Router{
     super(Object.assign({
       useContextSucceed: false
     }, settings));
-    this.locales = Object.create(null);
 
     const { get } = this;
     this.get = (...args) => {

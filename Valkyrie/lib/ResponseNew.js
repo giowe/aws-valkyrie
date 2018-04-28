@@ -1,10 +1,3 @@
-'use strict';
-
-/**
- * Module dependencies.
- * @private
- */
-
 var contentDisposition = require('content-disposition');
 var deprecate = require('depd')('express');
 var encodeUrl = require('encodeurl');
@@ -42,52 +35,17 @@ class Response {
     return this;
   }
 
-  /**
-   * Set status `code`.
-   *
-   * @param {Number} code
-   * @return {ServerResponse}
-   * @public
-   */
   status(code) {
     this.statusCode = code;
     return this;
   }
 
-  /**
-   * Set Link header field with the given `links`.
-   *
-   * Examples:
-   *
-   *    res.links({
-   *      next: 'http://api.example.com/users?page=2',
-   *      last: 'http://api.example.com/users?page=5'
-   *    });
-   *
-   * @param {Object} links
-   * @return {ServerResponse}
-   * @public
-   */
   links(links){
     let link = this.get('Link') || '';
     if (link) link += ', ';
-    return this.set('Link', link + Object.keys(links).map(rel => '<' + links[rel] + '>; rel="' + rel + '"').join(', '));
+    return this.set('Link', link + Object.keys(links).map(rel => `<${links[rel]}>; rel="${rel}"`).join(', '));
   }
 
-
-
-  /**
-   * Send a response.
-   *
-   * Examples:
-   *
-   *     res.send(new Buffer('wahoo'));
-   *     res.send({ some: 'json' });
-   *     res.send('<p>some html</p>');
-   *
-   * @param {string|number|boolean|object|Buffer} body
-   * @public
-   */
   send(body) {
     if (this.headersSent) throw new Error('Response already sent;');
     let chunk = body;
