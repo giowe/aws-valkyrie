@@ -1,6 +1,4 @@
 /* eslint-disable no-console */
-'use strict';
-
 const Valkyrie = require(process.env.NODE_ENV === 'local' ? '../Valkyrie/Valkyrie' : './Valkyrie/Valkyrie');
 const app = new Valkyrie();
 const router = Valkyrie.Router();

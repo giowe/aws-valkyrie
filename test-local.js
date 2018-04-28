@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-'use strict';
 const clc  = require('cli-color');
 const path = require('path');
 const argv = require('yargs').argv;

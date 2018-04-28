@@ -1,7 +1,7 @@
 {
-  "name": "my-lambda",
+  "name": "valkyrie-dev",
   "version": "1.0.0",
-  "description": "",
+  "description": "lambda dev valkyrie",
   "main": "index.js",
   "author": "Giovanni Bruno",
   "license": "MIT",

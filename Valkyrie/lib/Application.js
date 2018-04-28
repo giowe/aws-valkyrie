@@ -47,13 +47,10 @@ class Application extends Router{
   listen(event, context, callback){
     this.context = context;
     this.callback = callback;
-    const req = new Request(this, event);
-    const res = new Response(this);
-    this.req = req;
-    this.res = res;
+    const req = this.req = new Request(this, event);
+    const res = this.res = new Response(this);
     res.req = req;
     req.res = res;
-
     if (this.enabled('x-powered-by')) res.header('x-powered-by', 'Valkyrie');
     this.handleRequest(req, res);
   }

@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-'use strict';
 
 const clc = require('cli-color');
 const gulp = require('gulp');
@@ -52,7 +51,7 @@ gulp.task('configure', function(next){
     { type: 'input', name: 'Handler', message: 'Handler:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Handler:'index.handler' },
     { type: 'input', name: 'MemorySize', message: 'MemorySize:',  default: lambdaConfig? lambdaConfig.ConfigOptions.MemorySize:'128' },
     { type: 'input', name: 'Timeout', message: 'Timeout:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Timeout:'3' },
-    { type: 'input', name: 'Runtime', message: 'Runtime:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Runtime:'nodejs6.10' }
+    { type: 'input', name: 'Runtime', message: 'Runtime:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Runtime:'nodejs8.10' }
   ])
     .then((config_answers) => {
       lambdaConfig = {
