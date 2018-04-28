@@ -1,6 +1,6 @@
 {
   "name": "aws-valkyrie",
-  "version": "0.8.9",
+  "version": "0.8.10",
   "description": "Simple, Express inspired, web framework for AWS Lambda & Api Gateway",
   "main": "Valkyrie.js",
   "repository": {
@@ -14,16 +14,16 @@
   },
   "homepage": "https://github.com/giowe/aws-valkyrie#readme",
   "dependencies": {
-    "content-type": "^1.0.2",
+    "content-type": "^1.0.4",
     "cookie": "^0.3.1",
-    "cookie-signature": "^1.0.6",
-    "depd": "^1.1.0",
-    "encodeurl": "^1.0.1",
+    "cookie-signature": "^1.1.0",
+    "depd": "^1.1.2",
+    "encodeurl": "^1.0.2",
     "methods": "^1.1.2",
-    "mime": "^1.3.6",
-    "path-to-regexp": "^1.6.0",
-    "send": "^0.15.4",
-    "statuses": "^1.3.1",
-    "vary": "^1.1.0"
+    "mime": "^2.3.1",
+    "path-to-regexp": "^2.2.0",
+    "send": "^0.16.2",
+    "statuses": "^1.5.0",
+    "vary": "^1.1.2"
   }
 }
