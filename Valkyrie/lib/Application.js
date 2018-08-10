@@ -1,15 +1,13 @@
-'use strict';
-
 const Request = require('./Request');
 const Response = require('./Response');
 const Router = require('./Router');
+const { compileETag } = require('./Utils');
 
 class Application extends Router{
   constructor(settings) {
     super(Object.assign({
       useContextSucceed: false
     }, settings));
-    this.locales = Object.create(null);
 
     const { get } = this;
     this.get = (...args) => {
@@ -42,22 +40,38 @@ class Application extends Router{
     return this.settings[name] === true;
   }
 
-  set(prop, value) {
-    this.settings[prop] = value;
+  set(setting, value) {
+    this.settings[setting] = value;
+    switch (setting) {
+      case 'etag':
+        this.set('etag fn', compileETag(value));
+        break;
+        //todo
+      // case 'query parser':
+      //   this.set('query parser fn', compileQueryParser(value));
+      //   break;
+      // case 'trust proxy':
+      //   this.set('trust proxy fn', compileTrust(value));
+      //
+      //   // trust proxy inherit back-compat
+      //   Object.defineProperty(this.settings, trustProxyDefaultSymbol, {
+      //     configurable: true,
+      //     value: false
+      //   });
+      //  break;
+    }
     return this;
   }
 
   listen(event, context, callback){
     this.context = context;
     this.callback = callback;
-    const req = new Request(this, event);
-    const res = new Response(this);
-    this.req = req;
-    this.res = res;
+    const req = this.req = new Request(this, event);
+    const res = this.res = new Response(this);
     res.req = req;
     req.res = res;
-
     if (this.enabled('x-powered-by')) res.header('x-powered-by', 'Valkyrie');
+    this.set('etag', 'weak');
     this.handleRequest(req, res);
   }
 

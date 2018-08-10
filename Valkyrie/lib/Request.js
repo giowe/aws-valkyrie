@@ -1,5 +1,4 @@
-'use strict';
-
+const accepts = require('accepts');
 class Request {
   constructor(app, event) {
     const method = event.httpMethod.toLowerCase();
@@ -17,6 +16,11 @@ class Request {
     Object.entries(this.headers).forEach(([key, value]) => headers[key.toLowerCase()] = value);
     this.headers = headers;
     return this;
+  }
+
+  accepts() {
+    const accept = accepts(this);
+    return accept.types.apply(accept, arguments);
   }
 
   get(field){

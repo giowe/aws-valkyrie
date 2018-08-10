@@ -1,5 +1,3 @@
-'use strict';
-
 const availableMethods = require('methods');
 const pathToRegexp = require('path-to-regexp');
 const Layer = require('./Layer');
