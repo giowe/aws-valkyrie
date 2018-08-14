@@ -296,9 +296,30 @@ class Response {
     return this
   }
 
-  //todo!
+  //todo! missing app.render and req.next
   render(view, options, callback) {
+    const { app, req } = this
+    let done = callback
+    let opts = options || {}
 
+    // support callback function as second arg
+    if (typeof options === "function") {
+      done = options
+      opts = {}
+    }
+
+    // merge res.locals
+    //todo missing locals right now
+    opts._locals = this.locals
+
+    // default callback to respond
+    done = done || ((err, str) => {
+      if (err) return req.next(err)
+      this.send(str)
+    })
+
+    // render
+    app.render(view, opts, done)
   }
 
   //tested
