@@ -1,5 +1,3 @@
-'use strict';
-
 const fs = require('fs');
 const path = require('path');
 const style = fs.readFileSync(path.join(__dirname, './style.css'));
@@ -43,12 +41,12 @@ module.exports.htmlFormatter = (data) => {
       html.push(`
         <td ${typeof value === 'object' ? 'class="jsonViewerRes"' : ''}`);
       if (key === 'statusCode') html.push (` style="color: ${statusColor(value)}"`);
-      if (key === 'body') html.push(` style="overflow-x: scroll"`);
+      if (key === 'body') html.push(' style="overflow-x: scroll"');
       if (key === 'headers' || (key === 'body' &&
         getContentType(response.express.headers) && getContentType(response.express.headers).includes('application/json'))) {
-        html.push(`>${typeof value === 'object' ? pretty(value, 2) : pretty(JSON.parse(value), 2)}`);
+        html.push(`>${(typeof value === 'object' ? pretty(value, 2) : pretty(JSON.parse(value), 2)).replace(/</g, '&lt;').replace(/>/g, '&gt;')}`);
       } else {
-        html.push(`>${value.toString().replace(/[\u00A0-\u9999<>\&]/gim, (i) => {
+        html.push(`>${value.toString().replace(/[\u00A0-\u9999<>&]/gim, (i) => {
           return '&#' + i.charCodeAt(0) + ';';
         })}`);
       }
@@ -58,10 +56,10 @@ module.exports.htmlFormatter = (data) => {
       html.push(`
         <td ${typeof valueValkyrie === 'object' ? 'class="jsonViewerRes"' : ''}`);
       if (key === 'statusCode') html.push(` style="color: ${statusColor(valueValkyrie)}"`);
-      if (key === 'body') html.push(` style="overflow-x: scroll"`);
+      if (key === 'body') html.push(' style="overflow-x: scroll"');
       if (key === 'headers' || (key === 'body' &&
         getContentType(response.valkyrie.headers) && getContentType(response.valkyrie.headers).includes('application/json'))) {
-        html.push(`>${typeof valueValkyrie === 'object' ? pretty(valueValkyrie, 2) : pretty(JSON.parse(valueValkyrie), 2)}`);
+        html.push(`>${(typeof valueValkyrie === 'object' ? pretty(valueValkyrie, 2) : pretty(JSON.parse(valueValkyrie), 2)).replace(/</g, '&lt;').replace(/>/g, '&gt;')}`);
       } else {
         html.push(`>${valueValkyrie.toString().replace(/[\u00A0-\u9999<>\&]/gim, (i) => {
           return `&#${i.charCodeAt(0)};`;

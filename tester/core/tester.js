@@ -1,6 +1,4 @@
 /* eslint-disable no-console */
-'use strict';
-
 const bodyParser = require('body-parser');
 const express = require('express');
 const request = require('request');
