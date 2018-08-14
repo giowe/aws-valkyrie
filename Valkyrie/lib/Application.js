@@ -1,6 +1,7 @@
 const Request = require('./Request');
 const Response = require('./Response');
 const Router = require('./Router');
+const { compileETag } = require('./Utils');
 
 class Application extends Router{
   constructor(settings) {
@@ -39,8 +40,26 @@ class Application extends Router{
     return this.settings[name] === true;
   }
 
-  set(prop, value) {
-    this.settings[prop] = value;
+  set(setting, value) {
+    this.settings[setting] = value;
+    switch (setting) {
+      case 'etag':
+        this.set('etag fn', compileETag(value));
+        break;
+        //todo
+      // case 'query parser':
+      //   this.set('query parser fn', compileQueryParser(value));
+      //   break;
+      // case 'trust proxy':
+      //   this.set('trust proxy fn', compileTrust(value));
+      //
+      //   // trust proxy inherit back-compat
+      //   Object.defineProperty(this.settings, trustProxyDefaultSymbol, {
+      //     configurable: true,
+      //     value: false
+      //   });
+      //  break;
+    }
     return this;
   }
 
@@ -52,6 +71,7 @@ class Application extends Router{
     res.req = req;
     req.res = res;
     if (this.enabled('x-powered-by')) res.header('x-powered-by', 'Valkyrie');
+    this.set('etag', 'weak');
     this.handleRequest(req, res);
   }
 
