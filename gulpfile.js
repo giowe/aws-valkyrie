@@ -1,31 +1,31 @@
 /* eslint-disable no-console */
 
-const clc = require('cli-color');
-const gulp = require('gulp');
-const data = require('gulp-data');
-const filter = require('gulp-filter');
-const rename = require('gulp-rename');
-const zip = require('gulp-zip');
-const usage = require('gulp-help-doc');
-const install = require('gulp-install');
-const fs = require('fs');
-const path = require('path');
-const inquirer = require('inquirer');
-const AWS = require('aws-sdk');
-const CwLogs = require('aws-cwlogs');
-const argv = require('yargs').argv;
-const tester = require('./tester/core/tester');
+const clc = require("cli-color")
+const gulp = require("gulp")
+const data = require("gulp-data")
+const filter = require("gulp-filter")
+const rename = require("gulp-rename")
+const zip = require("gulp-zip")
+const usage = require("gulp-help-doc")
+const install = require("gulp-install")
+const fs = require("fs")
+const path = require("path")
+const inquirer = require("inquirer")
+const AWS = require("aws-sdk")
+const CwLogs = require("aws-cwlogs")
+const argv = require("yargs").argv
+const tester = require("./tester/core/tester")
 
-let lambdaConfig;
+let lambdaConfig
 try {
-  lambdaConfig = require(path.join(__dirname, 'lambda-config.json'));
+  lambdaConfig = require(path.join(__dirname, "lambda-config.json"))
 } catch(err) {
-  const allowedTasksWithoutConfigSet = ['configure', 'help', 'default'];
+  const allowedTasksWithoutConfigSet = ["configure", "help", "default"]
   if (process.argv[2] && allowedTasksWithoutConfigSet.indexOf(process.argv[2]) === -1) {
-    console.log('WARNING! lambda config not found, run command', clc.cyan('gulp configure'));
-    process.exit();
+    console.log("WARNING! lambda config not found, run command", clc.cyan("gulp configure"))
+    process.exit()
   }
-  lambdaConfig = null;
+  lambdaConfig = null
 }
 
 /**
@@ -33,25 +33,25 @@ try {
  * @task {help}
  * @order {0}
  */
-gulp.task('help', function(){ return usage(gulp); });
+gulp.task("help", function(){ return usage(gulp) })
 
-gulp.task('default', ['help']);
+gulp.task("default", ["help"])
 
 /**
  * Set-up all settings of your AWS Lambda;
  * @task {configure}
  * @order {1}
  */
-gulp.task('configure', function(next){
+gulp.task("configure", function(next){
   inquirer.prompt([
-    { type: 'input', name: 'FunctionName', message: 'Function name:', default: lambdaConfig? lambdaConfig.ConfigOptions.FunctionName:'my-lambda' },
-    { type: 'input', name: 'Region', message: 'Region:',  default: lambdaConfig? lambdaConfig.Region:'eu-west-1' },
-    { type: 'input', name: 'Description', message: 'Description:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Description:null },
-    { type: 'input', name: 'Role', message: 'Role arn:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Role:null },
-    { type: 'input', name: 'Handler', message: 'Handler:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Handler:'index.handler' },
-    { type: 'input', name: 'MemorySize', message: 'MemorySize:',  default: lambdaConfig? lambdaConfig.ConfigOptions.MemorySize:'128' },
-    { type: 'input', name: 'Timeout', message: 'Timeout:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Timeout:'3' },
-    { type: 'input', name: 'Runtime', message: 'Runtime:',  default: lambdaConfig? lambdaConfig.ConfigOptions.Runtime:'nodejs8.10' }
+    { type: "input", name: "FunctionName", message: "Function name:", default: lambdaConfig ? lambdaConfig.ConfigOptions.FunctionName : "my-lambda" },
+    { type: "input", name: "Region", message: "Region:",  default: lambdaConfig ? lambdaConfig.Region : "eu-west-1" },
+    { type: "input", name: "Description", message: "Description:",  default: lambdaConfig ? lambdaConfig.ConfigOptions.Description : null },
+    { type: "input", name: "Role", message: "Role arn:",  default: lambdaConfig ? lambdaConfig.ConfigOptions.Role : null },
+    { type: "input", name: "Handler", message: "Handler:",  default: lambdaConfig ? lambdaConfig.ConfigOptions.Handler : "index.handler" },
+    { type: "input", name: "MemorySize", message: "MemorySize:",  default: lambdaConfig ? lambdaConfig.ConfigOptions.MemorySize : "128" },
+    { type: "input", name: "Timeout", message: "Timeout:",  default: lambdaConfig ? lambdaConfig.ConfigOptions.Timeout : "3" },
+    { type: "input", name: "Runtime", message: "Runtime:",  default: lambdaConfig ? lambdaConfig.ConfigOptions.Runtime : "nodejs8.10" }
   ])
     .then((config_answers) => {
       lambdaConfig = {
@@ -65,27 +65,27 @@ gulp.task('configure', function(next){
           Timeout: config_answers.Timeout,
           Runtime: config_answers.Runtime
         }
-      };
-      const lambdaPackage = require(path.join(__dirname, 'lambda/package.json'));
-      lambdaPackage.name = config_answers.FunctionName;
-      lambdaPackage.description = config_answers.Description;
-      fs.writeFileSync(path.join(__dirname, '/lambda/package.json'), JSON.stringify(lambdaPackage, null, 2));
-      fs.writeFileSync(path.join(__dirname, '/lambda-config.json'), JSON.stringify(lambdaConfig, null, 2));
-      console.log('\n', lambdaConfig, '\n\n', clc.green('Lambda configuration saved'));
-      next();
+      }
+      const lambdaPackage = require(path.join(__dirname, "lambda/package.json"))
+      lambdaPackage.name = config_answers.FunctionName
+      lambdaPackage.description = config_answers.Description
+      fs.writeFileSync(path.join(__dirname, "/lambda/package.json"), JSON.stringify(lambdaPackage, null, 2))
+      fs.writeFileSync(path.join(__dirname, "/lambda-config.json"), JSON.stringify(lambdaConfig, null, 2))
+      console.log("\n", lambdaConfig, "\n\n", clc.green("Lambda configuration saved"))
+      next()
     })
-    .catch(console.log);
-});
+    .catch(console.log)
+})
 
 /**
  *  Installs npm packages inside the Valkyrie folder
  *  @task {install}
  *  @order {2}
  */
-gulp.task('install', () => {
-  return gulp.src(path.join(__dirname, 'lambda/Valkyrie/package.json'))
-    .pipe(install());
-});
+gulp.task("install", () => {
+  return gulp.src(path.join(__dirname, "lambda/Valkyrie/package.json"))
+    .pipe(install())
+})
 
 /**
  *  Wraps everything inside the lambda folder in a zip file and uploads
@@ -94,28 +94,28 @@ gulp.task('install', () => {
  *  @task {create}
  *  @order {3}
  */
-gulp.task('create', (next) => {
-  const f = filter('lambda/**', { restore: true });
-  gulp.src(['./lambda/*', './Valkyrie/**' ], { dot: true, base: './' })
+gulp.task("create", (next) => {
+  const f = filter("lambda/**", { restore: true })
+  gulp.src(["./lambda/*", "./Valkyrie/**"], { dot: true, base: "./" })
     .pipe(f)
-    .pipe(rename(path => path.dirname = ''))
+    .pipe(rename(path => path.dirname = ""))
     .pipe(f.restore)
-    .pipe(zip('lambda.zip'))
+    .pipe(zip("lambda.zip"))
     .pipe(data(file => {
-      const params = lambdaConfig.ConfigOptions;
-      params.Code = { ZipFile: new Buffer(file.contents) };
+      const params = lambdaConfig.ConfigOptions
+      params.Code = { ZipFile: new Buffer(file.contents) }
       new AWS.Lambda({ region: lambdaConfig.Region }).createFunction(params, (err, data) => {
         if (err){
-          console.log(clc.red('FAILED'), '-', clc.red(err.message));
-          console.log(err);
+          console.log(clc.red("FAILED"), "-", clc.red(err.message))
+          console.log(err)
         } else {
-          console.log(clc.green('SUCCESS'), '- lambda', clc.cyan(data.FunctionName), 'created');
-          console.log(data);
+          console.log(clc.green("SUCCESS"), "- lambda", clc.cyan(data.FunctionName), "created")
+          console.log(data)
         }
-        next();
-      });
-    }));
-});
+        next()
+      })
+    }))
+})
 
 /**
  *  Wraps everything inside the lambda folder in a zip file and uploads
@@ -124,7 +124,7 @@ gulp.task('create', (next) => {
  *  @task {update}
  *  @order {4}
  */
-gulp.task('update', ['update-config', 'update-code']);
+gulp.task("update", ["update-config", "update-code"])
 
 /**
  *  Wraps everything inside the lambda folder in a zip file and uploads
@@ -132,29 +132,29 @@ gulp.task('update', ['update-config', 'update-code']);
  *  @task {update-code}
  *  @order {5}
  */
-gulp.task('update-code', (next) => {
-  const f = filter('lambda/**', { restore: true });
-  gulp.src(['./lambda/*', './Valkyrie/**' ], { dot: true, base: './' })
+gulp.task("update-code", (next) => {
+  const f = filter("lambda/**", { restore: true })
+  gulp.src(["./lambda/*", "./Valkyrie/**"], { dot: true, base: "./" })
     .pipe(f)
-    .pipe(rename(path => path.dirname = ''))
+    .pipe(rename(path => path.dirname = ""))
     .pipe(f.restore)
-    .pipe(zip('lambda.zip'))
+    .pipe(zip("lambda.zip"))
     .pipe(data(file => {
       new AWS.Lambda({ region: lambdaConfig.Region }).updateFunctionCode({
         FunctionName: lambdaConfig.ConfigOptions.FunctionName,
         ZipFile: new Buffer(file.contents)
       }, (err, data) => {
         if (err){
-          console.log(clc.red('FAILED'), '-', clc.red(err.message));
-          console.log(err);
+          console.log(clc.red("FAILED"), "-", clc.red(err.message))
+          console.log(err)
         } else {
-          console.log(clc.green('SUCCESS'), '- lambda', clc.cyan(data.FunctionName), 'code updated');
-          console.log(data);
+          console.log(clc.green("SUCCESS"), "- lambda", clc.cyan(data.FunctionName), "code updated")
+          console.log(data)
         }
-        next();
-      });
-    }));
-});
+        next()
+      })
+    }))
+})
 
 /**
  *  Changes your AWS Lambda configuration using the information
@@ -162,37 +162,37 @@ gulp.task('update-code', (next) => {
  *  @task {update-config}
  *  @order {6}
  */
-gulp.task('update-config', (next) => {
+gulp.task("update-config", (next) => {
   new AWS.Lambda({ region: lambdaConfig.Region }).updateFunctionConfiguration(lambdaConfig.ConfigOptions, function(err, data) {
     if (err){
-      console.log(clc.red('FAILED'), '-', clc.red(err.message));
-      console.log(err);
+      console.log(clc.red("FAILED"), "-", clc.red(err.message))
+      console.log(err)
     }
     else {
-      console.log(clc.green('SUCCESS'), '- lambda', clc.cyan(data.FunctionName), 'config updated');
-      console.log(data);
+      console.log(clc.green("SUCCESS"), "- lambda", clc.cyan(data.FunctionName), "config updated")
+      console.log(data)
     }
-    next();
-  });
-});
+    next()
+  })
+})
 
 /**
  *  Deletes your AWS Lambda function;
  *  @task {update-config}
  *  @order {7}
  */
-gulp.task('delete', (next) => {
-  const lambda = new AWS.Lambda({ region: lambdaConfig.Region });
+gulp.task("delete", (next) => {
+  const lambda = new AWS.Lambda({ region: lambdaConfig.Region })
   lambda.deleteFunction({ FunctionName: lambdaConfig.ConfigOptions.FunctionName }, function(err) {
     if (err){
-      console.log(clc.red('FAILED'), '-', clc.red(err.message));
-      console.log(err);
+      console.log(clc.red("FAILED"), "-", clc.red(err.message))
+      console.log(err)
     }
-    else console.log(clc.green('SUCCESS'), '- lambda deleted');
+    else console.log(clc.green("SUCCESS"), "- lambda deleted")
 
-    next();
-  });
-});
+    next()
+  })
+})
 
 /**
  *  Prints in the console all logs generated by you Lambda
@@ -200,16 +200,16 @@ gulp.task('delete', (next) => {
  *  @task {logs}
  *  @order {8}
  */
-gulp.task('logs', () => {
+gulp.task("logs", () => {
   const cwlogs = new CwLogs({
     logGroupName:`/aws/lambda/${lambdaConfig.ConfigOptions.FunctionName}`,
     region: lambdaConfig.Region,
-    momentTimeFormat: 'hh:mm:ss:SSS',
-    logFormat: 'lambda'
-  });
+    momentTimeFormat: "hh:mm:ss:SSS",
+    logFormat: "lambda"
+  })
 
-  cwlogs.start();
-});
+  cwlogs.start()
+})
 
 /**
  * Invokes the Lambda function passing tests-payload.js as
@@ -217,31 +217,31 @@ gulp.task('logs', () => {
  * @task {invoke}
  * @order {9}
  */
-gulp.task('invoke', (next) => {
-  const lambda = new AWS.Lambda({ region: lambdaConfig.Region });
+gulp.task("invoke", (next) => {
+  const lambda = new AWS.Lambda({ region: lambdaConfig.Region })
 
-  let payload;
+  let payload
   try {
-    payload = JSON.stringify(require('./test-payload.js')(argv.path || argv.p, argv.method || argv.m));
+    payload = JSON.stringify(require("./test-payload.js")(argv.path || argv.p, argv.method || argv.m))
   } catch(err) {
-    payload = null;
+    payload = null
   }
 
   lambda.invoke({
     FunctionName: lambdaConfig.ConfigOptions.FunctionName,
-    InvocationType: 'RequestResponse',
-    LogType: 'None',
+    InvocationType: "RequestResponse",
+    LogType: "None",
     Payload: payload
   }, (err, data) => {
-    if (err) return console.log(err, err.routeStack);
+    if (err) return console.log(err, err.routeStack)
     try {
-      console.log(JSON.parse(data.Payload));
+      console.log(JSON.parse(data.Payload))
     } catch (err) {
-      console.log(data.Payload);
+      console.log(data.Payload)
     }
-    next();
-  });
-});
+    next()
+  })
+})
 
 /**
  * Invokes the Lambda function LOCALLY passing tests-payload.js
@@ -249,10 +249,10 @@ gulp.task('invoke', (next) => {
  * @task {invoke-local}
  * @order {10}
  */
-gulp.task('invoke-local', (next) => {
-  process.env.NODE_ENV = 'local';
-  require('./test-local')(next);
-});
+gulp.task("invoke-local", (next) => {
+  process.env.NODE_ENV = "local"
+  require("./test-local")(next)
+})
 
 /**
  * Sets up both a Valkyrie and an Express app with the same template called scenario;
@@ -261,37 +261,37 @@ gulp.task('invoke-local', (next) => {
  * @task {start-scenario}
  * @order {11}
  */
-gulp.task('start-scenario', (next) => {
+gulp.task("start-scenario", (next) => {
   checkScenario(argv.s || argv.scenario)
     .then(scenarioName => {
       tester.startScenario(scenarioName)
         .then(data => {
-          console.log(data.scenario.status);
-          console.log(data.express.status);
-          console.log(data.valkyrie.status);
-          next();
+          console.log(data.scenario.status)
+          console.log(data.express.status)
+          console.log(data.valkyrie.status)
+          next()
         })
         .catch((err) => {
-          console.log(err);
-          next();
-        });
-    });
-});
+          console.log(err)
+          next()
+        })
+    })
+})
 
 const checkScenario = (scenarioName) => new Promise((resolve, reject) => {
-  const scenarios = fs.readdirSync('./tester/scenarios/').map(file => path.basename(file, '.js'));
+  const scenarios = fs.readdirSync("./tester/scenarios/").map(file => path.basename(file, ".js"))
   if (!scenarioName) {
-    inquirer.prompt({ type: 'list', name: 'scenario', message: 'Please specify one of the following scenarios to be initialized:', choices: scenarios })
+    inquirer.prompt({ type: "list", name: "scenario", message: "Please specify one of the following scenarios to be initialized:", choices: scenarios })
       .then(answer => resolve(answer.scenario))
-      .catch(reject);
+      .catch(reject)
   } else if(scenarios.indexOf(scenarioName) === -1){
-    console.log(`Scenario "${scenarioName}" doesn't exist!`);
+    console.log(`Scenario "${scenarioName}" doesn't exist!`)
     checkScenario()
       .then(resolve)
-      .catch(reject);
+      .catch(reject)
   }
-  else resolve(scenarioName);
-});
+  else resolve(scenarioName)
+})
 
 /**
  * Sends a request, created following a specified template called test,
@@ -299,29 +299,29 @@ const checkScenario = (scenarioName) => new Promise((resolve, reject) => {
  * scenario is active and running, if not it starts one selected by the user
  * and saves the response in files in the outputs directory;
  */
-gulp.task('start-test', (next) => {
+gulp.task("start-test", (next) => {
   checkTest(argv.t || argv.test)
     .then(testName => {
       tester.startTest(testName, argv.s || argv.scenario)
         .then(data => console.log(data))
         .catch((err) => {
-          err.message === 'Missing scenario name' ? checkScenario() : console.log(err);
-          next();
-        });
-    });
-});
+          err.message === "Missing scenario name" ? checkScenario() : console.log(err)
+          next()
+        })
+    })
+})
 
 const checkTest = (testName) => new Promise((resolve, reject) => {
-  const tests = fs.readdirSync('./tester/tests/').map(file => path.basename(file, '.json'));
+  const tests = fs.readdirSync("./tester/tests/").map(file => path.basename(file, ".json"))
   if (!testName) {
-    inquirer.prompt({ type: 'list', name: 'test', message: 'Please specify one of the following tests to be initialized:', choices: tests })
+    inquirer.prompt({ type: "list", name: "test", message: "Please specify one of the following tests to be initialized:", choices: tests })
       .then(answer => resolve(answer.test))
-      .catch(reject);
+      .catch(reject)
   } else if(tests.indexOf(testName === -1)){
-    console.log(`Test "${testName}" doesn't exist!`);
+    console.log(`Test "${testName}" doesn't exist!`)
     checkTest()
       .then(resolve)
-      .catch(reject);
+      .catch(reject)
   }
-  else resolve(testName);
-});
+  else resolve(testName)
+})

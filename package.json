@@ -17,10 +17,10 @@
   },
   "license": "ISC",
   "main": "main.js",
-  "dependencies": {},
   "devDependencies": {
     "aws-cwlogs": "2.5.0",
     "aws-sdk": "^2.292.0",
+    "babel-eslint": "^8.2.6",
     "body-parser": "^1.18.3",
     "cli-color": "^1.2.0",
     "eslint": "^5.3.0",
