@@ -10,8 +10,17 @@ module.exports = (engine, engineName, { log }) => {
     "hostname",
     "ip",
     "ips",
-    "originalUrl"
-  ].forEach(key => app.all(``, (req, res) => {
+    "originalUrl",
+    "path",
+    "protocol",
+    "query",
+    "route",
+    "secure",
+    "signedCookies",
+    "stale",
+    "subdomanins",
+    "xhr"
+  ].forEach(key => app.all(`/${key}`, (req, res) => {
     res.send(req[key])
   }))
 
