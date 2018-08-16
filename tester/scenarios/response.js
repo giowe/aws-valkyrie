@@ -72,6 +72,12 @@ module.exports = (engine, engineName) => {
     })
   })
 
+  app.get("/format", (req, res) => {
+    res.format({
+
+    })
+  })
+
   app.all("*", (req, res) => res.status(404).send("not found!"))
 
   if (engineName === "Valkyrie") console.log(app.describe())

@@ -18,6 +18,7 @@ class Response {
     this.callback = app.callback
     this.statusCode = 200
     this.headers = Object.create(null)
+    this.locals = {}
     this.req = null
     return this
   }
@@ -118,9 +119,8 @@ class Response {
     return this.set("Content-Type", contentType || "application/octet-stream")
   }
 
-  //todo TO TEST!
+  //tested
   format(obj) {
-    //todo check next in req
     const { req } = this
     const { next } = req
 
@@ -296,7 +296,7 @@ class Response {
     return this
   }
 
-  //todo! missing app.render and req.next
+  //tested
   render(view, options, callback) {
     const { app, req } = this
     let done = callback
@@ -309,7 +309,6 @@ class Response {
     }
 
     // merge res.locals
-    //todo missing locals right now
     opts._locals = this.locals
 
     // default callback to respond

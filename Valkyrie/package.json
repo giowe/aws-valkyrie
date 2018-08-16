@@ -22,6 +22,7 @@
     "depd": "^1.1.2",
     "encodeurl": "^1.0.2",
     "escape-html": "^1.0.3",
+    "merge": "^1.2.0",
     "methods": "^1.1.2",
     "mime": "^2.3.1",
     "path-to-regexp": "^2.2.1",

@@ -1,21 +1,53 @@
 const Request = require("./Request")
 const Response = require("./Response")
 const Router = require("./Router")
+const View = require("./View")
+const merge = require("merge")
+const { resolve } = require("path")
+
 const { compileETag } = require("./Utils")
 
 class Application extends Router{
   constructor(settings) {
-    super(Object.assign({
+    super(merge({
       useContextSucceed: false
     }, settings))
 
     const { get } = this
+
+    this.cache = {}
+    this.engines = {}
+
+    this.locals = Object.create(null)
+    this.locals.settings = this.settings = {}
+
+    // default settings
+    const env = process.env.NODE_ENV || "development"
+    this.set("env", env)
+    this.set("view", View)
+    this.set("views", resolve("views"))
+    this.enable("x-powered-by")
+    this.set("etag", "weak")
+
+    if (env === "production") {
+      this.enable("view cache")
+    }
+    /*
+        this.set('query parser', 'extended');
+        this.set('subdomain offset', 2);
+        this.set('trust proxy', false);
+        // trust proxy inherit back-compat
+        Object.defineProperty(this.settings, trustProxyDefaultSymbol, {
+          configurable: true,
+          value: true
+        });
+        this.mountpath = '/';
+        */
+
     this.get = (...args) => {
       if (args.length === 1 && typeof args[0] === "string") return this.settings[args[0]]
       return get(...args)
     }
-
-    this.enable("x-powered-by")
   }
 
   static Router(settings) {
@@ -66,17 +98,16 @@ class Application extends Router{
   listen(event, context, callback){
     this.context = context
     this.callback = callback
-    this.engines = {}
+
     const req = this.req = new Request(this, event)
     const res = this.res = new Response(this)
     res.req = req
     req.res = res
     if (this.enabled("x-powered-by")) res.header("x-powered-by", "Valkyrie")
-    this.set("etag", "weak")
+
     this.handleRequest(req, res)
   }
 
-  //todo work in progress
   engine(ext, fn) {
     if (typeof fn !== "function") {
       throw new Error("callback function required")
@@ -106,19 +137,19 @@ class Application extends Router{
     }
 
     // merge app.locals
-    Object.apply(renderOptions, locals)
+    merge(renderOptions, locals)
 
     // merge options._locals
     if (opts._locals) {
-      Object.apply(renderOptions, opts._locals)
+      merge(renderOptions, opts._locals)
     }
 
     // merge options
-    Object.apply(renderOptions, opts)
+    merge(renderOptions, opts)
 
     // set .cache unless explicitly provided
     if (renderOptions.cache == null) {
-      renderOptions.cache = this.enabled("view cache");
+      renderOptions.cache = this.enabled("view cache")
     }
 
     // primed cache
@@ -152,7 +183,7 @@ class Application extends Router{
     }
 
     // render
-    _tryRender(view, renderOptions, done);
+    _tryRender(view, renderOptions, done)
   }
 
   describe() {

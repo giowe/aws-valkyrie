@@ -1,10 +1,11 @@
 const availableMethods = require("methods")
 const Route = require("./Route")
+const merge = require("merge")
 const { flatten } = require("./Utils")
 
 class Router {
   constructor(settings) {
-    this.settings = Object.assign({
+    this.settings = merge({
       useContext: true,
       sensitive: false, //When true the path will be case sensitive
       strict: false,    //When false the trailing slash is optional
@@ -49,7 +50,7 @@ class Router {
     }
     res.header("content-type", "text/html")
     if (!err) res.status(404).send(_htmlTemplate("Error", `<pre>Cannot ${req.method.toUpperCase()} ${req.path}</pre>`))
-    else res.status(500).send(_htmlTemplate("Error", `<pre>${err.stack}</pre>`))
+    else res.status(err.status || err.statusCode || 500).send(_htmlTemplate("Error", `<pre>${err.stack}</pre>`))
   }
 
   describe(mountPath = "", level = 0) {

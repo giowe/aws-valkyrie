@@ -6,14 +6,14 @@ function _acceptParams(str, index) {
   const parts = str.split(/ *; */)
   const ret = { value: parts[0], quality: 1, params: {}, originalIndex: index }
 
-  ret.forEach(e => {
-    const pms = e.split(/ *= */)
+  for (let i = 1; i < parts.length; ++i) {
+    const pms = parts[i].split(/ *= */);
     if ("q" === pms[0]) {
-      ret.quality = parseFloat(pms[1])
+      ret.quality = parseFloat(pms[1]);
     } else {
-      ret.params[pms[0]] = pms[1]
+      ret.params[pms[0]] = pms[1];
     }
-  })
+  }
 
   return ret
 }
