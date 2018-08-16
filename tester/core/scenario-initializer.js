@@ -1,5 +1,6 @@
 const express = require("express")
 const valkyrie = require("../../Valkyrie/Valkyrie")
+const utils = require("./utils")
 const formatter = require("express2apigateway")
 /**
  * Sets up both a Valkyrie and an Express app with the same template called scenario;
@@ -13,8 +14,8 @@ module.exports = (scenarioName) => new Promise((resolve, reject) => {
   } catch (err) {
     return reject(`Scenario "${scenarioName}" not found;`)
   }
-  const expressApp = scenario(express, "express")
-  const valkyrieApp = scenario(valkyrie, "valkyrie")
+  const expressApp = scenario(express, "express", utils("express"))
+  const valkyrieApp = scenario(valkyrie, "valkyrie", utils("valkyrie"))
 
   expressApp.listen(8888, () => {
     const call = (event) => new Promise((resolve, reject) => {
@@ -62,7 +63,6 @@ module.exports = (scenarioName) => new Promise((resolve, reject) => {
         status: "Valkyrie listening on port 9999",
         call
       }
-
     })
   })
 })

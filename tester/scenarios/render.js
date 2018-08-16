@@ -7,7 +7,6 @@ module.exports = (engine, engineName) => {
   app.set("views", __dirname)
 
   app.all("/render", (req, res) => {
-    console.log(req.next)
     res.render("render", { title: "Hey", message: "Hello there!" })
   })
 

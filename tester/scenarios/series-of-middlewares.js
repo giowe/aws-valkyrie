@@ -1,6 +1,4 @@
 /* eslint-disable no-console */
-"use strict"
-
 module.exports = (engine, engineName) => {
   const app = new engine()
 
@@ -14,6 +12,10 @@ module.exports = (engine, engineName) => {
   r2.get("/", (req, res, next) => {
     res.header("r2", true)
     next()
+  })
+
+  r2.get("/", (req, res) => {
+    res.sendStatus(200)
   })
 
   app.use("/router", r1, r2)

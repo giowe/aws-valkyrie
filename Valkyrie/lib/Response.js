@@ -62,8 +62,15 @@ class Response {
     if (!req.method === "HEAD" || !is204or304) {
       const type = this.get("Content-Type")
       if (typeof body !== "string") {
-        body = stringify(body)
-        if (!type) this.type("bin")
+        if (body === null) {
+          body = ""
+        } else if (Buffer.isBuffer(body)) {
+          if (!this.get("Content-Type")) {
+            this.type("bin")
+          }
+        } else {
+          return this.json(body)
+        }
       } else if (!type) {
         this.type("html")
       } else {
@@ -92,7 +99,7 @@ class Response {
     }
 
     // freshness
-    //if (req.fresh) this.statusCode = 304;//todo missing req.fresh
+    if (req.fresh) this.statusCode = 304
 
     const response = { statusCode, headers, body }
 

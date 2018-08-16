@@ -1,6 +1,27 @@
 /* eslint-disable no-console */
-module.exports = (engine, engineName) => {
+module.exports = (engine, engineName, { log }) => {
   const app = new engine()
+
+  ;[
+    "baseUrl",
+    "body",
+    "cookies",
+    "fresh",
+    "hostname",
+    "ip",
+    "ips",
+    "originalUrl"
+  ].forEach(key => app.all(``, (req, res) => {
+    res.send(req[key])
+  }))
+
+  app.all("/send", (req, res) => {
+    res.send(Buffer.from("fhqwhgads", "utf16le"))
+  })
+
+  app.all("/params/:param1/:param2", (req, res) => {
+    res.send(req.params)
+  })
 
   app.all("/accepts/:type", (req, res) => {
     res.send(req.accepts(req.params.type))
