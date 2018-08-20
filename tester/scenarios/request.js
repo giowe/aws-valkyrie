@@ -18,9 +18,10 @@ module.exports = (engine, engineName, { log }) => {
     "secure",
     "signedCookies",
     "stale",
-    "subdomanins",
+    "subdomains",
     "xhr"
   ].forEach(key => app.all(`/${key}`, (req, res) => {
+    //res.set("content-type", "text/html")
     res.send(req[key])
   }))
 

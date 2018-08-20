@@ -95,7 +95,8 @@ class Application extends Router{
     return this
   }
 
-  listen(event, context, callback){
+  listen(event, context, callback) {
+    
     this.context = context
     this.callback = callback
 

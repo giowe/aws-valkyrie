@@ -62,7 +62,7 @@ class Response {
     if (!req.method === "HEAD" || !is204or304) {
       const type = this.get("Content-Type")
       if (typeof body !== "string") {
-        if (body === null) {
+        if (body === null || body === undefined) {
           body = ""
         } else if (Buffer.isBuffer(body)) {
           if (!this.get("Content-Type")) {
@@ -94,9 +94,10 @@ class Response {
     const generateETag = app.get("etag fn")
     if (typeof generateETag === "function" && !this.get("ETag")) {
       if ((etag = generateETag(body, "utf-8"))) {
-        this.set("ETag", etag)
+        this.set("etag", etag)
       }
     }
+    this.set("date", new Date())
 
     // freshness
     if (req.fresh) this.statusCode = 304

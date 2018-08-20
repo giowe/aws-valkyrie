@@ -61,7 +61,7 @@ module.exports.htmlFormatter = (data) => {
         getContentType(response.valkyrie.headers) && getContentType(response.valkyrie.headers).includes("application/json"))) {
         html.push(`>${(typeof valueValkyrie === "object" ? pretty(valueValkyrie, 2) : pretty(JSON.parse(valueValkyrie), 2)).replace(/</g, "&lt;").replace(/>/g, "&gt;")}`)
       } else {
-        html.push(`>${valueValkyrie.toString().replace(/[\u00A0-\u9999<>\&]/gim, (i) => {
+        html.push(`>${valueValkyrie.toString().replace(/[\u00A0-\u9999<>&]/gim, (i) => {
           return `&#${i.charCodeAt(0)};`
         })}`)
       }
