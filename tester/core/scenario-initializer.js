@@ -1,7 +1,8 @@
 const express = require("express")
 const valkyrie = require("../../Valkyrie/Valkyrie")
 const utils = require("./utils")
-const formatter = require("express2apigateway")
+const apigatewayProxyLocal = require("aws-apigateway-proxy-local")
+//const formatter = require("express2apigateway")
 /**
  * Sets up both a Valkyrie and an Express app with the same template called scenario;
  * @param scenarioName
@@ -14,55 +15,28 @@ module.exports = (scenarioName) => new Promise((resolve, reject) => {
   } catch (err) {
     return reject(`Scenario "${scenarioName}" not found;`)
   }
+
   const expressApp = scenario(express, "express", utils("express"))
   const valkyrieApp = scenario(valkyrie, "valkyrie", utils("valkyrie"))
 
-  expressApp.listen(8888, () => {
-    const call = (event) => new Promise((resolve, reject) => {
-      const _fail = (err) => reject(err)
-      const _succeed = (data) => resolve(data)
-      const _done = (err, data) => {
-        if (err) _fail(err)
-        else _succeed(data)
-      }
-      const context = {
-        fail: _fail,
-        succeed: _succeed,
-        done: _done
-      }
-      const callback = (err, data) => {
-        if (err) _fail(err)
-        else _succeed(data)
-      }
+  const expressPort = 9999
+  const valkyriePort = 8888
 
-      valkyrieApp.listen(event, context, callback)
-    })
+  expressApp.listen(expressPort, () => {
+    console.log(`Express listening on port ${expressPort}`)
+  })
 
-    const expressWrapper = new express()
-    expressWrapper.listen(9999)
+  apigatewayProxyLocal((...args) => valkyrieApp.listen(...args), {
+    port: valkyriePort,
+    listeningMessage: `Valkyrie listening on port ${valkyriePort}`
+  })
 
-    expressWrapper.all("*", (req, res) => {
-      call(formatter(req))
-        .then(({ statusCode, headers, body }) => {
-          Object.entries(headers).forEach(([key, value]) => {
-            res.set(key, value)
-          })
-          res.status(statusCode).send(body)
-        })
-        .catch(err => res.send(err))
-    })
-
-    resolve({
-      express: {
-        app: expressApp,
-        status: "Express listening on port 8888"
-      },
-      valkyrie: {
-        app: valkyrieApp,
-        expressWrapper,
-        status: "Valkyrie listening on port 9999",
-        call
-      }
-    })
+  resolve({
+    express: {
+      app: expressApp
+    },
+    valkyrie: {
+      app: valkyrieApp
+    }
   })
 })

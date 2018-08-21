@@ -1,12 +1,9 @@
-/* eslint-disable no-console */
 const bodyParser = require("body-parser")
 const express = require("express")
 const request = require("request")
-const fs = require("fs")
-const formatter = require("express2apigateway")
-const path = require("path")
+const { mkdirSync, writeFileSync } = require("fs")
+const { join } = require("path")
 const pretty = require("js-object-pretty-print").pretty
-
 const { htmlFormatter } = require("./formatter")
 
 /**
@@ -24,31 +21,29 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
       app.use(express.static(__dirname))
       app.get("/scenario", (req, res) => res.json({ scenarioName }))
       app.all("*", (req, res) => {
-        const formattedReq = formatter(req)
         const { headers, method, originalUrl } = req
         Promise.all([
-          new Promise((resolve, reject) => {
+          {
+
+          },
+          ...[8888, 9999].map(port => new Promise((resolve, reject) => {
             request({
-              url: `http://localhost:8888${originalUrl}`,
+              url: `http://localhost:${port}${originalUrl}`,
               method,
               headers
             }, (error, response, body) => {
               if (error) return reject(error)
               resolve({
-                response:{
-                  statusCode: response.statusCode,
-                  headers:response.headers,
-                  body
-                },
-                request: formattedReq
+                statusCode: response.statusCode,
+                headers:response.headers,
+                body
               })
             })
-          }),
-          scenario.valkyrie.call(formattedReq)
+          }))
         ])
-          .then(data => {
-            res.header("json-format-response", JSON.stringify(Object.assign({}, { request: data[0].request, response: { express: data[0].response, valkyrie: data[1] } })))
-            res.send(htmlFormatter(Object.assign({}, { request: data[0].request, response: { express: data[0].response, valkyrie: data[1] } })))
+          .then(([request, valkyrie, express]) => {
+            //res.header("json-format-response", JSON.stringify(Object.assign({}, { response: { express, valkyrie } })))
+            res.send(htmlFormatter({ request, response: { valkyrie, express } }))
           })
           .catch(err => {
             reject(err)
@@ -64,7 +59,7 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
         valkyrie: scenario.valkyrie,
         scenario: {
           app,
-          status: `${scenarioName} is listening on port 8080`
+          status: `"${scenarioName}" scenario is listening on port 8080`
         }
       }))
     })
@@ -101,10 +96,10 @@ const startTest = (testName, scenarioName) => new Promise((resolve, reject) => {
     .then(() => {
       request(test, (error, response, body) => {
         if(error) return error
-        try { fs.mkdirSync(path.join(__dirname, "../outputs")) } catch(ignore) {}
+        try { mkdirSync(join(__dirname, "../outputs")) } catch(ignore) {}
         const jsonFormat = pretty(JSON.parse(response.headers["json-format-response"]))
-        fs.writeFileSync(path.join(__dirname, "../outputs/test.html"), body)
-        fs.writeFileSync(path.join(__dirname, "../outputs/test.json"), jsonFormat)
+        writeFileSync(join(__dirname, "../outputs/test.html"), body)
+        writeFileSync(join(__dirname, "../outputs/test.json"), jsonFormat)
         resolve(jsonFormat)
       })
     })
