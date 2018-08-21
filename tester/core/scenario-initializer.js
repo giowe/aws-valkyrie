@@ -22,21 +22,31 @@ module.exports = (scenarioName) => new Promise((resolve, reject) => {
   const expressPort = 9999
   const valkyriePort = 8888
 
-  expressApp.listen(expressPort, () => {
-    console.log(`Express listening on port ${expressPort}`)
-  })
+  Promise.all([
+    new Promise(resolve => {
+      expressApp.listen(expressPort, () => {
+        console.log(`Express listening on port ${expressPort}`)
+        resolve()
+      })
+    }),
 
-  apigatewayProxyLocal((...args) => valkyrieApp.listen(...args), {
-    port: valkyriePort,
-    listeningMessage: `Valkyrie listening on port ${valkyriePort}`
-  })
-
-  resolve({
-    express: {
-      app: expressApp
-    },
-    valkyrie: {
-      app: valkyrieApp
-    }
-  })
+    new Promise(resolve => {
+      apigatewayProxyLocal((...args) => valkyrieApp.listen(...args), {
+        port: valkyriePort,
+        listeningMessage: `Valkyrie listening on port ${valkyriePort}`
+      })
+      resolve()
+    })
+  ])
+    .then(() => {
+      resolve({
+        express: {
+          app: expressApp
+        },
+        valkyrie: {
+          app: valkyrieApp
+        }
+      })
+    })
+    .catch(reject)
 })

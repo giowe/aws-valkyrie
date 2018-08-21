@@ -265,16 +265,8 @@ gulp.task("start-scenario", (next) => {
   checkScenario(argv.s || argv.scenario)
     .then(scenarioName => {
       tester.startScenario(scenarioName)
-        .then(data => {
-          console.log(data.scenario.status)
-          console.log(data.express.status)
-          console.log(data.valkyrie.status)
-          next()
-        })
-        .catch((err) => {
-          console.log(err)
-          next()
-        })
+        .then(() => next())
+        .catch(next)
     })
 })
 

@@ -21,10 +21,13 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
       app.use(express.static(__dirname))
       app.get("/scenario", (req, res) => res.json({ scenarioName }))
       app.all("*", (req, res) => {
-        const { headers, method, originalUrl } = req
+        const { headers, method, originalUrl, body } = req
         Promise.all([
           {
-
+            originalUrl,
+            method,
+            headers,
+            body
           },
           ...[8888, 9999].map(port => new Promise((resolve, reject) => {
             request({
@@ -42,7 +45,7 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
           }))
         ])
           .then(([request, valkyrie, express]) => {
-            //res.header("json-format-response", JSON.stringify(Object.assign({}, { response: { express, valkyrie } })))
+            res.header("json-format-response", JSON.stringify({ response: { express, valkyrie } }))
             res.send(htmlFormatter({ request, response: { valkyrie, express } }))
           })
           .catch(err => {
@@ -54,14 +57,14 @@ const startScenario = (scenarioName) => new Promise((resolve, reject) => {
           })
       })
 
-      app.listen(8080, () => resolve({
-        express: scenario.express,
-        valkyrie: scenario.valkyrie,
-        scenario: {
-          app,
-          status: `"${scenarioName}" scenario is listening on port 8080`
-        }
-      }))
+      app.listen(8080, () => {
+        console.log(`"${scenarioName}" scenario is listening on port 8080`)
+        resolve({
+          express: scenario.express,
+          valkyrie: scenario.valkyrie,
+          scenario: app
+        })
+      })
     })
     .catch(reject)
 })

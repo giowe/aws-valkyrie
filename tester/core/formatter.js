@@ -17,7 +17,7 @@ const statusColor = statusCode => {
 
 module.exports.htmlFormatter = data => {
   const { request, response: { express, valkyrie } } = data
-  console.log(express, valkyrie)
+
   const html = [
     "<!DOCTYPE html><html><head><title>Valkyrie Tester</title><meta charset=\"UTF-8\"></head><body>",
     `<script>console.log(\`${pretty(data)}\`);</script>`,
