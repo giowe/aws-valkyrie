@@ -1,7 +1,7 @@
 const availableMethods = require("methods")
 const pathToRegexp = require("path-to-regexp")
 const Layer = require("./Layer")
-const { flatten } = require("./Utils")
+const { flatten, urlJoin } = require("./Utils")
 
 class Route {
   constructor(router, methods, paths, fns) {
@@ -29,7 +29,9 @@ class Route {
       for (let i = 0; i < l; i ++) {
         fullPath = mountPath.concat(paths[i])
         matchPath = _matchPath(this, req, fullPath)
-        if (matchPath) break
+        if (matchPath) {
+          break
+        }
       }
 
       const layer = layers[layerIndex]
@@ -41,33 +43,33 @@ class Route {
   }
 
   describe(mountPath = "", level = 0) {
-    const fullPaths = this.paths.map(path => _urlJoin(mountPath, path))
+    const fullPaths = this.paths.map(path => urlJoin(mountPath, path))
     return this.layers.reduce((acc, layer) => `${acc}\n${layer.describe(fullPaths, level)}`, `${" ".repeat(1 + (level * 2))}Route ${fullPaths.join(", ")}`)
   }
 }
 
 module.exports = Route
 
-function _urlJoin(...paths) {
-  return flatten(paths).reduce((acc, path) => {
-    if (!path) return acc
-    if (path[0] === "/") path = path.substr(1)
-    return `${acc}${(!acc && path === "*") || [acc[acc.length - 1], path[0]].includes("/") ? "" : "/"}${path}`
-  }, "")
-}
 
 function _matchMethod(self, req) {
   const { methods } = self
-  if (methods.use || methods.all) return true
+
+  if (methods.use || methods.all) {
+    return true
+  }
+
   let { method } = req
-  if (method === "head" && !methods.head) method = "get"
+  if (method === "head" && !methods.head) {
+    method = "get"
+  }
+
   return methods[method]
 }
 
 /*function _getFullMatchingPath(self, req, mountPath, paths) {
   const l = paths.length;
   for (let i = 0; i < l; i ++) {
-    const fullPath = _urlJoin(mountPath, paths[i]);
+    const fullPath = urlJoin(mountPath, paths[i]);
     const matchPath = _matchPath(self, req, fullPath);
     if (matchPath) return { fullPath, matchPath };
   }
@@ -88,11 +90,24 @@ function _getPathRegex(path, settings) {
 }
 
 function _matchPath(self, req, paths) {
-  const path = _urlJoin(paths)
+  const path = urlJoin(paths)
   if (path === "*") return true
   const [regex, keys] = _getPathRegex(path, self.router.settings)
-  const m = regex.exec(!self.methods.use ? req.path : req.path.substr(0, req.path.split("/", path.replace(/\/$/).split("/").length).join("/").length))
-  if (!m) return false
+  if (self.methods.use) {
+    console.log("qui", paths, path.replace(/\/$/, ""))
+    console.log("num", req.path.split("/", path.replace(/\/$/).split("/").length).join("/").length)
+    console.log("req.path", req.path.substr(0, 0))
+    console.log(req.path.substr(0, req.path.split("/", path.replace(/\/$/, "").split("/").length).join("/").length))
+  }
+  const m = regex.exec(!self.methods.use ?
+    req.path :
+    req.path.substr(0, req.path.split("/", path.replace(/\/$/, "").split("/").length).join("/").length)
+  )
+
+  if (!m) {
+    return false
+  }
+
   keys.forEach((key, i) => {
     const param = m[i + 1]
     if (param){

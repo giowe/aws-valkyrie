@@ -55,6 +55,20 @@ module.exports = class Utils {
     )
   }
 
+  static urlJoin(...paths) {
+    return Utils.flatten(paths).reduce((acc, path) => {
+      if (!path) {
+        return acc
+      }
+
+      if (path[0] === "/") {
+        path = path.substr(1)
+      }
+
+      return `${acc}${(!acc && path === "*") || [acc[acc.length - 1], path[0]].includes("/") ? "" : "/"}${path}`
+    }, "")
+  }
+
   static normalizeType(type) {
     return ~type.indexOf("/") ?
       _acceptParams(type) :
