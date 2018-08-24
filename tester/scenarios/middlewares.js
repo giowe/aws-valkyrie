@@ -2,22 +2,21 @@
 module.exports = (engine, engineName) => {
   const app = new engine()
   const router = engine.Router()
+  const router2 = engine.Router()
 
   app.use((req, res, next) => {
-    res.header("middleware", "ok")
-    console.log(engineName, "fist middleware")
+    res.header("fist-middleware", "ok")
     next()
-    //res.send("ciao")
   })
 
-  app.use("/te/:xxx", (req, res, next) => {
-    console.log("middle", engineName, req.params.xxx)
-    //console.log(engineName, "test middleware xxx")
+  app.use("/te/:xxx", ({ params: { xxx } }, res, next) => {
+    res.header("second-middleware", xxx)
     next()
   })
 
   app.use("/test", (req, res, next) => {
-    //console.log(engineName, "test middleware")
+    res.header("fist-middleware", "ok")
+    console.log(engineName, "test middleware")
     next()
   })
   app.get("/test/1", (req, res, next) => res.send("test1"))
@@ -26,9 +25,18 @@ module.exports = (engine, engineName) => {
     res.send("router")
   })
 
+  router2.get("/", (req, res, next) => {
+    res.header("router2", "ok")
+    next()
+  }, (req, res) => {
+    res.send("router2")
+  })
+
+  router.use("/2", router2)
+
   app.get("/", (req, res) => res.send("middlewares"))
   app.use("/router", (req, res, next) => {
-    console.log(engineName)
+    res.header("router", "ok")
     next()
   }, router)
 
