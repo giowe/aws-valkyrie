@@ -123,7 +123,6 @@ class Application extends Router{
     return this
   }
 
-  //todo work in progress
   render(name, options, callback) {
     const { cache, engines, locals } = this
     const renderOptions = {}
