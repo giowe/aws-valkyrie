@@ -1,7 +1,7 @@
 const availableMethods = require("methods")
 const pathToRegexp = require("path-to-regexp")
 const Layer = require("./Layer")
-const { flatten, urlJoin } = require("./Utils")
+const { urlJoin } = require("./Utils")
 
 class Route {
   constructor(router, methods, paths, fns) {
@@ -50,7 +50,6 @@ class Route {
 
 module.exports = Route
 
-
 function _matchMethod(self, req) {
   const { methods } = self
 
@@ -65,16 +64,6 @@ function _matchMethod(self, req) {
 
   return methods[method]
 }
-
-/*function _getFullMatchingPath(self, req, mountPath, paths) {
-  const l = paths.length;
-  for (let i = 0; i < l; i ++) {
-    const fullPath = urlJoin(mountPath, paths[i]);
-    const matchPath = _matchPath(self, req, fullPath);
-    if (matchPath) return { fullPath, matchPath };
-  }
-  return { fullPath: null, matchPath: false };
-}*/
 
 const _regexCache = {}
 function _getPathRegex(path, settings) {
@@ -93,15 +82,10 @@ function _matchPath(self, req, paths) {
   const path = urlJoin(paths)
   if (path === "*") return true
   const [regex, keys] = _getPathRegex(path, self.router.settings)
-  if (self.methods.use) {
-    console.log("qui", paths, path.replace(/\/$/, ""))
-    console.log("num", req.path.split("/", path.replace(/\/$/).split("/").length).join("/").length)
-    console.log("req.path", req.path.substr(0, 0))
-    console.log(req.path.substr(0, req.path.split("/", path.replace(/\/$/, "").split("/").length).join("/").length))
-  }
+
   const m = regex.exec(!self.methods.use ?
-    req.path :
-    req.path.substr(0, req.path.split("/", path.replace(/\/$/, "").split("/").length).join("/").length)
+    urlJoin(req.path, "/") :
+    urlJoin(req.path.split("/").slice(0, path.replace(/\/$/, "").split("/").length), "/")
   )
 
   if (!m) {
