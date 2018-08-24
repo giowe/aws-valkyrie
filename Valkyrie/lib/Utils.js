@@ -2,22 +2,6 @@ const mime = require("mime")
 const contentType = require("content-type")
 const etag = require("etag")
 
-function _acceptParams(str, index) {
-  const parts = str.split(/ *; */)
-  const ret = { value: parts[0], quality: 1, params: {}, originalIndex: index }
-
-  for (let i = 1; i < parts.length; ++i) {
-    const pms = parts[i].split(/ *= */);
-    if ("q" === pms[0]) {
-      ret.quality = parseFloat(pms[1]);
-    } else {
-      ret.params[pms[0]] = pms[1];
-    }
-  }
-
-  return ret
-}
-
 module.exports = class Utils {
   static setCharset(type, charset) {
     if (!type || !charset) {
@@ -110,4 +94,20 @@ module.exports = class Utils {
 
     return fn
   }
+}
+
+function _acceptParams(str, index) {
+  const parts = str.split(/ *; */)
+  const ret = { value: parts[0], quality: 1, params: {}, originalIndex: index }
+
+  for (let i = 1; i < parts.length; ++i) {
+    const pms = parts[i].split(/ *= */)
+    if ("q" === pms[0]) {
+      ret.quality = parseFloat(pms[1])
+    } else {
+      ret.params[pms[0]] = pms[1]
+    }
+  }
+
+  return ret
 }
