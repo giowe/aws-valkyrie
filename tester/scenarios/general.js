@@ -1,6 +1,4 @@
 /* eslint-disable no-console */
-"use strict"
-
 module.exports = (engine, engineName) => {
   const app = new engine()
   const router = engine.Router()
@@ -63,12 +61,12 @@ module.exports = (engine, engineName) => {
   app.get("/tests-next", (req, res) => {
     res.send("this is the next tests route")
   })
-  //todo gestire eventualmente url multipli
-  /*app.use(['/route', ['/route2', '/route3']], (req, res, next) => {
-   console.log('sto qui');
-   next();
-   });
-   */
+
+  app.use(["/route", ["/route2", "/route3"]], (req, res, next) => {
+    res.header("multi-url", true)
+    next()
+  })
+
   app.route("/route")
     .get((req, res) => {
       res.send("this is route in get")
@@ -120,7 +118,7 @@ module.exports = (engine, engineName) => {
   //router.use('/router2', router2);
 
   app.all("*", (req, res, next) => {
-    console.log("sono nel catchall")
+    console.log("catchall")
     res.status(404).send("not found!")
   })
 
