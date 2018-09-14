@@ -4,7 +4,12 @@ module.exports = (engine, engineName) => {
 
   app.get("/", (req, res) => res.send("recursion test"))
 
-  for (let i = 0; i < 600; i++) {
+  for (let i = 0; i < 500; i++) {
+    app.use("/other", (req, res, next) => {
+      res.set(`other${i}`, "ok")
+      next()
+    })
+
     app.use("/recursion", (req, res, next) => {
       if (i === 0) {
         req.start = new Date().getTime()
