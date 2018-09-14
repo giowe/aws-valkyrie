@@ -59,7 +59,7 @@ class Response {
     if (headersSent) throw new Error("Response already sent;")
 
     const is204or304 = [204, 304].includes(statusCode)
-    if (!req.method === "HEAD" || !is204or304) {
+    if (req.method !== "HEAD" || !is204or304) {
       const type = this.get("Content-Type")
       if (typeof body !== "string") {
         if (body === null || body === undefined) {
