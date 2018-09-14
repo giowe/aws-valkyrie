@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-"use strict"
 
 module.exports = (engine, engineName) => {
   const app = new engine()

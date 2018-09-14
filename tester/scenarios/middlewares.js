@@ -4,6 +4,8 @@ module.exports = (engine, engineName) => {
   const router = engine.Router()
   const router2 = engine.Router()
 
+  app.get("/home", (req, res) => res.send("test"))
+
   app.use((req, res, next) => {
     res.header("fist-middleware", "ok")
     next()
